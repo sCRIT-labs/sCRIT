@@ -64,7 +64,7 @@ export function ProductBento() {
 
           <ScrollReveal type="fade" delayMs={360}>
             <p className="ondo-products-sub">
-              A set of onchain products bridging physical LBMA-accredited vault reserves and global decentralized finance.
+              A pilot token launch flow alongside a proposed index design. Physical custody and reserve operations are not yet established.
             </p>
           </ScrollReveal>
         </div>
@@ -93,19 +93,19 @@ export function ProductBento() {
 
               <p className="ondo-bento-product-desc" style={{ minHeight: "56px", transition: "all 0.3s ease" }}>
                 {selectedProduct === "index" &&
-                  "The benchmark index token backed by allocated physical LBMA Gold (60%), Fine Silver (25%), and Platinum (15%) held in accredited Swiss custody vaults with EIP-712 attestations."}
+                  "Proposed index design with target weights of 60% gold, 25% silver, and 15% platinum. The pilot has no contracted vault custody, on-chain reserve manager, peg, or redemption."}
                 {selectedProduct === "raila" &&
-                  "Community & project launchpad where every token is paired against sCRIT. 1% issuance fee and 75% of swap tolls automatically convert into physical bullion accumulation."}
+                  "Pilot launchpad for TOKEN/sCRIT pools. No Rail A issuance fee or project-pool swap tax is active; proposed future fee routing is not implemented."}
                 {selectedProduct === "railb" &&
-                  "Central limit order book for individually certified, high-value non-fungible lots (certified diamonds, assay-stamped scandium ingots) fractionalized into 100 units."}
+                  "Planned product only. A physical-lot order book, certification flow, and fractionalized lots are not implemented in this repository."}
               </p>
 
               <div className="ondo-bento-badge-row">
                 <span className="ondo-bento-tag">
-                  {selectedProduct === "index" ? "LBMA 60/25/15" : selectedProduct === "raila" ? "Locked to sCRIT" : "100 Units / Lot"}
+                  {selectedProduct === "index" ? "TARGET 60/25/15" : selectedProduct === "raila" ? "TOKEN / sCRIT" : "PLANNED"}
                 </span>
                 <span className="ondo-bento-tag">
-                  {selectedProduct === "index" ? "EIP-712 Attested" : selectedProduct === "raila" ? "75% Fee to Reserves" : "GIA / Assay Certified"}
+                  {selectedProduct === "index" ? "OFF-CHAIN RECORDS" : selectedProduct === "raila" ? "0% PILOT TAX" : "NOT LIVE"}
                 </span>
               </div>
 

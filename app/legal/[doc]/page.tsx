@@ -21,7 +21,7 @@ const DOCS: Record<string, LegalDoc> = {
       {
         heading: "2. Rail A Issuance & Swap Mechanics",
         content:
-          "Approved pilot issuers can use Rail A to create a token and initialize a TOKEN / sCRIT liquidity pool. The current flow charges a 1% issuance fee on the contributed sCRIT and the pilot swap tax is 0%. A 2.5% tax with a proposed 75% reserve / 25% operations split is a future target subject to audit; it is not active and does not automatically purchase bullion.",
+          "A wallet must be approved in the pilot service registry and separately allowlisted by the launcher owner before it can use Rail A to create a token and initialize a TOKEN / sCRIT liquidity pool. Rail A has no issuance fee in the pilot and project-pool swap tax is 0%. A proposed 2.5% tax and 75% reserve / 25% operations split are inactive future options; they do not automatically purchase bullion.",
       },
       {
         heading: "3. Non-Commodity Claim Separation",
@@ -57,7 +57,7 @@ const DOCS: Record<string, LegalDoc> = {
       {
         heading: "4. Custody & Dual-Key Protocol",
         content:
-          "The pilot registry contains a demo custodian key scoped to Au, Ag, and Pt. The interface does not establish a contracted vault relationship or independent physical audit. Attestation signatures are checked by the pilot service; reserve figures shown in the interface are derived from off-chain records, not a reserve smart contract.",
+          "Custodian entries in the pilot are demo-level records scoped to Au, Ag, or Pt. The interface does not establish a contracted vault relationship or independent physical audit. Attestation signatures are checked by the pilot service; reserve figures shown in the interface are derived from off-chain records, not a reserve smart contract.",
       },
     ],
   },
@@ -68,17 +68,22 @@ const DOCS: Record<string, LegalDoc> = {
       {
         heading: "1. Onchain Records",
         content:
-          "Blockchain transactions (including token deployment, fee transfers, and liquidity additions) are public on the selected chain. Pilot attestation records are submitted to an off-chain service and are not themselves reserve contract transactions.",
+          "Blockchain transactions (including token deployment and liquidity additions) are public on the selected chain. Pilot attestation records are submitted to a PostgreSQL-backed off-chain service and are not themselves reserve contract transactions.",
       },
       {
         heading: "2. Off-Chain Contact Information",
         content:
-          "The pilot interface currently has no newsletter signup. AP application contact details may be submitted to the pilot API; its current storage is in-memory and is not a production data-retention service. Do not submit sensitive personal information through this pilot interface.",
+          "The pilot interface currently has no newsletter signup. AP application contact details may be submitted to the pilot API and stored in PostgreSQL for diligence. Do not submit sensitive personal information; contact the project operator for data access or deletion requests.",
       },
       {
         heading: "3. Telemetry & Analytics",
         content:
-          "The sCRIT interface does not include a newsletter signup. The current pilot API uses process memory for its records; it is not a production data-retention system. Avoid submitting sensitive personal information.",
+          "The sCRIT interface does not include a newsletter signup. Operational records are stored in a PostgreSQL database configured by the operator. Avoid submitting sensitive personal information.",
+      },
+      {
+        heading: "4. Pilot Guide Prompts",
+        content:
+          "Questions entered into the pilot guide are sent to the model provider configured by the operator and are not stored by the sCRIT application. The provider may process data under its own terms. Do not enter personal information, wallet secrets, or seed phrases.",
       },
     ],
   },

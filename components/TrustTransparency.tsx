@@ -7,28 +7,28 @@ import { usePinnedProgress, useScrollIndex } from "@/hooks/usePinnedProgress";
 const PILLARS = [
   {
     num: "01",
-    title: "Allocated Bullion Backing",
-    desc: "100% physically allocated LBMA Good Delivery gold (60%), fine silver (25%), and platinum (15%) stored in bonded, segregated vaults."
+    title: "Target Basket",
+    desc: "The pilot design targets 60% gold, 25% silver, and 15% platinum. No allocated inventory is established by this page."
   },
   {
     num: "02",
-    title: "EIP-712 Scoped Attestation",
-    desc: "Custodians sign typed EIP-712 payloads with commodity-specific scopes. A gold vault key cannot sign for silver or platinum."
+    title: "Scoped EIP-712 Records",
+    desc: "The service checks signatures from registered keys against commodity scopes before accepting a batch record."
   },
   {
     num: "03",
-    title: "Reserve Sourcing Integrity",
-    desc: "Reserve figures increase only upon physical bar delivery. Unspent trading taxes sit in a separately disclosed treasury balance."
+    title: "Off-Chain Reserve View",
+    desc: "Reported mass and NAV are derived from accepted service records; physical delivery is not independently proved by this software."
   },
   {
     num: "04",
-    title: "Independent Bar-Count Audits",
-    desc: "Periodic physical inspections by certified third-party assayers matching serial hallmarks against public on-chain certificates."
+    title: "Physical Audit",
+    desc: "No independent physical audit report is currently represented in this repository."
   },
   {
     num: "05",
-    title: "Honest Market Pricing & NAV",
-    desc: "Continuous live tracking of market premium and discount to NAV, giving traders full transparency over pool liquidity dynamics."
+    title: "Manual Price Inputs",
+    desc: "Commodity inputs are entered manually and marked stale after 24 hours. They are not a live oracle or market quote."
   }
 ];
 
@@ -48,16 +48,16 @@ export function TrustTransparency() {
         {/* Header with Masked Text Reveal */}
         <div className="ondo-trust-header">
           <ScrollReveal type="fade" delayMs={50}>
-            <span className="ondo-trust-eyebrow">Proof of Backing &amp; Custody</span>
+            <span className="ondo-trust-eyebrow">Pilot Evidence &amp; Open Work</span>
           </ScrollReveal>
 
           <h2 className="ondo-trust-heading">
             <ScrollReveal type="move" delayMs={100}>
-              <span>Physical Commodity Backing,</span>
+              <span>Reserve Design,</span>
             </ScrollReveal>
             <br />
             <ScrollReveal type="move" delayMs={240}>
-              <span>Cryptographic Proof</span>
+              <span>Evidence, and Limits</span>
             </ScrollReveal>
           </h2>
           <div className="pinned-bar" aria-hidden="true" style={{ height: 2, marginTop: 16, background: "var(--gold-bright)" }} />

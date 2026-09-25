@@ -322,7 +322,7 @@ export function HeroScroll() {
               margin: 0,
             }}
           >
-            sCRIT is the commodity-backed index launchpad. Every token pairs exclusively with sCRIT — backed by a physical reserve of LBMA Gold, Silver, and Platinum verified on-chain by custodian attestations.
+            sCRIT is a proposed commodity-index token and launchpad. Rail A pairs project tokens with sCRIT; the pilot basket weights are targets, and service-checked attestations remain off-chain. There is no peg or redemption.
           </p>
         </div>
 

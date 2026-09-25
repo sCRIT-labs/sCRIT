@@ -4,7 +4,6 @@ import {
   custom,
   defineChain,
   http,
-  parseAbi,
   parseEther,
   type Account,
   type Address,
@@ -23,11 +22,6 @@ export const SLIPPAGE_PRESETS = [
 export const TX_DEADLINE_SECS = 600;
 /** Pilot cap per pool, revisit after price discovery. */
 export const MAX_SCRIT_PER_POOL = parseEther("100000");
-
-/** Pure: fee = 1% of contributed sCRIT. */
-export function calcIssuanceFee(scritAmount: bigint): bigint {
-  return (scritAmount * 100n) / 10000n;
-}
 
 /** Pure: minimum accepted sCRIT by the router given slippage. */
 export function calcScritMin(scritAmount: bigint, bps = 9800): bigint {
@@ -145,6 +139,15 @@ export async function scritAllowance(chainId: 4663 | 46630, owner: Address, spen
   }) as Promise<bigint>;
 }
 
+export async function launcherIssuerApproved(chainId: 4663 | 46630, issuer: Address, launcher: Address = SCRIT_LAUNCHER): Promise<boolean> {
+  return await publicClientFor(chainId).readContract({
+    address: launcher,
+    abi: SCRIT_LAUNCHER_ABI,
+    functionName: "issuerApproved",
+    args: [issuer],
+  }) as boolean;
+}
+
 export function decodeLaunchedToken(
   logs: { address: string; topics: `0x${string}`[] }[],
   launcher: Address
@@ -162,23 +165,19 @@ export function decodeLaunchedToken(
   return null;
 }
 
-const ERC20_TRANSFER = parseAbi(["function transfer(address to, uint256 v) returns (bool)"]);
-
 /**
- * Full pilot launch: 1) 1% issuance fee transfer to treasury,
- * 2) approve launcher for sCRIT, 3) launch TOKEN/sCRIT pool.
- * Returns token address + all tx hashes for the treasury log.
+ * Pilot Rail A launch: approve the launcher when needed, then create the
+ * TOKEN/sCRIT pool. Issuance charges are not active on Rail A.
  */
 export async function launchTokenScrit(args: {
   chainId: 4663 | 46630;
   account: Address;
   params: LaunchParams;
-  treasury: Address;
   scrit?: Address;
   launcher?: Address;
   slippageBps?: number;
-  onStep?: (step: "fee" | "approve" | "launch") => void;
-}): Promise<{ token: Address; feeHash: `0x${string}`; launchHash: `0x${string}` }> {
+  onStep?: (step: "approve" | "launch") => void;
+}): Promise<{ token: Address; launchHash: `0x${string}` }> {
   const err = validateLaunchParams(args.params);
   if (err) throw new Error(err);
   const scrit = args.scrit ?? SCRIT_ADDRESS;
@@ -191,19 +190,6 @@ export async function launchTokenScrit(args: {
   const wallet: WalletClient = createWalletClient({ chain, transport: custom(ethProvider() as never) });
   const pub = publicClientFor(args.chainId);
   const acct = args.account as unknown as Account;
-
-  const fee = calcIssuanceFee(args.params.scritAmount);
-  args.onStep?.("fee");
-  const feeHash = await wallet.writeContract({
-    address: scrit,
-    abi: ERC20_TRANSFER,
-    functionName: "transfer",
-    args: [args.treasury, fee],
-    account: acct,
-    chain,
-  });
-  const feeReceipt = await pub.waitForTransactionReceipt({ hash: feeHash });
-  if (feeReceipt.status === "reverted") throw new Error("fee_failed");
 
   const need = args.params.scritAmount;
   const allowed = await scritAllowance(args.chainId, args.account, launcher, scrit);
@@ -253,7 +239,7 @@ export async function launchTokenScrit(args: {
     launcher
   );
   if (!token) throw new Error("no_contract_address");
-  return { token, feeHash, launchHash };
+  return { token, launchHash };
 }
 
 export function toTokenUnits(amount: string): bigint {

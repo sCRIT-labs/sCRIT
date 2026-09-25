@@ -11,21 +11,21 @@ export const FlowLedger: React.FC = () => {
     {
       n: "i.",
       title: "Launch against the index",
-      body: "Gated issuers deploy a token whose pool is forced to TOKEN/sCRIT in one atomic transaction. The single sCRIT/ETH base pool stays untaxed; project pools carry a 0% promo and a 1% issuance fee to treasury.",
+      body: "The launcher creates project tokens paired with sCRIT for wallets approved on-chain by its owner. No Rail A issuance fee or project-pool swap tax is active.",
       stat: `${treasury.length} logged`,
       sub: "TREASURY EVENTS",
     },
     {
       n: "ii.",
-      title: "Fees wait as unspent treasury",
-      body: "Collected fees are displayed apart from the reserve and never counted as metal. The two figures share a page but never a sum.",
+      title: "Treasury transfers are separate records",
+      body: "A treasury entry is stored only after the server verifies a token transfer receipt. A transfer is never counted as physical reserve.",
       stat: "separated",
       sub: "BY DESIGN",
     },
     {
       n: "iii.",
-      title: "Custodian signs, reserve moves",
-      body: "On physical receipt the custodian signs batch, mass, grade, certificate and vault as EIP-712. Verified against the registered key, the holdings — and only then — grow. Pilot runs on one demo key; the first physical audit is pending.",
+      title: "Custodian signs a service record",
+      body: "A registered key signs batch, mass, grade, certificate reference, and vault label as EIP-712. The pilot service checks scope and updates its off-chain view; it does not independently prove delivery.",
       stat: `${atts.length} posted`,
       sub: "ATTESTATIONS",
     },
@@ -44,8 +44,7 @@ export const FlowLedger: React.FC = () => {
         <p className="eyebrow rv">03 · The reserve ledger</p>
         <h2 className="rv" style={{ ["--d" as string]: "80ms" }}>Four entries. In order.</h2>
         <p className="standfirst rv" style={{ ["--d" as string]: "140ms" }}>
-          Read top to bottom like a ledger page. Each entry is verifiable; the
-          third one is the only entry allowed to move money.
+          Read top to bottom like a ledger page. These records describe pilot data and do not move money or establish custody.
         </p>
         <div className="ledger">
           {rows.map((r, i) => (

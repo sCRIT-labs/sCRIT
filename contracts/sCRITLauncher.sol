@@ -27,6 +27,11 @@ interface IV2Router02 {
 contract sCRITLauncher {
   address public immutable scrit;
   address public immutable router;
+  address public owner;
+  mapping(address => bool) public issuerApproved;
+
+  event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+  event IssuerApprovalUpdated(address indexed issuer, bool approved);
 
   event Launched(
     address indexed token,
@@ -40,6 +45,25 @@ contract sCRITLauncher {
     require(s != address(0) && r != address(0), "zero");
     scrit = s;
     router = r;
+    owner = msg.sender;
+    emit OwnershipTransferred(address(0), msg.sender);
+  }
+
+  modifier onlyOwner() {
+    require(msg.sender == owner, "owner");
+    _;
+  }
+
+  function setIssuerApproved(address issuer, bool approved) external onlyOwner {
+    require(issuer != address(0), "zero issuer");
+    issuerApproved[issuer] = approved;
+    emit IssuerApprovalUpdated(issuer, approved);
+  }
+
+  function transferOwnership(address nextOwner) external onlyOwner {
+    require(nextOwner != address(0), "zero owner");
+    emit OwnershipTransferred(owner, nextOwner);
+    owner = nextOwner;
   }
 
   function launch(
@@ -51,6 +75,7 @@ contract sCRITLauncher {
     uint scritMin,
     uint deadline
   ) external returns (address token, uint liquidity) {
+    require(issuerApproved[msg.sender], "issuer not approved");
     require(pooled > 0 && pooled <= supply, "pooled");
     require(scritAmt > 0, "scrit");
     require(deadline > block.timestamp, "deadline");

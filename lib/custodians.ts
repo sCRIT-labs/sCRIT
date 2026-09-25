@@ -1,4 +1,4 @@
-export type CustodianStatus = "demo" | "contracted";
+export type CustodianStatus = "demo" | "contracted" | "revoked";
 
 export type Custodian = {
   address: string;
@@ -15,5 +15,5 @@ export function isValidAddress(a: string): boolean {
 
 /** Pure: may this custodian attest for this commodity? Case-insensitive. */
 export function isScopedFor(c: Custodian, commodity: string): boolean {
-  return c.scope.some((s) => s.toLowerCase() === commodity.toLowerCase());
+  return c.status !== "revoked" && c.scope.some((s) => s.toLowerCase() === commodity.toLowerCase());
 }

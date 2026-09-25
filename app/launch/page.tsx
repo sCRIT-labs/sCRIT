@@ -9,14 +9,15 @@ import WalletButton from "@/components/WalletButton";
 import { Rocket, ShieldCheck, CheckCircle2, AlertCircle, Loader2, Sparkles, ExternalLink } from "lucide-react";
 import {
   SLIPPAGE_PRESETS,
-  calcIssuanceFee,
+  launcherIssuerApproved,
   launchTokenScrit,
   toTokenUnits,
   validateLaunchParams,
 } from "@/lib/scrit-evm";
-import { HOOD_MAINNET, HOOD_TESTNET, TREASURY_ADDRESS } from "@/lib/scrit";
+import { HOOD_MAINNET, HOOD_TESTNET } from "@/lib/scrit";
+import { SCRIT_LAUNCHER } from "@/lib/scrit";
 
-type Step = "idle" | "checking" | "ready" | "fee" | "approve" | "launch" | "done" | "error";
+type Step = "idle" | "checking" | "ready" | "approve" | "launch" | "done" | "error";
 
 export default function Launch() {
   const [chainId, setChainId] = useState<4663 | 46630>(46630);
@@ -32,17 +33,9 @@ export default function Launch() {
   const [ack2, setAck2] = useState(false);
   const [step, setStep] = useState<Step>("idle");
   const [msg, setMsg] = useState("");
-  const [result, setResult] = useState<{ token: string; feeHash: string; launchHash: string } | null>(null);
+  const [result, setResult] = useState<{ token: string; launchHash: string } | null>(null);
 
   const explorer = chainId === 4663 ? HOOD_MAINNET.explorer : HOOD_TESTNET.explorer;
-  const feePreview = (() => {
-    try {
-      return calcIssuanceFee(toTokenUnits(scritAmt || "0"));
-    } catch {
-      return 0n;
-    }
-  })();
-
   const indicativePrice = (() => {
     try {
       const p = parseFloat(pooled);
@@ -81,9 +74,9 @@ export default function Launch() {
         setMsg("Connect wallet first.");
         return;
       }
-      if (scritU + feePreview > scritBal) {
+      if (scritU > scritBal) {
         setStep("error");
-        setMsg("Insufficient sCRIT (need amount + 1% fee).");
+        setMsg("Insufficient sCRIT for the selected pool contribution.");
         return;
       }
       if (chainId === 4663) {
@@ -93,6 +86,17 @@ export default function Launch() {
           setMsg("Gated pilot — wallet not approved. Request access via Telegram.");
           return;
         }
+      }
+      if (!/^0x[0-9a-fA-F]{40}$/.test(SCRIT_LAUNCHER) || /^0x0{40}$/i.test(SCRIT_LAUNCHER)) {
+        setStep("error");
+        setMsg("No launcher contract is configured for this environment.");
+        return;
+      }
+      const onchainApproved = await launcherIssuerApproved(chainId, account, SCRIT_LAUNCHER as Address).catch(() => false);
+      if (!onchainApproved) {
+        setStep("error");
+        setMsg("Wallet is not approved in the launcher contract. Ask the launcher owner to enable it on-chain.");
+        return;
       }
       if (!ack1 || !ack2) {
         setStep("error");
@@ -109,8 +113,8 @@ export default function Launch() {
 
   async function launch() {
     if (!account) return;
-    setStep("fee");
-    setMsg("Step 1/3: 1% issuance fee routing to treasury. Confirm in wallet.");
+    setStep("approve");
+    setMsg("Confirm the sCRIT allowance if requested, then create the pool.");
     try {
       const cleanTicker = ticker.toUpperCase().replace(/[^A-Z0-9]/g, "");
       const out = await launchTokenScrit({
@@ -123,30 +127,13 @@ export default function Launch() {
           pooled: toTokenUnits(pooled),
           scritAmount: toTokenUnits(scritAmt),
         },
-        treasury: TREASURY_ADDRESS,
         slippageBps: slippage,
         onStep: (s) => {
           setStep(s);
-          setMsg(
-            s === "approve"
-              ? "Step 2/3: Authorize sCRIT to launcher contract."
-              : s === "launch"
-              ? "Step 3/3: Deploy ERC-20 token & initialize sCRIT liquidity pool."
-              : msg
-          );
+          setMsg(s === "approve" ? "Authorize the launcher to use the selected sCRIT amount." : "Deploy token and initialize the sCRIT liquidity pool.");
         },
       });
-      await fetch("/api/treasury", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          kind: "issuance_fee",
-          amount_text: `${formatEther(feePreview)} sCRIT`,
-          tx_hash: out.feeHash,
-          note: `pool ${out.token} launch ${out.launchHash}`,
-        }),
-      }).catch(() => {});
-      setResult({ token: out.token, feeHash: out.feeHash, launchHash: out.launchHash });
+      setResult({ token: out.token, launchHash: out.launchHash });
       setStep("done");
       setMsg("Token and sCRIT liquidity pool successfully deployed.");
     } catch (e: unknown) {
@@ -233,20 +220,8 @@ export default function Launch() {
               <span className="launch-metric-val">{indicativePrice} sCRIT</span>
             </div>
             <div className="launch-metric-line">
-              <span className="launch-metric-lbl">Issuance Fee (1% to Treasury)</span>
-              <span className="launch-metric-val" style={{ color: "var(--gold-bright)" }}>
-                {formatEther(feePreview)} sCRIT
-              </span>
-            </div>
-            <div className="launch-metric-line">
               <span className="launch-metric-lbl">Pool Swap Tax</span>
               <span className="launch-metric-val" style={{ color: "#2ed573" }}>0% Promo Rate</span>
-            </div>
-            <div className="launch-metric-line">
-              <span className="launch-metric-lbl">Treasury Destination</span>
-              <span className="launch-metric-val" style={{ fontSize: 11 }}>
-                {TREASURY_ADDRESS.slice(0, 8)}...{TREASURY_ADDRESS.slice(-6)}
-              </span>
             </div>
             <div className="launch-metric-line">
               <span className="launch-metric-lbl">Pool Pair</span>
@@ -459,7 +434,7 @@ export default function Launch() {
             </label>
             <label className="check">
               <input type="checkbox" checked={ack2} onChange={(e) => setAck2(e.target.checked)} />
-              <span>I accept Rail A Pilot Terms, risk disclosure, and non-refundable 1% issuance fee.</span>
+              <span>I accept Rail A Pilot Terms and understand sCRIT has no pilot redemption or peg.</span>
             </label>
           </div>
 
@@ -469,7 +444,7 @@ export default function Launch() {
               className="btn btn-ghost"
               style={{ flex: "1 1 200px", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}
               onClick={checkAccess}
-              disabled={step === "checking" || step === "fee" || step === "approve" || step === "launch"}
+              disabled={step === "checking" || step === "approve" || step === "launch"}
             >
               {step === "checking" ? <Loader2 size={14} className="spin" /> : <Sparkles size={14} />}
               <span>{step === "checking" ? "Verifying..." : "1 · Validate Parameters"}</span>
@@ -481,7 +456,7 @@ export default function Launch() {
               disabled={step !== "ready"}
             >
               <Rocket size={15} strokeWidth={2} />
-              <span>2 · Strike Liquidity Pair (3 prompts)</span>
+              <span>2 · Strike Liquidity Pair</span>
             </button>
           </div>
 
@@ -489,7 +464,7 @@ export default function Launch() {
           <div className="launch-stepper-tracker">
             <span
               className={`launch-step-dot ${
-                step === "checking" || step === "fee" || step === "approve" || step === "launch" || step === "done"
+                step === "checking" || step === "approve" || step === "launch" || step === "done"
                   ? "active"
                   : ""
               }`}
@@ -526,13 +501,6 @@ export default function Launch() {
                 Token Contract:{" "}
                 <a className="mono-sm" href={`${explorer}/address/${result.token}`} target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
                   <span>{result.token}</span>
-                  <ExternalLink size={12} />
-                </a>
-              </p>
-              <p style={{ fontSize: 13, marginBottom: 8, wordBreak: "break-all" }}>
-                Fee Tx:{" "}
-                <a className="mono-sm" href={`${explorer}/tx/${result.feeHash}`} target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  <span>{result.feeHash}</span>
                   <ExternalLink size={12} />
                 </a>
               </p>

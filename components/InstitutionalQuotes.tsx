@@ -4,25 +4,25 @@ import React, { useState } from "react";
 
 const QUOTES = [
   {
-    author: "Hans Keller",
-    role: "Head of Bullion Custody & Settlement",
-    firm: "ZURICH BONDED DEPOSITORY",
-    initials: "HK",
-    quote: "The LBMA Good Delivery rules represent the global benchmark for precious metal integrity. sCRIT's cryptographic attestation mechanism ensures that every single unit is mapped to allocated serial numbers in bonded vault storage."
+    author: "Pilot status",
+    role: "Physical custody",
+    firm: "NO CONTRACTED VAULT",
+    initials: "PS",
+    quote: "The repository contains no signed custody agreement or independent physical audit evidence. Basket weights are design targets, not proof of allocated inventory."
   },
   {
-    author: "Elena Rostova",
-    role: "Chief Custody & Verification Officer",
-    firm: "LOOMIS CUSTODY ZURICH",
-    initials: "ER",
-    quote: "A commodity token is only as legitimate as its verification layer. Signing typed EIP-712 receipt hashes upon physical bar arrival bridges Swiss high-security vaults directly with decentralized liquidity."
+    author: "Pilot status",
+    role: "Attestation records",
+    firm: "OFF-CHAIN SERVICE",
+    initials: "PS",
+    quote: "EIP-712 signatures are verified by the pilot service against a registered demo key and scope. The resulting records are not on-chain reserve accounting and do not independently prove delivery."
   },
   {
-    author: "Adrian Vance",
-    role: "Lead Ecosystem Architect",
-    firm: "ROBINHOOD CHAIN LABS",
-    initials: "AV",
-    quote: "Locking new ecosystem token launches to pair with sCRIT creates a permanent floor mechanism that arbitrary ETH or meme pairings can never provide: 75% of swap fees directly buy physical metal."
+    author: "Pilot status",
+    role: "Launch and fee model",
+    firm: "NO PEG · 0% PILOT TAX",
+    initials: "PS",
+    quote: "Rail A pairs project tokens with sCRIT. It creates no price floor; the pilot has no redemption, no issuance charge, and no active project-pool swap tax."
   }
 ];
 
@@ -78,7 +78,7 @@ export function InstitutionalQuotes() {
                   type="button"
                   onClick={() => setCurrentIdx(idx)}
                   className={`ondo-quote-dot ${currentIdx === idx ? "is-active" : ""}`}
-                  aria-label={`Testimonial ${idx + 1}`}
+                  aria-label={`Pilot status ${idx + 1}`}
                 />
               ))}
             </div>

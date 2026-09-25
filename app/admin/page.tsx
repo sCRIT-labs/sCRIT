@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { PageShell } from "@/components/PageShell";
-import { Key, Radio, Users, CheckCircle2, AlertCircle } from "lucide-react";
+import { Key, Radio, Users, CheckCircle2, AlertCircle, ShieldCheck } from "lucide-react";
 
 type Custodian = { address: string; name: string; scope: string[]; status: string };
 type ApApp = { wallet: string; name: string; contact: string; status: string };
+type Issuer = { wallet: string; name: string; contact: string; approved: boolean };
 
 export default function Admin() {
   const [key, setKey] = useState("");
@@ -13,12 +14,17 @@ export default function Admin() {
   const [msgType, setMsgType] = useState<"info" | "success" | "error">("info");
   const [commodity, setCommodity] = useState("Au");
   const [price, setPrice] = useState("");
+  const [priceSource, setPriceSource] = useState("");
   const [custAddr, setCustAddr] = useState("");
   const [custName, setCustName] = useState("");
   const [custScope, setCustScope] = useState<string[]>(["Au", "Ag", "Pt"]);
   const [custodians, setCustodians] = useState<Custodian[]>([]);
   const [apApps, setApApps] = useState<ApApp[]>([]);
-  const [activeTab, setActiveTab] = useState<"prices" | "custodians" | "ap">("prices");
+  const [issuers, setIssuers] = useState<Issuer[]>([]);
+  const [issuerWallet, setIssuerWallet] = useState("");
+  const [issuerName, setIssuerName] = useState("");
+  const [issuerContact, setIssuerContact] = useState("");
+  const [activeTab, setActiveTab] = useState<"prices" | "custodians" | "issuers" | "ap">("prices");
 
   async function updatePrice() {
     if (!key) {
@@ -37,7 +43,7 @@ export default function Admin() {
       const r = await fetch("/api/prices", {
         method: "POST",
         headers: { "content-type": "application/json", "x-admin-key": key },
-        body: JSON.stringify({ commodity, usd_per_kg: parseFloat(price), source: "manual team feed" }),
+      body: JSON.stringify({ commodity, usd_per_kg: parseFloat(price), source: priceSource }),
       });
       if (r.ok) {
         setMsg(`Success: ${commodity} updated to $${parseFloat(price).toLocaleString("en-US")}/kg.`);
@@ -70,7 +76,7 @@ export default function Admin() {
     setMsg("Checking Authorised Participant status...");
     setMsgType("info");
     try {
-      const j = await fetch("/api/ap").then((r) => r.json()).catch(() => null);
+      const j = await fetch("/api/ap", { headers: { "x-admin-key": key } }).then((r) => r.json()).catch(() => null);
       if (j) {
         setMsg(
           `AP Policy: ${j.pending || 0} pending queue, ${j.active?.length || 0} active, redemption ${j.redemption}. Approvals require off-chain counsel.`
@@ -84,6 +90,34 @@ export default function Admin() {
       setMsg("Error fetching AP status.");
       setMsgType("error");
     }
+  }
+
+  async function loadIssuers() {
+    if (!key) { setMsg("Please enter the ADMIN_KEY."); setMsgType("error"); return; }
+    try {
+      const r = await fetch("/api/issuers", { headers: { "x-admin-key": key } });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error ?? `HTTP ${r.status}`);
+      setIssuers(j.issuers ?? []);
+      setMsg(`Issuer registry loaded: ${j.issuers?.length ?? 0} wallet(s).`);
+      setMsgType("success");
+    } catch (e: unknown) { setMsg(e instanceof Error ? e.message : "Issuer registry unavailable."); setMsgType("error"); }
+  }
+
+  async function saveIssuer(wallet: string, approved: boolean, name = issuerName, contact = issuerContact) {
+    if (!key) { setMsg("Please enter the ADMIN_KEY."); setMsgType("error"); return; }
+    try {
+      const r = await fetch("/api/issuers", {
+        method: "POST", headers: { "content-type": "application/json", "x-admin-key": key },
+        body: JSON.stringify({ wallet, name, contact, approved }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error ?? `HTTP ${r.status}`);
+      setMsg(`Service registry updated. ${approved ? "On-chain launcher approval is still required from its owner." : "Wallet revoked in service registry."}`);
+      setMsgType("success");
+      if (wallet.toLowerCase() === issuerWallet.toLowerCase()) { setIssuerWallet(""); setIssuerName(""); setIssuerContact(""); }
+      await loadIssuers();
+    } catch (e: unknown) { setMsg(e instanceof Error ? e.message : "Issuer update failed."); setMsgType("error"); }
   }
 
   function toggleScope(s: string) {
@@ -237,6 +271,15 @@ export default function Admin() {
         </button>
         <button
           type="button"
+          onClick={() => setActiveTab("issuers")}
+          className={`btn ${activeTab === "issuers" ? "btn-gold" : "btn-ghost"}`}
+          style={{ padding: "8px 18px", fontSize: 13, display: "inline-flex", alignItems: "center", gap: 8 }}
+        >
+          <ShieldCheck size={15} strokeWidth={2} />
+          Issuer approvals ({issuers.length})
+        </button>
+        <button
+          type="button"
           onClick={() => setActiveTab("ap")}
           className={`btn ${activeTab === "ap" ? "btn-gold" : "btn-ghost"}`}
           style={{ padding: "8px 18px", fontSize: 13, display: "inline-flex", alignItems: "center", gap: 8 }}
@@ -254,7 +297,7 @@ export default function Admin() {
             Manual pilot inputs for the NAV estimate. This is not a live market feed or continuously updating oracle.
           </p>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr 1fr", gap: 14, marginBottom: 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, marginBottom: 16 }}>
             <div>
               <label className="launch-field-label">Target Asset</label>
               <select className="field" value={commodity} onChange={(e) => setCommodity(e.target.value)}>
@@ -271,6 +314,10 @@ export default function Admin() {
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
               />
+            </div>
+            <div>
+              <label className="launch-field-label">Price source / reference</label>
+              <input className="field" placeholder="Provider, benchmark, date" value={priceSource} onChange={(e) => setPriceSource(e.target.value)} />
             </div>
             <div style={{ display: "flex", alignItems: "flex-end" }}>
               <button className="btn btn-gold" style={{ width: "100%" }} onClick={updatePrice}>
@@ -358,7 +405,28 @@ export default function Admin() {
         </div>
       )}
 
-      {/* TAB 3: AP Policy */}
+      {activeTab === "issuers" && (
+        <div className="panel scrit-reveal" style={{ marginBottom: 24 }}>
+          <h3 style={{ fontSize: 20, fontWeight: 700, margin: "0 0 12px" }}>Issuer service registry</h3>
+          <p className="mono-sm" style={{ marginBottom: 20, color: "#a1a1a6" }}>
+            This approval controls the service precheck. The launcher also has its own on-chain allowlist; the launcher owner must approve the same wallet there.
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr 1.5fr", gap: 14, marginBottom: 14 }}>
+            <input className="field" placeholder="0x issuer wallet" value={issuerWallet} onChange={(e) => setIssuerWallet(e.target.value)} />
+            <input className="field" placeholder="Issuer name" value={issuerName} onChange={(e) => setIssuerName(e.target.value)} />
+            <input className="field" placeholder="Contact (optional)" value={issuerContact} onChange={(e) => setIssuerContact(e.target.value)} />
+          </div>
+          <div style={{ display: "flex", gap: 12, marginBottom: 24 }}>
+            <button className="btn btn-gold" onClick={() => saveIssuer(issuerWallet, true)}>Approve in service registry</button>
+            <button className="btn btn-ghost" onClick={loadIssuers}>Refresh issuer list</button>
+          </div>
+          {issuers.length > 0 && <div style={{ overflowX: "auto" }}><table className="dtable"><thead><tr><th>Wallet</th><th>Name</th><th>Contact</th><th>Status</th><th>Action</th></tr></thead><tbody>
+            {issuers.map((issuer) => <tr key={issuer.wallet}><td className="mono-sm">{issuer.wallet}</td><td>{issuer.name}</td><td>{issuer.contact || "—"}</td><td>{issuer.approved ? "Service approved" : "Revoked"}</td><td><button className="btn btn-ghost" onClick={() => saveIssuer(issuer.wallet, !issuer.approved, issuer.name, issuer.contact)}>{issuer.approved ? "Revoke" : "Approve"}</button></td></tr>)}
+          </tbody></table></div>}
+        </div>
+      )}
+
+      {/* TAB: AP Policy */}
       {activeTab === "ap" && (
         <div className="panel scrit-reveal" style={{ marginBottom: 24 }}>
           <h3 style={{ fontSize: 20, fontWeight: 700, margin: "0 0 16px" }}>Authorised Participant (AP) Queue</h3>

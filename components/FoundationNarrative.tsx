@@ -9,29 +9,29 @@ const STATS = [
     num: "3",
     prefix: "",
     suffix: "",
-    label: "Physical Basket Assets (Pilot)",
-    desc: "Day-1 allocated reserve: LBMA Gold (60%), Fine Silver (25%), and Platinum (15%) secured in accredited vaults."
+    label: "Target Basket Assets",
+    desc: "Design weights: gold 60%, silver 25%, platinum 15%. They do not represent current physical holdings."
   },
   {
     num: "100",
     prefix: "",
     suffix: "%",
-    label: "Attestation-Gated Reserve",
-    desc: "Reserve figures increase only upon cryptographic EIP-712 attestation from registered custody partners."
+    label: "Off-Chain Attestation Records",
+    desc: "The pilot service checks typed signatures and scope. Records are not reserve contract state or independent proof of delivery."
   },
   {
     num: "0",
     prefix: "",
     suffix: "%",
-    label: "Base Market Toll (sCRIT/ETH)",
-    desc: "The primary price-discovery pool operates with zero protocol tax, preserving deep liquidity for index holders."
+    label: "Pilot Swap Tax",
+    desc: "Project-pool swap tax is 0% in this pilot. Market depth and price stability are not guaranteed."
   },
   {
     num: "75",
     prefix: "",
     suffix: "%",
-    label: "Swap Fee to Physical Reserve",
-    desc: "Three-quarters of all project pool trading fees automatically convert into allocated physical bullion purchases."
+    label: "Reserve Fee Routing",
+    desc: "The proposed 75/25 split is inactive. No fee is automatically converted into bullion purchases."
   }
 ];
 
@@ -44,7 +44,7 @@ export function FoundationNarrative() {
           <div className="ondo-foundation-col-left">
             <h2 className="ondo-foundation-sticky-title">
               <ScrollReveal type="move" delayMs={50}>
-                <span>sCRIT is building the permanent floor</span>
+                <span>sCRIT is testing a pilot design</span>
               </ScrollReveal>
               <br />
               <ScrollReveal type="move" delayMs={200}>

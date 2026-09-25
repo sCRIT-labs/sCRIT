@@ -35,22 +35,24 @@ export function usePilotData() {
   const [prices, setPrices] = useState<PriceRow[]>([]);
   const [atts, setAtts] = useState<AttRow[]>([]);
   const [treasury, setTreasury] = useState<TreasuryRow[]>([]);
+  const [dataStatus, setDataStatus] = useState<"loading" | "ready" | "unavailable">("loading");
 
   useEffect(() => {
     let alive = true;
     (async () => {
       try {
-        const [p, a, t] = await Promise.all([
-          fetch("/api/prices").then((r) => r.json()),
-          fetch("/api/attestations").then((r) => r.json()),
-          fetch("/api/treasury").then((r) => r.json()),
+        const [pr, ar, tr] = await Promise.all([
+          fetch("/api/prices"), fetch("/api/attestations"), fetch("/api/treasury"),
         ]);
+        if (![pr, ar, tr].every((r) => r.ok)) throw new Error("pilot_data_unavailable");
+        const [p, a, t] = await Promise.all([pr.json(), ar.json(), tr.json()]);
         if (!alive) return;
         setPrices(p.prices ?? []);
         setAtts(a.attestations ?? []);
         setTreasury(t.log ?? []);
+        setDataStatus("ready");
       } catch {
-        /* pilot empties */
+        if (alive) setDataStatus("unavailable");
       }
     })();
     return () => {
@@ -69,5 +71,5 @@ export function usePilotData() {
 
   const { reserveUsd, navUsd } = calcNav(holdings, priceMap, SCRIT_SUPPLY);
 
-  return { prices, atts, treasury, holdings, priceMap, reserveUsd, navUsd };
+  return { prices, atts, treasury, holdings, priceMap, reserveUsd, navUsd, dataStatus };
 }

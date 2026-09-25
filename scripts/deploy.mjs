@@ -26,12 +26,16 @@ if (!/^0x[0-9a-fA-F]{64}$/.test(pk ?? "")) {
   process.exit(1);
 }
 
-const ROUTER = "0x89e5db8b5aa49aa85ac63f691524311aeb649eba";
 const chains = {
-  mainnet: { id: 4663, rpc: "https://robinhood-rpc.publicnode.com", explorer: "https://robinhoodchain.blockscout.com" },
-  testnet: { id: 46630, rpc: "https://robinhood-sepolia-rpc.publicnode.com", explorer: "https://explorer.testnet.chain.robinhood.com" },
+  mainnet: { id: 4663, rpc: "https://rpc.mainnet.chain.robinhood.com", explorer: "https://robinhoodchain.blockscout.com" },
+  testnet: { id: 46630, rpc: "https://rpc.testnet.chain.robinhood.com", explorer: "https://explorer.testnet.chain.robinhood.com" },
 };
 const cfg = chains[mode];
+const router = env.ROUTER_ADDRESS;
+if (mode === "mainnet" && !/^0x[0-9a-fA-F]{40}$/.test(router ?? "")) {
+  throw new Error("Set ROUTER_ADDRESS to a router verified for Robinhood Chain before mainnet deployment.");
+}
+if (router && !/^0x[0-9a-fA-F]{40}$/.test(router)) throw new Error("ROUTER_ADDRESS must be a 20-byte EVM address.");
 const chain = defineChain({
   id: cfg.id,
   name: `hood-${mode}`,
@@ -58,6 +62,10 @@ const wallet = createWalletClient({ account, chain, transport: http(cfg.rpc) });
 
 const chainId = await pub.getChainId();
 if (chainId !== cfg.id) throw new Error(`wrong chain ${chainId}, want ${cfg.id}`);
+if (router) {
+  const routerCode = await pub.getCode({ address: router });
+  if (!routerCode || routerCode === "0x") throw new Error("ROUTER_ADDRESS has no deployed contract on the selected chain.");
+}
 
 const SUPPLY = 999000000n * 10n ** 18n;
 console.log(`Deploying sCRITToken (999M) to ${mode} from ${account.address}...`);
@@ -71,12 +79,12 @@ console.log("token tx:", tokenHash);
 console.log("sCRIT:", tokenReceipt.contractAddress);
 console.log(`verify: ${cfg.explorer}/address/${tokenReceipt.contractAddress}`);
 
-if (mode === "mainnet") {
-  console.log(`Deploying sCRITLauncher(scrit, router ${ROUTER})...`);
+if (router) {
+  console.log(`Deploying sCRITLauncher(scrit, router ${router})...`);
   const launcherHash = await wallet.deployContract({
     abi: abiOf("SCRIT_LAUNCHER_ABI"),
     bytecode: grab("SCRIT_LAUNCHER_BYTECODE"),
-    args: [tokenReceipt.contractAddress, ROUTER],
+    args: [tokenReceipt.contractAddress, router],
   });
   const launcherReceipt = await pub.waitForTransactionReceipt({ hash: launcherHash });
   console.log("launcher tx:", launcherHash);
@@ -87,5 +95,7 @@ if (mode === "mainnet") {
   console.log(`NEXT_PUBLIC_SCRIT_LAUNCHER=${launcherReceipt.contractAddress}`);
   console.log("Then verify both on Blockscout (Standard-JSON, solc 0.8.26, runs 200).");
 } else {
-  console.log("\nTestnet rehearsal: token only, no pool. Set NEXT_PUBLIC_SCRIT and launch via /launch on testnet.");
+  console.log("\nSet NEXT_PUBLIC_SCRIT in .env.local and Vercel.");
+  if (router) console.log("Set NEXT_PUBLIC_SCRIT_LAUNCHER to the launcher above and approve test wallets on-chain.");
+  else console.log("No ROUTER_ADDRESS was supplied, so this rehearsal deployed only the token; Rail A launching is unavailable.");
 }

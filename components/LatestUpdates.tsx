@@ -7,30 +7,30 @@ import { useScrollIndex } from "@/hooks/usePinnedProgress";
 const UPDATES = [
   {
     id: 1,
-    tag: "Physical Custody • Sep 2026",
-    title: "Zurich & Singapore Vault Integration for Allocated Bullion Custody",
-    summary: "sCRIT integrates accredited vault operators holding physical LBMA Good Delivery gold (60%), fine silver (25%), and platinum sponge (15%) with allocated warehouse receipts.",
+    tag: "Pilot Basket · Target",
+    title: "A defined basket, with current holdings left unclaimed",
+    summary: "The proposed design targets 60% gold, 25% silver, and 15% platinum. This software does not establish inventory or contracted vault custody.",
     image: "/images/scrit_depository_monolith.jpg",
     link: "/proof",
-    shortLabel: "Allocated Vault Custody"
+    shortLabel: "Target basket"
   },
   {
     id: 2,
-    tag: "Protocol Pilot • Robinhood L2",
-    title: "EIP-712 Attestation Engine: Zero Unbacked Minting Guarantee",
-    summary: "Reserve balances and sCRIT minting only increment after registered custodian cryptographic keys verify physical receipt. Unspent trading taxes remain separated in treasury.",
+    tag: "Attestation · Off-chain",
+    title: "The pilot service checks signed batch records",
+    summary: "Authorized keys and commodity scopes are checked before a record is accepted. Attestations are not on-chain reserve state and do not prove delivery independently.",
     image: "/images/scrit_attestation_network.jpg",
     link: "/proof",
-    shortLabel: "EIP-712 Attestation Gate"
+    shortLabel: "Service-checked records"
   },
   {
     id: 3,
-    tag: "Mechanism Design • DevBrief §2.1",
-    title: "Two-Tier Pool Model: Untaxed Base Market & Tax-Funded Project Pools",
-    summary: "Base sCRIT/ETH market operates with 0% tax to ensure frictionless price discovery, while project TOKEN/sCRIT pools route 75% of swap fees directly into physical metal procurement.",
+    tag: "Mechanism · Rail A",
+    title: "Project tokens can launch against sCRIT",
+    summary: "The pilot swap tax is 0%. Future tax and reserve-routing proposals are inactive, and no automatic metal purchases are implemented.",
     image: "/images/scrit_kinetic_scale.jpg",
     link: "/launch",
-    shortLabel: "Two-Tier Liquidity Rails"
+    shortLabel: "TOKEN / sCRIT pools"
   }
 ];
 

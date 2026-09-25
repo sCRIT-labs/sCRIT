@@ -42,7 +42,7 @@ export function EcosystemArc() {
 
         <ScrollReveal type="fade" delayMs={360}>
           <p className="ondo-ecosystem-sub">
-            Connecting Robinhood Chain builders, community token issuers, and accredited Swiss depository vaults into a unified, self-reinforcing commodity liquidity engine.
+            A pilot token launch flow and proposed commodity index design. Custody, reserve management, and physical audit operations are not yet established.
           </p>
         </ScrollReveal>
 

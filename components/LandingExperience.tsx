@@ -72,9 +72,12 @@ const STATUS_LINES = [
 
 export function LandingExperience() {
   useReveal();
-  const { prices, atts, holdings, reserveUsd, navUsd } = usePilotData();
+  const { prices, atts, holdings, reserveUsd, navUsd, dataStatus } = usePilotData();
   const staleCount = prices.filter((p) => p.stale).length;
   const latest = atts[0];
+  const pricesComplete = ["Au", "Ag", "Pt"].every((commodity) => prices.some((p) => p.commodity === commodity));
+  const reserveLabel = dataStatus === "unavailable" ? "Unavailable" : pricesComplete ? formatUsd(reserveUsd) : "—";
+  const navLabel = dataStatus === "unavailable" ? "Unavailable" : pricesComplete ? formatUsd(navUsd, 6) : "—";
 
   return (
     <div className="scrit-redesign scrit-landing">
@@ -91,9 +94,9 @@ export function LandingExperience() {
       <PinnedDispatch items={DISPATCHES} />
 
       <PinnedIndexStory metrics={[
-        { label: "REPORTED RESERVE VALUE", value: formatUsd(reserveUsd), detail: "From accepted records and manual prices." },
-        { label: "INDICATIVE NAV / TOKEN", value: formatUsd(navUsd, 6), detail: `Configured supply · ${Number(SCRIT_SUPPLY).toLocaleString("en-US")} sCRIT.` },
-        { label: "ATTESTED BATCHES", value: String(atts.length).padStart(2, "0"), detail: latest ? `Latest · ${latest.commodity} · ${latest.mass_kg} kg.` : "No batches recorded in this instance." },
+        { label: "REPORTED RESERVE VALUE", value: reserveLabel, detail: pricesComplete ? "From accepted records and manual prices." : "Requires all three manual price inputs." },
+        { label: "INDICATIVE NAV / TOKEN", value: navLabel, detail: `Reference only · configured supply ${Number(SCRIT_SUPPLY).toLocaleString("en-US")} sCRIT.` },
+        { label: "ATTESTED BATCHES", value: dataStatus === "ready" ? String(atts.length) : "—", detail: dataStatus !== "ready" ? "Pilot record service unavailable." : latest ? `Latest · ${latest.commodity} · ${latest.mass_kg} kg.` : "No batches recorded in this instance." },
       ]} />
 
       <PinnedReserveStory scenes={STORY} />
@@ -101,7 +104,7 @@ export function LandingExperience() {
 
       <PinnedLedgerStory
         copy={{ title: "A quiet terminal. Only real records count.", text: "Prices are manual pilot inputs. Reserve mass comes from accepted attestation records. A feed can be stale, and an empty ledger is shown as empty." }}
-        session={prices.length === 0 ? "WAITING FOR PRICE FEED" : staleCount ? `${staleCount} PRICE FEED${staleCount > 1 ? "S" : ""} STALE` : "PRICE FEEDS WITHIN 24H WINDOW"}
+        session={dataStatus === "unavailable" ? "PILOT DATA SERVICE UNAVAILABLE" : prices.length === 0 ? "WAITING FOR PRICE INPUTS" : staleCount ? `${staleCount} PRICE FEED${staleCount > 1 ? "S" : ""} STALE` : "PRICE INPUTS WITHIN 24H WINDOW"}
         lines={[
           ...STATUS_LINES,
           { key: "ATTESTATION LOG", value: atts.length ? `${atts.length} SIGNED BATCH${atts.length > 1 ? "ES" : ""} · ${Object.values(holdings).reduce((a, b) => a + b, 0).toFixed(4)} KG` : "AWAITING FIRST SIGNED BATCH" },
@@ -117,7 +120,7 @@ export function LandingExperience() {
       <PinnedLaunchStory image="/images/scrit_silver_vault.jpg">
         <h2>Project tokens pair<br /><em>against sCRIT.</em></h2>
         <p>Approved issuers can create a project token and seed a TOKEN/sCRIT pool through the launcher. The pilot swap tax is 0%; a 2.5% target is a future, post-audit proposal.</p>
-        <div className="scrit-launch-facts"><div><b>1%</b><span>issuance fee on contributed sCRIT</span></div><div><b>0%</b><span>project-pool swap tax in pilot</span></div></div>
+        <div className="scrit-launch-facts"><div><b>0%</b><span>Rail A issuance fee in pilot</span></div><div><b>0%</b><span>project-pool swap tax in pilot</span></div></div>
         <a className="scrit-button scrit-button-dark" href="/launch">Explore token launch <ArrowRight size={16} /></a>
       </PinnedLaunchStory>
 
@@ -129,7 +132,7 @@ export function LandingExperience() {
       <PinnedEditorialStory items={[
         { label: "FIELD NOTE / RESERVES", title: "How an attested batch enters the reserve view", action: "Inspect the ledger", href: "/proof", image: "/images/scrit_batch_ingestion.jpg" },
         { label: "FIELD NOTE / MARKET", title: "Why NAV is not a peg, and why that matters", action: "Read the risk notes", href: "/legal/risk", image: "/images/scrit_depository_monolith.jpg" },
-        { label: "FIELD NOTE / LAUNCH", title: "The TOKEN/sCRIT launch flow in the pilot", action: "Explore Rail A", href: "/launch", image: "/images/scrit_attestation_network.jpg" },
+        { label: "FIELD NOTE / LAUNCH", title: "The TOKEN/sCRIT launch flow in the pilot", action: "Explore Rail A", href: "/launch", image: "/images/scrit_concrete_vault.jpg" },
       ]} />
     </div>
   );

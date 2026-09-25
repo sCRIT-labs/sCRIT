@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { parseEther } from "viem";
 import {
-  calcIssuanceFee,
   calcScritMin,
   deadlineFromChainTs,
   decodeLaunchedToken,
@@ -10,9 +9,6 @@ import {
 } from "../lib/scrit-evm";
 
 describe("scrit-evm pure", () => {
-  it("issuance fee is 1%", () => {
-    expect(calcIssuanceFee(parseEther("1000"))).toBe(parseEther("10"));
-  });
   it("scritMin respects slippage", () => {
     expect(calcScritMin(10000n, 9800)).toBe(9800n);
     expect(calcScritMin(10000n, 9950)).toBe(9950n);

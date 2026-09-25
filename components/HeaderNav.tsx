@@ -45,7 +45,10 @@ export function HeaderNav() {
             href="/proof"
             className={`nav-menu-link ${pathname === "/proof" ? "is-active-link" : ""}`}
           >
-            Proof of Reserve
+            Pilot evidence
+          </Link>
+          <Link href="/copilot" className={`nav-menu-link ${pathname === "/copilot" ? "is-active-link" : ""}`}>
+            Pilot guide
           </Link>
           <Link href="/#ledger" className="nav-menu-link">
             Pilot telemetry
@@ -88,7 +91,10 @@ export function HeaderNav() {
             Launch model
           </Link>
           <Link href="/proof" onClick={() => setMobileOpen(false)}>
-            Proof of Reserve
+            Pilot evidence
+          </Link>
+          <Link href="/copilot" onClick={() => setMobileOpen(false)}>
+            Pilot guide
           </Link>
           <Link href="/#ledger" onClick={() => setMobileOpen(false)}>
             Pilot telemetry

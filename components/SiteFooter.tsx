@@ -14,19 +14,19 @@ export const SiteFooter: React.FC = () => {
       <div className="footer-grid">
         <div>
           <div className="flabel">sCRIT · PILOT</div>
-          <p>Pilot commodity index launchpad. Precious metals only, Robinhood Chain 4663. No redemption — premium or discount always shown.</p>
+          <p>Experimental token launch software and proposed commodity-index design. No pilot redemption, peg, contracted custody, or audited reserve.</p>
         </div>
         <div>
           <div className="flabel">INDEX</div>
           <a href="/#reserve">The vault</a>
           <a href="/#basket">Assay cards</a>
           <a href="/#flow">Reserve ledger</a>
-          <a href="/proof">Proof of Reserve</a>
+          <a href="/proof">Pilot evidence ledger</a>
         </div>
         <div>
           <div className="flabel">PROTOCOL</div>
           <a href={HOOD_MAINNET.explorer} target="_blank" rel="noreferrer">Blockscout</a>
-          <a href={`${HOOD_MAINNET.explorer}/address/${HOOD_MAINNET.router}`} target="_blank" rel="noreferrer">V2 router</a>
+          {process.env.NEXT_PUBLIC_ROUTER_ADDRESS && <a href={`${HOOD_MAINNET.explorer}/address/${process.env.NEXT_PUBLIC_ROUTER_ADDRESS}`} target="_blank" rel="noreferrer">Configured router</a>}
           <a href="/launch">Launch form</a>
           <a href="/admin">Ops console</a>
         </div>
@@ -43,7 +43,7 @@ export const SiteFooter: React.FC = () => {
         <span>Nothing here is financial advice. Tokens are user-created; do your own research.</span>
       </div>
       <div className="footer-bottom" style={{ borderTop: "none", paddingTop: 0 }}>
-        <span>Pilot build — no photos, no claims beyond the ledger above.</span>
+        <span>Pilot software only — no claim of physical backing is made.</span>
       </div>
 
       <div className="footer-word" aria-hidden="true">sCRIT</div>

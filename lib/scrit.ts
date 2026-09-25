@@ -17,14 +17,13 @@ export const SCRIT_LAUNCHER = (process.env.NEXT_PUBLIC_SCRIT_LAUNCHER ??
 export const HOOD_MAINNET = {
   id: 4663,
   name: "Robinhood Chain",
-  rpc: "https://robinhood-rpc.publicnode.com",
+  rpc: "https://rpc.mainnet.chain.robinhood.com",
   explorer: "https://robinhoodchain.blockscout.com",
-  router: "0x89e5db8b5aa49aa85ac63f691524311aeb649eba" as `0x${string}`,
 } as const;
 
 export const HOOD_TESTNET = {
   id: 46630,
   name: "Robinhood Testnet",
-  rpc: "https://robinhood-sepolia-rpc.publicnode.com",
+  rpc: "https://rpc.testnet.chain.robinhood.com",
   explorer: "https://explorer.testnet.chain.robinhood.com",
 } as const;
