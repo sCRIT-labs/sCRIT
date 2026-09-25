@@ -35,12 +35,11 @@ The pilot guide uses a server-side OpenAI-compatible provider through `LLM_API_U
 ```bash
 pnpm compile
 node scripts/deploy.mjs --testnet
-node scripts/deploy.mjs --mainnet
 ```
 
 The launcher owner is the deployment wallet. New wallets cannot launch until the owner calls `setIssuerApproved(wallet, true)` on the launcher. Revoke access with `setIssuerApproved(wallet, false)`. Keep the owner key in a secured wallet; do not put `PRIVATE_KEY` in a hosted web environment.
 
-The checked-in deploy script supports a testnet token rehearsal and mainnet launcher deployment. Set `ROUTER_ADDRESS` to a router independently verified for the selected chain; the script checks only that code exists at the address, not that the router is trustworthy or compatible. Without a testnet router, testnet mode deploys only the token. Robinhood's official [network reference](https://docs.robinhood.com/chain/add-network-to-wallet/) publishes RPC URLs and chain IDs but does not certify a router for this application. The script does not deploy the complete architecture described by the brief. Do not use it as a production launch procedure.
+The checked-in deploy script supports a testnet token rehearsal and intentionally blocks `--mainnet`: attestation-gated supply and the on-chain reserve manager are not implemented. Set `ROUTER_ADDRESS` to a router independently verified for the selected chain; the script checks only that code exists at the address, not that the router is trustworthy or compatible. Without a testnet router, testnet mode deploys only the token. Robinhood's official [network reference](https://docs.robinhood.com/chain/add-network-to-wallet/) publishes RPC URLs and chain IDs but does not certify a router for this application. Do not bypass this release gate by modifying the script before the remaining architecture and audits are complete.
 
 ## Checks
 

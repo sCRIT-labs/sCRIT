@@ -39,7 +39,7 @@ Bring the repository to a defensible, persistent, pilot-ready software baseline 
 
 - Review current launcher/token against the pilot requirements and ensure the project documentation and deployment script cannot describe unimplemented controls as present.
 - Keep risky supply, fee, and reserve claims out of deployed artifacts unless enforced on-chain.
-- Add a deployment preflight that refuses production deployment without required chain, router, token, admin, and custody configuration and labels unsupported pilot architecture as blocked.
+- Add a deployment preflight that hard-blocks mainnet deployment while attestation-gated supply and the on-chain reserve manager are missing; require a configured, code-bearing router for any launcher rehearsal.
 - Record the concrete gap between current token-only Rail A and the complete brief (Rail B, issuance gating, reserve manager, pool fee hook/indexer) as implementation/release work, without faking third-party audit or physical evidence.
 
 ### D. Documentation and verification
@@ -58,6 +58,7 @@ Bring the repository to a defensible, persistent, pilot-ready software baseline 
 - Attestations reject invalid, stale/future, duplicate, unknown, inactive, and out-of-scope submissions.
 - Treasury receipt submissions are verified against an RPC receipt and configured token/treasury before idempotent persistence.
 - Docs state no peg, no redemption, zero pilot swap tax, and external launch gates without implying completion.
+- `--mainnet` exits before key loading or network submission while the reserve issuance architecture is incomplete.
 - Automated verification passes; any remaining blocker is stated with evidence.
 
 ## Known external dependencies

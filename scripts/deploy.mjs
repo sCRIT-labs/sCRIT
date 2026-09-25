@@ -10,6 +10,10 @@ if (!mode) {
   console.error("Usage: node scripts/deploy.mjs --testnet | --mainnet");
   process.exit(1);
 }
+if (mode === "mainnet") {
+  console.error("Mainnet deployment blocked: this pilot does not yet implement the brief's attestation-gated supply and on-chain reserve manager. Keep rehearsal on testnet until that architecture and its audits are complete.");
+  process.exit(1);
+}
 
 // Minimal .env.local parser (no dependency).
 const env = {};
