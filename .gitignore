@@ -1,0 +1,12 @@
+node_modules/
+.next/
+*.log
+.env*
+!.env.example
+coverage/
+out/
+dist/
+.vercel/
+tsconfig.tsbuildinfo
+shots/
+devbriefsCRIT.md
