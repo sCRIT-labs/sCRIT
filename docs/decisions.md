@@ -10,7 +10,9 @@ The owner directed engineering to follow Dev Brief v3, with legal opinions and e
 - **AMM choice:** keep the deployed V3 testnet rehearsal for testnet only. Use Uniswap V4 with a permission-encoded `TradingTaxHook` and V4 launcher on Robinhood mainnet because V3 cannot safely skim the requested swap fee.
 - **NAV/redemption:** retain floating market price and no sCRIT redemption for this build. Show market price and reserve NAV as distinct values; do not call project tokens claims on physical commodities.
 - **Accrual:** retain the existing attestation-gated mint-at-NAV reserve issuance logic. Attestations and signed manual prices remain operator trust inputs, not independently verified physical holdings or market oracles.
-- **Mainnet transaction state:** deployment tooling and frontend routing are prepared. No mainnet deployment has been sent from this workspace.
+- **Testnet rehearsal:** manifest `deployments/robinhood-testnet-2026-09-26T03-54-03.849Z.json` records a complete testnet flow: signed synthetic quote, demo-only reserve attestation, sCRIT mint, project-token launch, V3 pool initialization/liquidity, position NFT ownership, and event indexing. All synthetic records are labelled testnet-only and explicitly disclaim real prices, custody, identity, or market claims. Older manifests remain historical deployment records.
+- **Admin delay:** new deployments default to a zero-second timelock delay (`SCRIT_TIMELOCK_DELAY_SECONDS=0`) so pilot setup can proceed immediately. The older `03-17` deployment's 48-hour delay remains immutable but its addresses are no longer active in local config.
+- **Mainnet transaction state:** no mainnet transaction has been sent. Mainnet V3 and V4 dependency checks pass, including a live `TLOAD` call through the official V4 PoolManager. Mainnet environment variables now use a separate namespace and mainnet scripts reject testnet fallbacks. Deployment stays blocked until the base-token model is explicit: current code deploys a new mintable `ScritIndexToken` and cannot yet attach an existing PONS-launched sCRIT token.
 
 Earlier entries below document historical implementation choices and are superseded wherever they conflict with this current alignment.
 
@@ -146,3 +148,23 @@ for nickel/cobalt (LME warrants + Indonesian supply-chain relevance).
 
 **Unblock:** commodities-lead call with warehouse quote + named price-feed
 provider willing to sign. Until then any lithium weight in code is a bug.
+
+## 4. Mainnet token model
+
+**Decision:** use this project's `ScritIndexToken` as the sCRIT token. The
+mainnet deployment creates a fresh token contract and records its address in
+the deployment manifest; the Robinhood testnet token address is not reused.
+
+**Configuration:** `.env.local` selects this explicitly with
+`MAINNET_DEPLOYMENT_TOKEN_MODEL=project-index`. Mainnet deployment remains a
+separate, deliberate transaction step after reviewing signer funding and the
+deployment configuration.
+
+The mainnet timelock delay is separately configured by
+`MAINNET_TIMELOCK_DELAY_SECONDS=0`; deploy scripts no longer inherit the
+testnet delay. Mainnet V3/V4 preflights now pass. The local Cancun fork rehearsal
+completed the V4 launch, pool initialization, LP NFT mint, one hooked swap, and
+the 75/25 fee split. Its simulation manifest is
+`deployments/rehearsals/robinhood-mainnet-v4-fork-2026-09-26.json`; these local
+fork transactions are not canonical. The signer currently has only
+`0.000315410748224 ETH`, so actual deployment funding remains outstanding.

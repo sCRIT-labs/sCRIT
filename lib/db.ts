@@ -17,10 +17,19 @@ const schema = [
     source text not null, updated_at timestamptz not null default now(), updated_by text not null
   )`,
   `create table if not exists scrit_attestations (
-    batch_id text primary key, commodity text not null check (commodity in ('Au','Ag','Pt','Pd','Nd','Dy','Tb','Sc','Li')), mass_kg numeric(30,12) not null check (mass_kg > 0),
+    chain_id integer not null default 46630, batch_id text not null, commodity text not null check (commodity in ('Au','Ag','Pt','Pd','Nd','Dy','Tb','Sc','Li')), mass_kg numeric(30,12) not null check (mass_kg > 0),
     grade_spec text not null, certificate_hash text not null, vault_id text not null, custodian text not null,
-    signature text not null, attested_at timestamptz not null, created_at timestamptz not null default now()
+    signature text not null, attested_at timestamptz not null, created_at timestamptz not null default now(),
+    constraint scrit_attestations_chain_batch_pkey primary key(chain_id,batch_id)
   )`,
+  `alter table scrit_attestations add column if not exists chain_id integer not null default 46630`,
+  `alter table scrit_attestations drop constraint if exists scrit_attestations_pkey`,
+  `do $$ begin
+    if not exists (select 1 from pg_constraint where conname='scrit_attestations_chain_batch_pkey' and conrelid='scrit_attestations'::regclass) then
+      alter table scrit_attestations add constraint scrit_attestations_chain_batch_pkey primary key(chain_id,batch_id);
+    end if;
+  end $$`,
+  `create index if not exists scrit_attestations_chain_idx on scrit_attestations(chain_id, attested_at desc)`,
   `create table if not exists scrit_treasury_log (
     id bigserial primary key, kind text not null, amount_text text not null, token text not null, sender text not null,
     recipient text not null, tx_hash text not null unique, chain_id integer not null, note text not null default '', created_at timestamptz not null default now()
@@ -179,16 +188,16 @@ export async function setPrice(p: Price, updatedBy: string): Promise<void> {
     on conflict(commodity) do update set usd_per_kg=excluded.usd_per_kg, source=excluded.source, updated_at=excluded.updated_at, updated_by=excluded.updated_by`;
 }
 
-export async function listAttestations(): Promise<Attestation[]> {
+export async function listAttestations(chainId = 46630): Promise<Attestation[]> {
   const db = await database();
-  return await db`select batch_id,commodity,mass_kg::text,grade_spec,certificate_hash,vault_id,custodian,signature,attested_at as created_at from scrit_attestations order by created_at desc limit 500` as unknown as Attestation[];
+  return await db`select batch_id,chain_id,commodity,mass_kg::text,grade_spec,certificate_hash,vault_id,custodian,signature,attested_at as created_at from scrit_attestations where chain_id=${chainId} order by created_at desc limit 500` as unknown as Attestation[];
 }
 
 export async function saveAttestation(row: Attestation): Promise<boolean> {
   const db = await database();
-  const rows = await db`insert into scrit_attestations(batch_id,commodity,mass_kg,grade_spec,certificate_hash,vault_id,custodian,signature,attested_at)
-    values(${row.batch_id},${row.commodity},${row.mass_kg},${row.grade_spec},${row.certificate_hash},${row.vault_id},${row.custodian.toLowerCase()},${row.signature},to_timestamp(${Number(row.timestamp)}))
-    on conflict(batch_id) do nothing returning batch_id`;
+  const rows = await db`insert into scrit_attestations(batch_id,chain_id,commodity,mass_kg,grade_spec,certificate_hash,vault_id,custodian,signature,attested_at)
+    values(${row.batch_id},${Number(row.chain_id)},${row.commodity},${row.mass_kg},${row.grade_spec},${row.certificate_hash},${row.vault_id},${row.custodian.toLowerCase()},${row.signature},to_timestamp(${Number(row.timestamp)}))
+    on conflict(chain_id,batch_id) do nothing returning batch_id`;
   return rows.length > 0;
 }
 
@@ -200,9 +209,9 @@ export async function logTreasury(row: TreasuryRow): Promise<boolean> {
   return rows.length > 0;
 }
 
-export async function listTreasury(): Promise<TreasuryRow[]> {
+export async function listTreasury(chainId: number): Promise<TreasuryRow[]> {
   const db = await database();
-  return await db`select kind,amount_text,token,sender,recipient,tx_hash,chain_id,note,created_at from scrit_treasury_log order by created_at desc limit 500` as unknown as TreasuryRow[];
+  return await db`select kind,amount_text,token,sender,recipient,tx_hash,chain_id,note,created_at from scrit_treasury_log where chain_id=${chainId} order by created_at desc limit 500` as unknown as TreasuryRow[];
 }
 
 export async function listCustodians(): Promise<Custodian[]> {

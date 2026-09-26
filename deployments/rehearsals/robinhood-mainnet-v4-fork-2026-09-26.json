@@ -1,0 +1,80 @@
+{
+  "status": "simulation_only_local_fork",
+  "disclaimer": "All addresses and transactions below are local Anvil fork state. They are not canonical deployments and no mainnet transaction was sent.",
+  "fork": {
+    "chainId": 4663,
+    "hardfork": "cancun",
+    "source": "Robinhood Chain mainnet state",
+    "endpoint": "localhost only"
+  },
+  "simulatedDeployer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "dependencies": {
+    "poolManager": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+    "positionManager": "0x58daec3116aae6d93017baaea7749052e8a04fa7",
+    "stateView": "0xf3334192d15450cdd385c8b70e03f9a6bd9e673b",
+    "permit2": "0x000000000022D473030F116dDEE9F6B43aC78BA3"
+  },
+  "contracts": {
+    "scrit": {
+      "address": "0xd3735cbb1d8d3c8e67e3d85cf3d5689455176ff3",
+      "hash": "0xcc21f5dda78cd85ec7294623f8ee206d4408850e2e31c22c0653cf54a3b856aa",
+      "block": 72863429
+    },
+    "create2Deployer": {
+      "address": "0x45460217de63a54d63eede1e314e777f75a74509",
+      "hash": "0x7d214079479af75020345016f49350b423dc645761102c8dfdd67e73c4a5909a",
+      "block": 72863431
+    },
+    "hook": {
+      "address": "0x85d3b82e73f809564ab8e4865d819543083ba044",
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000006b89",
+      "deployTx": "0x27bd35a4bf9790c8a4e964c05472b0cf6471addb2d7606a131c41b086813688f"
+    },
+    "launcher": {
+      "address": "0x9a9edea6c804f40d81b1dc4ae551affbad2ec5bb",
+      "hash": "0xd0605ed1f1b7adc27af369dca4a92df22d58659e9e51bb007b710e59ee746bdd",
+      "block": 72863433
+    }
+  },
+  "launch": {
+    "transaction": "0xcb692b4bb3281a61be42cef701f26c783e81f3fb321111b707d9e76b678f153e",
+    "block": 72863436,
+    "token": "0x99152ad288dC593382d2607C74B366ae1B86D560",
+    "creator": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "poolId": "0x3b605496d0230f39abc68910d567812a0de2c9b3d0215ee8993aa323ad5fc4bf",
+    "positionId": "3296817",
+    "liquidity": "9999999999999999996801",
+    "tokenAmount": "99999999999999999999993",
+    "scritAmount": "999999999999999998812",
+    "sqrtPriceX96": "7922816251426433756777414656",
+    "tick": -46055,
+    "lpFee": 3000,
+    "poolLiquidity": "9999999999999999996801",
+    "positionOwner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "hookHasCode": true,
+    "tokenHasCode": true
+  },
+  "swap": {
+    "transaction": "0x3770ec27a10ba446d0436ea72ba3bc390fb20b6ba5ed9902a97af732d1acaea1",
+    "block": 72863439,
+    "swapper": "0xb27a9f32de9da255bb87aeb9fe934a3acbdea3d6",
+    "poolId": "0x3b605496d0230f39abc68910d567812a0de2c9b3d0215ee8993aa323ad5fc4bf",
+    "feeCurrency": "0xD3735cbb1D8D3c8E67e3d85CF3d5689455176ff3",
+    "taxAmount": "249247515002275",
+    "reserveAmount": "186935636251706",
+    "operationsAmount": "62311878750569",
+    "reserveEthBefore": "9999980368457696254476",
+    "reserveEthAfter": "9999980213125750126370"
+  },
+  "checks": {
+    "launcherApprovedLocalIssuer": true,
+    "v4LaunchEvent": true,
+    "poolInitialized": true,
+    "poolHasLiquidity": true,
+    "positionNftOwnedByIssuer": true,
+    "swapSucceeded": true,
+    "afterSwapTaxEvent": true,
+    "taxSplit75_25": true,
+    "localForkOnly": true
+  }
+}

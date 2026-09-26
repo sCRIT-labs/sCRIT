@@ -41,7 +41,7 @@ const token = option("--token") || env.NEXT_PUBLIC_SCRIT_MAINNET;
 const timelock = option("--timelock") || env.NEXT_PUBLIC_SCRIT_TIMELOCK_MAINNET;
 const scritAmount = option("--scrit");
 const ethAmount = option("--eth");
-const privateKey = env.MAINNET_PRIVATE_KEY || env.PRIVATE_KEY;
+const privateKey = env.MAINNET_PRIVATE_KEY;
 const validAddress = (v) => /^0x[0-9a-fA-F]{40}$/.test(v || "") && !/^0x0{40}$/i.test(v);
 const tickLower = -887_220;
 const tickUpper = 887_220;
@@ -67,7 +67,7 @@ function sqrtBigInt(value) {
 if (!process.argv.includes("--mainnet")) throw new Error("Refusing to run without explicit --mainnet.");
 if (!validAddress(token) || !validAddress(timelock)) throw new Error("Pass valid --token and --timelock addresses or configure the deployment outputs.");
 if (!/^\d+(?:\.\d{1,18})?$/.test(scritAmount || "") || !/^\d+(?:\.\d{1,18})?$/.test(ethAmount || "")) throw new Error("Pass positive decimal --scrit and --eth amounts.");
-if (!/^0x[0-9a-fA-F]{64}$/.test(privateKey || "")) throw new Error("Set MAINNET_PRIVATE_KEY or PRIVATE_KEY in .env.local.");
+if (!/^0x[0-9a-fA-F]{64}$/.test(privateKey || "")) throw new Error("Set MAINNET_PRIVATE_KEY in .env.local; mainnet must not reuse a testnet signing key implicitly.");
 const amountScrit = parseEther(scritAmount);
 const amountEth = parseEther(ethAmount);
 if (amountScrit <= 0n || amountEth <= 0n || amountScrit > (1n << 128n) - 1n || amountEth > (1n << 128n) - 1n) throw new Error("Seed amounts must be positive and fit V4's uint128 amount bounds.");

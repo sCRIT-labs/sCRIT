@@ -18,7 +18,7 @@ if (!/^[A-Za-z0-9._:-]{1,100}$/.test(lotLabel ?? "") || commodity === undefined 
   throw new Error("Usage: node scripts/attest-physical-lot.mjs [--testnet|--mainnet] LOT_ID Au|Ag|Pt|Pd|Nd|Dy|Tb|Sc|Li|Diamond CERT_HASH GRADE VAULT PROVENANCE NONCE RECIPIENT");
 }
 const chainId = mode === "mainnet" ? 4663 : 46630;
-const privateKey = mode === "mainnet" ? env.MAINNET_PHYSICAL_LOT_CUSTODIAN_PRIVATE_KEY || env.PHYSICAL_LOT_CUSTODIAN_PRIVATE_KEY : env.PHYSICAL_LOT_CUSTODIAN_PRIVATE_KEY;
+const privateKey = mode === "mainnet" ? env.MAINNET_PHYSICAL_LOT_CUSTODIAN_PRIVATE_KEY : env.PHYSICAL_LOT_CUSTODIAN_PRIVATE_KEY;
 const manager = env[`NEXT_PUBLIC_SCRIT_LOT_MANAGER_${suffix}`] || (mode === "testnet" ? env.NEXT_PUBLIC_SCRIT_LOT_MANAGER : undefined);
 if (!/^0x[0-9a-fA-F]{64}$/.test(privateKey ?? "") || !/^0x[0-9a-fA-F]{40}$/.test(manager ?? "") || /^0x0{40}$/i.test(manager ?? "")) {
   throw new Error(`Configure the ${mode} physical-lot custodian key and manager address locally.`);

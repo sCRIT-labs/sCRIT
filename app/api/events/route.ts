@@ -1,14 +1,16 @@
 import { NextResponse } from "next/server";
 import { listChainEvents } from "@/lib/db";
+import { selectedChainIdFor } from "@/lib/network-api-config";
 
 export async function GET(request: Request) {
   const limitParam = new URL(request.url).searchParams.get("limit");
   const chainIdParam = new URL(request.url).searchParams.get("chainId");
   const limit = limitParam ? Number(limitParam) : 100;
-  const chainId = chainIdParam ? Number(chainIdParam) : 46630;
+  const chainId = chainIdParam ? Number(chainIdParam) : selectedChainIdFor(process.env);
   if (!Number.isInteger(limit) || limit < 1 || limit > 500) {
     return NextResponse.json({ error: "invalid_limit" }, { status: 400 });
   }
+  if (chainId === null) return NextResponse.json({ error: "chain_unconfigured" }, { status: 503 });
   if (chainId !== 4663 && chainId !== 46630) {
     return NextResponse.json({ error: "invalid_chain_id" }, { status: 400 });
   }

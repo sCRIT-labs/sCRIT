@@ -17,7 +17,7 @@ if (commodity === undefined || !/^\d+(?:\.\d{1,8})?$/.test(priceText ?? "") || N
 }
 const suffix = mode === "mainnet" ? "MAINNET" : "TESTNET";
 const chainId = mode === "mainnet" ? 4663 : 46630;
-const privateKey = mode === "mainnet" ? env.MAINNET_PRICE_ADAPTER_PRIVATE_KEY || env.PRICE_ADAPTER_PRIVATE_KEY : env.PRICE_ADAPTER_PRIVATE_KEY;
+const privateKey = mode === "mainnet" ? env.MAINNET_PRICE_ADAPTER_PRIVATE_KEY : env.PRICE_ADAPTER_PRIVATE_KEY;
 const adapter = env[`NEXT_PUBLIC_SCRIT_PRICE_ADAPTER_${suffix}`] || (mode === "testnet" ? env.NEXT_PUBLIC_SCRIT_PRICE_ADAPTER : undefined);
 if (!/^0x[0-9a-fA-F]{64}$/.test(privateKey ?? "") || !/^0x[0-9a-fA-F]{40}$/.test(adapter ?? "") || /^0x0{40}$/i.test(adapter ?? "")) throw new Error(`Configure the ${mode} price signer key and contract address locally.`);
 const rpc = mode === "mainnet" ? env.ROBINHOOD_MAINNET_RPC_URL || "https://rpc.mainnet.chain.robinhood.com" : env.SCRIT_INDEXER_RPC_URL || "https://rpc.testnet.chain.robinhood.com";

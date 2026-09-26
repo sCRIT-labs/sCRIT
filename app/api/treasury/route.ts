@@ -1,20 +1,19 @@
 import { NextResponse } from "next/server";
 import { createPublicClient, defineChain, formatUnits, http, keccak256, toBytes, type Address, type Hash } from "viem";
 import { checkAdmin, listTreasury, logTreasury } from "@/lib/db";
+import { selectedChainIdFor, treasuryConfigFor } from "@/lib/network-api-config";
 
 const transferTopic = keccak256(toBytes("Transfer(address,address,uint256)"));
 
-function chainConfig() {
-  const id = Number(process.env.TREASURY_CHAIN_ID ?? "4663");
-  const known = id === 4663 ? "https://rpc.mainnet.chain.robinhood.com" : id === 46630 ? "https://rpc.testnet.chain.robinhood.com" : "";
-  const rpc = process.env.TREASURY_RPC_URL || known;
-  if (!rpc || !Number.isInteger(id)) throw new Error("treasury_chain_unconfigured");
-  const chain = defineChain({ id, name: `sCRIT treasury chain ${id}`, nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 }, rpcUrls: { default: { http: [rpc] } } });
-  return { id, client: createPublicClient({ chain, transport: http(rpc) }) };
+function chainConfig(config: NonNullable<ReturnType<typeof treasuryConfigFor>>) {
+  const chain = defineChain({ id: config.chainId, name: `sCRIT treasury chain ${config.chainId}`, nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 }, rpcUrls: { default: { http: [config.rpcUrl] } } });
+  return { id: config.chainId, client: createPublicClient({ chain, transport: http(config.rpcUrl) }) };
 }
 
 export async function GET() {
-  try { return NextResponse.json({ log: await listTreasury() }); }
+  const chainId = selectedChainIdFor(process.env);
+  if (!chainId) return NextResponse.json({ error: "chain_unconfigured" }, { status: 503 });
+  try { return NextResponse.json({ log: await listTreasury(chainId), chainId }); }
   catch { return NextResponse.json({ error: "database_unavailable" }, { status: 503 }); }
 }
 
@@ -25,13 +24,16 @@ export async function POST(req: Request) {
       (body.note !== undefined && typeof body.note !== "string") || (body.note?.length ?? 0) > 240) {
     return NextResponse.json({ error: "bad_input" }, { status: 400 });
   }
-  const token = process.env.NEXT_PUBLIC_SCRIT ?? "";
-  const recipient = process.env.NEXT_PUBLIC_TREASURY ?? "";
-  if (!/^0x[0-9a-fA-F]{40}$/.test(token) || !/^0x[0-9a-fA-F]{40}$/.test(recipient) || /^0x0{40}$/i.test(token) || /^0x0{40}$/i.test(recipient)) {
+  const config = treasuryConfigFor(process.env);
+  if (!config) {
     return NextResponse.json({ error: "treasury_verification_unconfigured" }, { status: 503 });
   }
+  const { token, recipient } = config;
   try {
-    const { id, client } = chainConfig();
+    const { id, client } = chainConfig(config);
+    if (await client.getChainId() !== id) {
+      return NextResponse.json({ error: "treasury_rpc_chain_mismatch" }, { status: 503 });
+    }
     const hash = body.tx_hash as Hash;
     const receipt = await client.getTransactionReceipt({ hash });
     if (receipt.status !== "success") return NextResponse.json({ error: "transaction_reverted" }, { status: 400 });
@@ -51,7 +53,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, verified: true });
   } catch (error) {
     const message = error instanceof Error ? error.message : "verification_failed";
-    const status = message.includes("treasury_chain_unconfigured") ? 503 : 400;
-    return NextResponse.json({ error: status === 503 ? message : "receipt_verification_failed" }, { status });
+    return NextResponse.json({ error: "receipt_verification_failed" }, { status: 400 });
   }
 }

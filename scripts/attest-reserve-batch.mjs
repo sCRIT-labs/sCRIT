@@ -17,7 +17,7 @@ if (!/^[A-Za-z0-9._:-]{1,100}$/.test(batch ?? "") || commodity === undefined || 
 }
 const suffix = mode === "mainnet" ? "MAINNET" : "TESTNET";
 const chainId = mode === "mainnet" ? 4663 : 46630;
-const privateKey = mode === "mainnet" ? env.MAINNET_RESERVE_CUSTODIAN_PRIVATE_KEY || env.RESERVE_CUSTODIAN_PRIVATE_KEY : env.RESERVE_CUSTODIAN_PRIVATE_KEY;
+const privateKey = mode === "mainnet" ? env.MAINNET_RESERVE_CUSTODIAN_PRIVATE_KEY : env.RESERVE_CUSTODIAN_PRIVATE_KEY;
 const manager = env[`NEXT_PUBLIC_SCRIT_RESERVE_MANAGER_${suffix}`] || (mode === "testnet" ? env.NEXT_PUBLIC_SCRIT_RESERVE_MANAGER : undefined);
 if (!/^0x[0-9a-fA-F]{64}$/.test(privateKey ?? "") || !/^0x[0-9a-fA-F]{40}$/.test(manager ?? "") || /^0x0{40}$/i.test(manager ?? "")) throw new Error(`Configure the ${mode} custodian key and reserve manager address locally.`);
 const rpc = mode === "mainnet" ? env.ROBINHOOD_MAINNET_RPC_URL || "https://rpc.mainnet.chain.robinhood.com" : env.SCRIT_INDEXER_RPC_URL || "https://rpc.testnet.chain.robinhood.com";

@@ -3,7 +3,7 @@
 import { readFileSync, existsSync, writeFileSync, mkdirSync } from "node:fs";
 import { createPublicClient, createWalletClient, http, defineChain, getContractAddress, parseAbi, parseAbiParameters, parseEther, encodeAbiParameters, encodePacked, concatHex, keccak256, numberToHex } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { assertExpectedDeployer } from "./deploy-config.mjs";
+import { assertExpectedDeployer, getTimelockMinDelay } from "./deploy-config.mjs";
 
 const mode = process.argv.includes("--mainnet") ? "mainnet" : process.argv.includes("--testnet") ? "testnet" : null;
 if (!mode) {
@@ -24,14 +24,14 @@ const network = mode === "mainnet" ? {
   name: "Robinhood Chain",
   rpc: env.ROBINHOOD_MAINNET_RPC_URL || "https://rpc.mainnet.chain.robinhood.com",
   explorer: "https://robinhoodchain.blockscout.com",
-  privateKey: env.MAINNET_PRIVATE_KEY || env.PRIVATE_KEY,
+  privateKey: env.MAINNET_PRIVATE_KEY,
   expectedDeployer: env.MAINNET_DEPLOYER_ADDRESS,
-  admin: env.MAINNET_ADMIN_ADDRESS || env.ADMIN_MULTISIG,
-  guardian: env.MAINNET_PAUSER_ADDRESS || env.PAUSER_ADDRESS,
-  priceSigner: env.MAINNET_PRICE_SIGNER_ADDRESS || env.PRICE_SIGNER_ADDRESS,
-  treasury: env.MAINNET_RESERVE_TREASURY_ADDRESS || env.RESERVE_TREASURY_ADDRESS,
-  operations: env.MAINNET_OPERATIONS_TREASURY_ADDRESS || env.OPERATIONS_TREASURY_ADDRESS,
-  maxSupply: env.MAINNET_SCRIT_MAX_SUPPLY || env.SCRIT_MAX_SUPPLY,
+  admin: env.MAINNET_ADMIN_ADDRESS,
+  guardian: env.MAINNET_PAUSER_ADDRESS,
+  priceSigner: env.MAINNET_PRICE_SIGNER_ADDRESS,
+  treasury: env.MAINNET_RESERVE_TREASURY_ADDRESS,
+  operations: env.MAINNET_OPERATIONS_TREASURY_ADDRESS,
+  maxSupply: env.MAINNET_SCRIT_MAX_SUPPLY,
   factory: env.MAINNET_V3_FACTORY_ADDRESS || "0x1f7d7550B1b028f7571E69A784071F0205FD2EfA",
   positionManager: env.MAINNET_V3_POSITION_MANAGER_ADDRESS || "0x73991a25C818Bf1f1128dEAaB1492D45638DE0D3",
   fee: Number(env.MAINNET_V3_FEE_TIER || "3000"),
@@ -57,10 +57,17 @@ const network = mode === "mainnet" ? {
   fee: Number(env.V3_FEE_TIER || "3000"),
 };
 const privateKey = network.privateKey;
-if (!/^0x[0-9a-fA-F]{64}$/.test(privateKey ?? "")) throw new Error(`Set ${mode === "mainnet" ? "MAINNET_PRIVATE_KEY (or PRIVATE_KEY)" : "PRIVATE_KEY"} in local .env.local; never put it in hosted app settings.`);
+if (!/^0x[0-9a-fA-F]{64}$/.test(privateKey ?? "")) throw new Error(`Set ${mode === "mainnet" ? "MAINNET_PRIVATE_KEY" : "PRIVATE_KEY"} in local .env.local; never put it in hosted app settings.`);
 const validAddress = (value) => /^0x[0-9a-fA-F]{40}$/.test(value ?? "") && !/^0x0{40}$/i.test(value);
 for (const key of ["admin", "guardian", "priceSigner", "treasury"]) {
   if (!validAddress(network[key])) throw new Error(`Set the ${mode} ${key} address to a non-zero EVM address.`);
+}
+if (mode === "mainnet") {
+  if (!validAddress(network.expectedDeployer)) throw new Error("Set MAINNET_DEPLOYER_ADDRESS explicitly; mainnet must not inherit the testnet deployer.");
+  if (!validAddress(network.operations)) throw new Error("Set MAINNET_OPERATIONS_TREASURY_ADDRESS explicitly.");
+  if (env.MAINNET_DEPLOYMENT_TOKEN_MODEL !== "project-index") {
+    throw new Error("This deployment creates the project's own ScritIndexToken. Set MAINNET_DEPLOYMENT_TOKEN_MODEL=project-index to confirm that token model.");
+  }
 }
 if (!/^\d+(?:\.\d+)?$/.test(network.maxSupply ?? "")) throw new Error(`Set ${mode === "mainnet" ? "MAINNET_SCRIT_MAX_SUPPLY" : "SCRIT_MAX_SUPPLY"} to a positive token amount (for example 1000000).`);
 
@@ -72,9 +79,9 @@ const chain = defineChain({
   blockExplorers: { default: { name: "Robinhood Explorer", url: network.explorer } },
 });
 const account = privateKeyToAccount(privateKey);
-const operationsTreasury = mode === "mainnet" ? network.operations || account.address : network.operations;
+const operationsTreasury = network.operations;
 if (mode === "mainnet" && !validAddress(operationsTreasury)) throw new Error("Invalid mainnet operations treasury address.");
-assertExpectedDeployer(account.address, network.expectedDeployer);
+assertExpectedDeployer(account.address, network.expectedDeployer, mode);
 const rpcUrl = network.rpc;
 const publicClient = createPublicClient({ chain, transport: http(rpcUrl) });
 const wallet = createWalletClient({ account, chain, transport: http(rpcUrl) });
@@ -133,6 +140,7 @@ const artifact = (name) => {
   return { abi: JSON.parse(abiMatch[1]), bytecode: codeMatch[1] };
 };
 const deployed = [];
+const timelockMinDelaySeconds = getTimelockMinDelay(mode, env);
 const deploymentId = new Date().toISOString().replaceAll(":", "-");
 const manifestPath = `deployments/robinhood-${mode}-${deploymentId}.json`;
 const manifest = {
@@ -143,7 +151,7 @@ const manifest = {
   v3: { factory: v3FactoryAddress, positionManager: v3PositionManagerAddress, feeTier: fee, tickSpacing, weth9 },
   contracts: {},
   launcherOwner: null,
-  timelockMinDelaySeconds: 172800,
+  timelockMinDelaySeconds: timelockMinDelaySeconds.toString(),
   status: "in_progress",
 };
 mkdirSync("deployments", { recursive: true });
@@ -162,7 +170,7 @@ const deploy = async (name, args) => {
 
 const admin = network.admin;
 const guardian = network.guardian;
-const timelock = await deploy("SCRIT_TIMELOCK", [172800n, [admin], [admin], "0x0000000000000000000000000000000000000000"]);
+const timelock = await deploy("SCRIT_TIMELOCK", [timelockMinDelaySeconds, [admin], [admin], "0x0000000000000000000000000000000000000000"]);
 const custodianRegistry = await deploy("SCRIT_CUSTODIANS", [timelock]);
 const priceAdapter = await deploy("SCRIT_PRICES", [timelock, network.priceSigner]);
 const kycRegistry = await deploy("SCRIT_KYC", [timelock]);
@@ -256,7 +264,7 @@ else console.log(`V3 factory: ${v3FactoryAddress} (fee ${fee}, tick spacing ${ti
 console.log(`${mode === "mainnet" ? "V4" : "V3"} position manager: ${mode === "mainnet" ? network.v4PositionManager : v3PositionManagerAddress}`);
 console.log(`Launcher owner set to timelock ${timelock}`);
 
-console.log(`\n${network.name} deployment complete. Role/configuration proposals still need the timelock's 48-hour schedule and execution.`);
+console.log(`\n${network.name} deployment complete. Timelock minimum delay: ${timelockMinDelaySeconds} seconds. Schedule and execute role/configuration proposals with the configured proposer/executor.`);
 const envSuffix = mode === "mainnet" ? "MAINNET" : "TESTNET";
 console.log(`NEXT_PUBLIC_SCRIT_${envSuffix}=${scrit}`);
 console.log(`NEXT_PUBLIC_SCRIT_RESERVE_MANAGER_${envSuffix}=${reserveManager}`);

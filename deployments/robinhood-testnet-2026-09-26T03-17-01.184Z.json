@@ -1,0 +1,185 @@
+{
+  "network": "Robinhood Testnet",
+  "chainId": 46630,
+  "deployedAt": "2026-09-26T03:17:01.185Z",
+  "deployer": "0xCdbdc82A021071eE445d9f897433a7E4B4EAfD8d",
+  "v3": {
+    "factory": "0x09b6d850382787115969a2699f107f5a974c781b",
+    "positionManager": "0x15e98cf94a32c7fd23a36fabb4fee612277da47b",
+    "feeTier": 3000,
+    "tickSpacing": 60,
+    "weth9": "0x0Dd1Df4fdd55808c9D530C9599BEA5107F6b9b4e"
+  },
+  "contracts": {
+    "SCRIT_TIMELOCK": {
+      "address": "0x6809f71adc27a158a6ab4d74bd6a7ac228014827",
+      "tx": "0x404db2f194bc83b346ac979ad6d239e47919b72178fe4a13102f91bededb8d37",
+      "block": 124391834
+    },
+    "SCRIT_CUSTODIANS": {
+      "address": "0xf8e56794c0ded1e01b8f973ff0f6d2f86f8e43e7",
+      "tx": "0xc808e4dab1527f26fb68577f51b0409167d373f2f9742ad976a62cd2b40ec21b",
+      "block": 124391847
+    },
+    "SCRIT_PRICES": {
+      "address": "0x2e0de4486b391c182a6727d5480380f9820c73d5",
+      "tx": "0x9340d1879136fa890418da5ba8d08438744dd58c297ca5a8e8c6d2ae938923d1",
+      "block": 124391862
+    },
+    "SCRIT_KYC": {
+      "address": "0xfc44b04db5f98b89c4a42e1884293df60bb04ab4",
+      "tx": "0x9325d54fd6a4798ea9295d61ad09f259f4adfd20d0cee354447aaa374a55f89b",
+      "block": 124391874
+    },
+    "SCRIT_RESERVE": {
+      "address": "0x7a4f104d4259caa3e9f538b441b5a1883c89382e",
+      "tx": "0xee8cd91cd1c486ebb962a525344a848e351a814233597ddbce3e8d83ebf275d3",
+      "block": 124391890
+    },
+    "SCRIT_INDEX": {
+      "address": "0x5d2dc6cc02c47d7bb2e9b2904a8d73762c06761b",
+      "tx": "0x0ae710d0da3ed119afb1062e43ec87be2650f35ea309d1ce2126147120caf02b",
+      "block": 124391901
+    },
+    "SCRIT_LOT_MANAGER": {
+      "address": "0xbe3bd3f5db84d0e8f526d88cfb7a7ba8897001d7",
+      "tx": "0xc4b5b72cdf65f648b289a1decff0dde2287632694fd185f8c09b8ccbc1f7e86d",
+      "block": 124391916
+    },
+    "SCRIT_LOT_TOKEN": {
+      "address": "0x8d6a7d803697342415142f4b5f5d7ea1919c2353",
+      "tx": "0x2762f37692095a077d1769e18a9df8f6bd22b47883d4cc3a7cfed1a7506ba212",
+      "block": 124391931
+    },
+    "SCRIT_LOT_REDEMPTION": {
+      "address": "0xdba2d337d128787885fff9e50dcb5e4ed415b324",
+      "tx": "0x95ab4262f4d463ed3363efe790755f2131d3eb55b5752c60a8b48b666ee2b61e",
+      "block": 124391941
+    },
+    "SCRIT_LOT_MARKET": {
+      "address": "0xdf21c421d2f17863cfa2a2f5c3a9a2edba7c6a8f",
+      "tx": "0x14eb340af6cb0f1f9ac5ea426dc99206561e16a677e15a4892c748df480f4015",
+      "block": 124391956
+    },
+    "SCRIT_LAUNCHER": {
+      "address": "0x82ae0f04a7da806abab8f81730eb6aef3fed4cc4",
+      "tx": "0x08082b2f729dc106d3ab398d743aefaf6d3e46a175c888aee25beea59def39be",
+      "block": 124391969
+    }
+  },
+  "launcherOwner": "0x6809f71adc27a158a6ab4d74bd6a7ac228014827",
+  "timelockMinDelaySeconds": 172800,
+  "status": "complete",
+  "launcherOwnershipTransferTx": "0x410de80d933347c013c6f55a99997ab5ac3520405ebde56362e144dc989eb59a",
+  "postDeployment": {
+    "timelockSetup": {
+      "operation": "0xafa92f6b09b38190eddb7414848e4991f4ae4e1edd94857e565c0cdf50f8dfa2",
+      "tx": "0xddeffdf61eaa24f196762892d5e3829ed18bedee6a91b82518c9c1768cd6f415",
+      "block": 124392776,
+      "scheduledAt": "1790392816",
+      "readyAt": "1790565616",
+      "delaySeconds": "172800",
+      "targets": [
+        "0xf8e56794c0ded1e01b8f973ff0f6d2f86f8e43e7",
+        "0x82ae0f04a7da806abab8f81730eb6aef3fed4cc4"
+      ],
+      "actions": [
+        "Register testnet-only demo custodian with Au/Ag/Pt scope",
+        "Approve testnet issuer EOA"
+      ],
+      "note": "Scheduled; cannot execute before readyAt. Custodian evidence label explicitly denies real-custody claim."
+    },
+    "bytecodeVerification": {
+      "chainId": 46630,
+      "block": "124393658",
+      "contracts": [
+        {
+          "name": "SCRIT_TIMELOCK",
+          "address": "0x6809f71adc27a158a6ab4d74bd6a7ac228014827",
+          "codeBytes": 5450
+        },
+        {
+          "name": "SCRIT_CUSTODIANS",
+          "address": "0xf8e56794c0ded1e01b8f973ff0f6d2f86f8e43e7",
+          "codeBytes": 2561
+        },
+        {
+          "name": "SCRIT_PRICES",
+          "address": "0x2e0de4486b391c182a6727d5480380f9820c73d5",
+          "codeBytes": 4499
+        },
+        {
+          "name": "SCRIT_KYC",
+          "address": "0xfc44b04db5f98b89c4a42e1884293df60bb04ab4",
+          "codeBytes": 1443
+        },
+        {
+          "name": "SCRIT_RESERVE",
+          "address": "0x7a4f104d4259caa3e9f538b441b5a1883c89382e",
+          "codeBytes": 7400
+        },
+        {
+          "name": "SCRIT_INDEX",
+          "address": "0x5d2dc6cc02c47d7bb2e9b2904a8d73762c06761b",
+          "codeBytes": 3407
+        },
+        {
+          "name": "SCRIT_LOT_MANAGER",
+          "address": "0xbe3bd3f5db84d0e8f526d88cfb7a7ba8897001d7",
+          "codeBytes": 4965
+        },
+        {
+          "name": "SCRIT_LOT_TOKEN",
+          "address": "0x8d6a7d803697342415142f4b5f5d7ea1919c2353",
+          "codeBytes": 7561
+        },
+        {
+          "name": "SCRIT_LOT_REDEMPTION",
+          "address": "0xdba2d337d128787885fff9e50dcb5e4ed415b324",
+          "codeBytes": 4201
+        },
+        {
+          "name": "SCRIT_LOT_MARKET",
+          "address": "0xdf21c421d2f17863cfa2a2f5c3a9a2edba7c6a8f",
+          "codeBytes": 4178
+        },
+        {
+          "name": "SCRIT_LAUNCHER",
+          "address": "0x82ae0f04a7da806abab8f81730eb6aef3fed4cc4",
+          "codeBytes": 8214
+        }
+      ],
+      "checks": {
+        "launcherOwner": true,
+        "launcherToken": true,
+        "launcherManager": true,
+        "reserveToken": true,
+        "reserveRegistry": true,
+        "reservePriceAdapter": true,
+        "reserveMinter": true,
+        "lotManagerRole": true,
+        "redemptionManagerRole": true,
+        "timelockDelaySeconds": "172800",
+        "proposer": true,
+        "executor": true
+      }
+    },
+    "railBSetup": {
+      "operation": "0x3001d0e7e1b167ffceb9cc16a4b1e5c9a328785805054822fc93401e3a770be6",
+      "tx": "0x53bf3f7993cef289858d848cd87505878ad345a8366681d805b4d5d1fce0d2bf",
+      "block": 124394389,
+      "scheduledAt": "1790393141",
+      "readyAt": "1790565941",
+      "delaySeconds": "172800",
+      "targets": [
+        "0xf8e56794c0ded1e01b8f973ff0f6d2f86f8e43e7",
+        "0xfc44b04db5f98b89c4a42e1884293df60bb04ab4"
+      ],
+      "actions": [
+        "Expand demo custodian scope to Au/Ag/Pt and diamonds",
+        "Approve this EOA in the testnet KYC registry with demo-only evidence"
+      ],
+      "note": "Scheduled; cannot execute before readyAt. Custodian and KYC evidence explicitly deny real custody or identity-verification claims."
+    }
+  }
+}

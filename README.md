@@ -27,7 +27,7 @@ Set `DATABASE_URL` and a random `ADMIN_KEY` locally. A separate `AP_RATE_LIMIT_S
 
 ## Existing testnet rehearsal
 
-The deployment manifest in `deployments/robinhood-testnet-2026-09-25.json` records the earlier V3 testnet stack. It predates the nine-commodity expansion and V4 hook. Recompile and deploy a fresh testnet stack before testing the updated reserve adapter; do not treat the old addresses as having the new source code.
+The manifest `deployments/robinhood-testnet-2026-09-25.json` and the `03-17` manifest are historical V3 deployments. The active rehearsal is `deployments/robinhood-testnet-2026-09-26T03-54-03.849Z.json`: it uses a zero-second delay, has demo issuer/custodian setup, and records a completed V3 token/pool launch. Its quote, reserve attestation, token, and liquidity are synthetic testnet-only data; they are not real price, custody, identity, or market claims. The V3 testnet rehearsal does not include the V4 mainnet tax hook.
 
 ```powershell
 pnpm compile
@@ -35,11 +35,11 @@ pnpm check:v3:testnet
 pnpm deploy:testnet
 ```
 
-Testnet deployment uses `PRIVATE_KEY`, `ADMIN_MULTISIG`, `PAUSER_ADDRESS`, `PRICE_SIGNER_ADDRESS`, `RESERVE_TREASURY_ADDRESS`, `SCRIT_MAX_SUPPLY`, `V3_FACTORY_ADDRESS`, and `V3_POSITION_MANAGER_ADDRESS` from local environment configuration.
+Testnet deployment uses `PRIVATE_KEY`, `ADMIN_MULTISIG`, `PAUSER_ADDRESS`, `PRICE_SIGNER_ADDRESS`, `RESERVE_TREASURY_ADDRESS`, `SCRIT_MAX_SUPPLY`, `V3_FACTORY_ADDRESS`, and `V3_POSITION_MANAGER_ADDRESS` from local environment configuration. `SCRIT_TIMELOCK_DELAY_SECONDS` defaults to `0` for immediate pilot operations.
 
 ## Robinhood Chain mainnet deployment
 
-Robinhood mainnet uses chain ID 4663. Its official Uniswap V4 PoolManager, PositionManager, and Permit2 addresses are prefilled in `.env.example`; the script checks live code and the PositionManager's PoolManager binding. `MAINNET_OPERATIONS_TREASURY_ADDRESS` is optional; if omitted, the 25% operations share goes to the deployer EOA. Set it explicitly to route that share elsewhere.
+Robinhood mainnet uses chain ID 4663. Its official Uniswap V4 PoolManager, PositionManager, and Permit2 addresses are prefilled in `.env.example`; the read-only preflight checks live code, the PositionManager's PoolManager binding, and a live `TLOAD` call through PoolManager. Mainnet signer, admin, guardian, price signer, reserve treasury, and operations treasury must be set with their `MAINNET_*` variables; no testnet fallbacks are used.
 
 ```powershell
 pnpm compile
@@ -47,7 +47,9 @@ pnpm check:v3:mainnet
 pnpm deploy:mainnet
 ```
 
-`pnpm deploy:mainnet` sends real mainnet transactions. It reads keys only from local `.env.local`, writes partial and complete manifests under `deployments/`, and does not create price, reserve, or lot records. After deployment, install the printed `NEXT_PUBLIC_SCRIT_*_MAINNET` values and `NEXT_PUBLIC_SCRIT_TAX_HOOK_MAINNET`, set `NEXT_PUBLIC_SCRIT_CHAIN_ID=4663`, and build the app. Keep mainnet and testnet addresses isolated.
+`pnpm deploy:mainnet` sends real mainnet transactions. Mainnet uses only `MAINNET_*` signer and role values; it never falls back to testnet keys, role addresses, or timelock delay. Set `MAINNET_TIMELOCK_DELAY_SECONDS` explicitly (currently selected as `0`) and `MAINNET_DEPLOYMENT_TOKEN_MODEL=project-index`. This project deploys its own `ScritIndexToken`; its mainnet address is created by the deployment and written to the manifest and printed as `NEXT_PUBLIC_SCRIT_MAINNET`. It is a new mainnet deployment, not the testnet token address or an externally launched PONS token. After deployment, install the printed `NEXT_PUBLIC_SCRIT_*_MAINNET` values and `NEXT_PUBLIC_SCRIT_TAX_HOOK_MAINNET`, set `NEXT_PUBLIC_SCRIT_CHAIN_ID=4663`, and build the app. Keep mainnet and testnet addresses isolated.
+
+To rehearse the V4 launcher and fee hook without sending mainnet transactions, start a local Cancun Anvil fork (`anvil --fork-url <Robinhood mainnet RPC> --chain-id 4663 --hardfork cancun --port 8545`) and run `pnpm rehearse:v4:fork`. The script only accepts localhost, uses Anvil's public demo mnemonic, deploys only to local fork state, and writes a clearly labeled simulation manifest under `deployments/rehearsals/`.
 
 ### Canonical sCRIT/ETH base market
 

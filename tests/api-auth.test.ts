@@ -33,7 +33,12 @@ describe("administrative API gates", () => {
     delete process.env.ADMIN_KEY;
     const request = () => new Request("http://localhost/api/", { method: "POST", body: "{}" });
     expect((await postAttestation(request())).status).toBe(401);
-    expect((await postIssuer(request())).status).toBe(401);
+    const issuerMutation = new Request("http://localhost/api/issuers", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ wallet: "0x1111111111111111111111111111111111111111", name: "Unauthorized issuer", approved: true }),
+    });
+    expect((await postIssuer(issuerMutation)).status).toBe(401);
     expect((await postTreasury(request())).status).toBe(401);
   });
 

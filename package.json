@@ -15,6 +15,7 @@
     "check:v3:testnet": "node scripts/check-v3-network.mjs testnet",
     "check:v3:mainnet": "node scripts/check-v3-network.mjs mainnet",
     "check:v4:mainnet": "node scripts/check-v4-network.mjs",
+    "rehearse:v4:fork": "node scripts/rehearse-v4-fork.mjs",
     "market:seed:v4": "node scripts/seed-v4-base-market.mjs",
     "index:events": "node scripts/index-events.mjs",
     "price:publish": "node scripts/publish-price.mjs",

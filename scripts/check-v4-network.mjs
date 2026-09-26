@@ -33,4 +33,11 @@ const boundPoolManager = await client.readContract({
 });
 if (boundPoolManager.toLowerCase() !== addresses.poolManager.toLowerCase()) throw new Error("V4 PositionManager points at a different PoolManager.");
 console.log(`PositionManager.poolManager(): ${boundPoolManager}`);
-console.log("Uniswap V4 dependency check passed. Read-only; no transactions sent.");
+const transientLoad = await client.readContract({
+  address: addresses.poolManager,
+  abi: parseAbi(["function exttload(bytes32 slot) view returns (bytes32 value)"]),
+  functionName: "exttload",
+  args: [`0x${"00".repeat(32)}`],
+});
+console.log(`PoolManager exttload(bytes32(0)): ${transientLoad} · EIP-1153 TLOAD executed`);
+console.log("Uniswap V3/V4 dependency and EIP-1153 TLOAD checks passed. Read-only; no transactions sent.");

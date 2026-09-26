@@ -1,0 +1,131 @@
+{
+  "network": "Robinhood Testnet",
+  "chainId": 46630,
+  "deployedAt": "2026-09-26T03:54:03.850Z",
+  "deployer": "0xCdbdc82A021071eE445d9f897433a7E4B4EAfD8d",
+  "v3": {
+    "factory": "0x09b6d850382787115969a2699f107f5a974c781b",
+    "positionManager": "0x15e98cf94a32c7fd23a36fabb4fee612277da47b",
+    "feeTier": 3000,
+    "tickSpacing": 60,
+    "weth9": "0x0Dd1Df4fdd55808c9D530C9599BEA5107F6b9b4e"
+  },
+  "contracts": {
+    "SCRIT_TIMELOCK": {
+      "address": "0x9295ccce50ce773b7c540fdbd831b076bedcbe15",
+      "tx": "0xd1121507bba7e19d340d5579ac80fe5f90fa55ecfa4b805a5ca6e9c599edc003",
+      "block": 124402660
+    },
+    "SCRIT_CUSTODIANS": {
+      "address": "0x3a3f2ce80a50fedce12eb464fe06aa38499c84b0",
+      "tx": "0x592b872243bb0cfa219d4400d09538d6303b8142a72f9b3ad5ab2f36d888f6d9",
+      "block": 124402668
+    },
+    "SCRIT_PRICES": {
+      "address": "0xcfbb5ab0c6166626ece1c29fe17d0a6f53d0e639",
+      "tx": "0xaeb6976ad179d994e6b10f3f0b68dd6f5bcc8c8f9cf5e3c28c52eacb1d453795",
+      "block": 124402679
+    },
+    "SCRIT_KYC": {
+      "address": "0x181f9d31b4db208cdf6c4bde68d63544b93c3a14",
+      "tx": "0x12dc5ac25a7f354f10dde0d5c9b87784f0d6536510145a7944ee7e5cc6b1fd28",
+      "block": 124402690
+    },
+    "SCRIT_RESERVE": {
+      "address": "0x8094e63ee75119769c114ff4ac77dbdd562aba8c",
+      "tx": "0xee6542ffc95cfecc8122c68fde2d3734edad3532f3a11a02c8577df0651b3b4d",
+      "block": 124402704
+    },
+    "SCRIT_INDEX": {
+      "address": "0x761333eaf1cd18d3846edb11299e4162be5e8755",
+      "tx": "0xe8f8e5af7fb343c38870ee011153aff46879d17d3c0e3d48b75b2b84f82d2e5d",
+      "block": 124402717
+    },
+    "SCRIT_LOT_MANAGER": {
+      "address": "0x50eb18affc511e5429fae4a5bd0f86513fa5d604",
+      "tx": "0x8d7f8c8559a5f5a0dd92f6f9ccd353b6c8f74f50c756d11e5c587dc4067818f4",
+      "block": 124402732
+    },
+    "SCRIT_LOT_TOKEN": {
+      "address": "0x6cd0901b0fcb999081aaf8321181d00caa3e0ebb",
+      "tx": "0x77ccc77017a646eebae843eaa90d867522308184acb03469749940ef9e2ad4d1",
+      "block": 124402746
+    },
+    "SCRIT_LOT_REDEMPTION": {
+      "address": "0x9d54b2fc3402d43f3d8ee28b029edbaab0564b70",
+      "tx": "0x0f1c77bd8100b08ede65431ca3084679733c5781b13ccabf741e980f7be3e14f",
+      "block": 124402757
+    },
+    "SCRIT_LOT_MARKET": {
+      "address": "0x499022df9838baf3f22bb46f755e5efccaee7e2a",
+      "tx": "0x60122792f268c13afc333db53941f3395fbde3a2d320ced3dec7e1f5060ece29",
+      "block": 124402766
+    },
+    "SCRIT_LAUNCHER": {
+      "address": "0xff4a94315a312d076adce12c9c8c7f459194c0ef",
+      "tx": "0x409e3556438811ae872215442c22ffc8d9759bdf7c713b8362740ed022638b8d",
+      "block": 124402779
+    }
+  },
+  "launcherOwner": "0x9295ccce50ce773b7c540fdbd831b076bedcbe15",
+  "timelockMinDelaySeconds": "0",
+  "status": "complete",
+  "launcherOwnershipTransferTx": "0x45d482de16e1a71c43fdae8b3e0bafb08f56ddb052408d52d7747e3d0b7a48c0",
+  "postDeployment": {
+    "immediateDemoSetup": {
+      "operation": "0x0050c4d49511e4836e67fa33ac1f7baf086ea92e0516204db648b5f060d7ab18",
+      "scheduleTx": "0xa93a7e7444952bb8a1bb973eb251edec9cf7bfb24de37fc9320ac0617647aae4",
+      "executeTx": "0x91623ae5ee9e161bfe357a27148f74e05e9ffd3269126e08851b1e8a71e0ceb5",
+      "executedAtBlock": 124403624,
+      "delaySeconds": "0",
+      "custodianScopeMask": 519,
+      "issuer": "0xCdbdc82A021071eE445d9f897433a7E4B4EAfD8d",
+      "checks": {
+        "custodianActive": true,
+        "kycDemoApproved": true,
+        "issuerApproved": true,
+        "operationDone": true
+      },
+      "note": "Testnet-only demo setup. Custody and identity evidence hashes explicitly disclaim real custody and identity verification."
+    },
+    "launchRehearsal": {
+      "mode": "testnet-demo-only",
+      "demoPrice": {
+        "commodity": "Au",
+        "usdPerKg": "100",
+        "sourceLabel": "TESTNET DEMO ONLY synthetic rehearsal quote, not market data"
+      },
+      "demoPriceTx": "0x48d75940e4bd691ff9df5feff37ba66ef0d371bb48727da9926154a58a02de44",
+      "demoReserve": {
+        "batchLabel": "TESTNET-DEMO-LAUNCH-2026-09-26",
+        "massKg": "1",
+        "gradeLabel": "TESTNET DEMO ONLY synthetic mass and grade",
+        "vaultLabel": "TESTNET DEMO ONLY NO VAULT",
+        "certificateHash": "0x1111111111111111111111111111111111111111111111111111111111111111",
+        "nonce": "1",
+        "demoValueUsd": "100"
+      },
+      "demoReserveAttestationTx": "0xa0281e982a968475940b3cb05e8d4d9dea35562f8faddc54fd799eb7168f9f3c",
+      "approvalTx": "0x66feb1dc82fa9d2bd17ca59d9601d8b1738e0275fc188dfad7b3d77bb0d07271",
+      "launchTx": "0x4228a6b7c3276066c785b003d94e47475380915a71312b89d77370d7b3754774",
+      "token": "0x173942F7D50FAb40b5145E2cEf263Df8Be54a6A9",
+      "pool": "0x517f2c49684123F9f45f60dA7748a0F441Af22a6",
+      "positionId": "98",
+      "liquidity": "999999999999999999133",
+      "tokenAmountAdded": "99999999999999999999982",
+      "scritAmountAdded": "9999999999999999929",
+      "feeTier": 3000,
+      "tickSpacing": 60,
+      "checks": {
+        "tokenHasCode": true,
+        "poolHasCode": true,
+        "poolFeeMatchesLauncher": true,
+        "tickSpacingMatchesLauncher": true,
+        "poolHasLiquidity": true,
+        "poolInitialized": true,
+        "positionNftOwnedByIssuer": true
+      },
+      "note": "Synthetic quote, reserve attestation, and token are testnet-only rehearsal data; they do not represent real prices, custody, identity checks, or a market launch."
+    }
+  }
+}

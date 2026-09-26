@@ -3,12 +3,15 @@ import { checkAdmin, custodianScopeFor, listAttestations, listCustodians, saveAt
 import { verifyAttestation, type AttestationMsg } from "@/lib/attestation";
 import { isValidAddress } from "@/lib/custodians";
 import { isCommoditySymbol } from "@/lib/scrit-basket";
+import { attestationConfigFor, selectedChainIdFor } from "@/lib/network-api-config";
 const MAX_AGE_SECONDS = 7 * 24 * 60 * 60;
 const MAX_FUTURE_SKEW_SECONDS = 5 * 60;
 
 export async function GET() {
+  const chainId = selectedChainIdFor(process.env);
+  if (!chainId) return NextResponse.json({ error: "chain_unconfigured" }, { status: 503 });
   try {
-    return NextResponse.json({ attestations: await listAttestations() });
+    return NextResponse.json({ attestations: await listAttestations(chainId), chainId });
   } catch {
     return NextResponse.json({ error: "database_unavailable" }, { status: 503 });
   }
@@ -16,11 +19,11 @@ export async function GET() {
 
 export async function POST(req: Request) {
   if (!checkAdmin(req)) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  const verifying = process.env.NEXT_PUBLIC_SCRIT_LAUNCHER ?? "";
-  const chainId = Number(process.env.SCRIT_ATTESTATION_CHAIN_ID ?? 46630);
-  if (!isValidAddress(verifying) || /^0x0{40}$/i.test(verifying) || ![4663, 46630].includes(chainId)) {
+  const config = attestationConfigFor(process.env);
+  if (!config || !isValidAddress(config.verifying)) {
     return NextResponse.json({ error: "attestation_verifier_unconfigured" }, { status: 503 });
   }
+  const { verifying, chainId } = config;
   const body = (await req.json().catch(() => null)) as {
     message?: AttestationMsg & { timestamp: number | string };
     signature?: `0x${string}`;
@@ -67,7 +70,7 @@ export async function POST(req: Request) {
     }
     if (!signer) return NextResponse.json({ error: "unknown_or_invalid_custodian_signature" }, { status: 403 });
     const saved = await saveAttestation({
-      batch_id: msg.batchId, commodity: msg.commodity, mass_kg: msg.massKg, grade_spec: msg.gradeSpec,
+      batch_id: msg.batchId, chain_id: String(chainId), commodity: msg.commodity, mass_kg: msg.massKg, grade_spec: msg.gradeSpec,
       certificate_hash: msg.certificateHash, vault_id: msg.vaultId, custodian: signer,
       signature: body.signature, timestamp: timestamp.toString(),
     });
