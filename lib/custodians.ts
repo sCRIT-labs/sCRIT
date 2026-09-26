@@ -3,7 +3,7 @@ export type CustodianStatus = "demo" | "contracted" | "revoked";
 export type Custodian = {
   address: string;
   name: string;
-  /** Commodity symbols this key may attest for, e.g. ["Au","Ag","Pt"]. */
+  /** Commodity symbols this key may attest for, e.g. ["Au","Ag","Li"]. */
   scope: string[];
   status: CustodianStatus;
   created_at?: string;

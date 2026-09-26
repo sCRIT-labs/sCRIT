@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { formatUsd } from "../lib/nav";
-import { SCRIT_SUPPLY, TAX_TARGET_BPS, TAX_SPLIT_RESERVE_BPS } from "../lib/scrit";
+import { SIMULATION_SUPPLY, TAX_TARGET_BPS, TAX_SPLIT_RESERVE_BPS } from "../lib/scrit";
 import { TrendingUp, TrendingDown, ArrowRight } from "lucide-react";
 
 export const ReserveSimulator: React.FC = () => {
@@ -12,7 +12,7 @@ export const ReserveSimulator: React.FC = () => {
 
   // Base pilot simulation numbers
   const baseReserve = 250000; // Simulated pilot baseline ($250k)
-  const supply = Number(SCRIT_SUPPLY);
+  const supply = Number(SIMULATION_SUPPLY);
 
   // 1% issuance / trading tax (promo 0% in pilot, but target 2.5% paska-audit)
   const taxRate = TAX_TARGET_BPS / 10000; // 2.5%
@@ -43,8 +43,8 @@ export const ReserveSimulator: React.FC = () => {
             Stress-Test the Reserve Loop
           </h2>
           <p className="ondo-products-sub" style={{ color: "#8e8e93", maxWidth: "680px", margin: "16px auto 0" }}>
-            Test the physical economics from DevBrief §13. Drag trading volume to see tax routing into
-            custody, or trigger a commodity price shock to prove that NAV tracks real metal, not volume hype.
+            This is a model, not a live reserve. Adjust simulated trade volume and prices to compare
+            accrual choices; no trade, purchase, custody, or attestation is created by this panel.
           </p>
         </div>
 
@@ -106,7 +106,7 @@ export const ReserveSimulator: React.FC = () => {
               {/* Slider 2: Commodity Price Shock */}
               <div className="sim-slider-box">
                 <div className="sim-slider-header">
-                  <span className="sim-label">Commodity Price Shock (Au/Ag/Pt)</span>
+                  <span className="sim-label">Commodity Price Shock · Nine Asset Basket</span>
                   <span className="sim-val" style={{ color: priceShock > 0 ? "var(--green)" : priceShock < 0 ? "var(--red)" : "var(--parchment)" }}>
                     {priceShock > 0 ? `+${priceShock}%` : `${priceShock}%`}
                   </span>
@@ -140,7 +140,7 @@ export const ReserveSimulator: React.FC = () => {
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--muted)" }}>
                   <span style={{ color: "var(--gold-bright)", display: "inline-flex", alignItems: "center", gap: 4 }}>
                     <ArrowRight size={12} strokeWidth={2.5} />
-                    {formatUsd(reserveShare)} Physical Metal Buy
+                    {formatUsd(reserveShare)} Unspent Reserve Treasury
                   </span>
                   <span>{formatUsd(opsShare)} Custody & Ops</span>
                 </div>

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SCRIT_SUPPLY } from "../lib/scrit";
 import { calcNav } from "../lib/nav";
+import { BASKET } from "../lib/scrit-basket";
 
 export type PriceRow = {
   commodity: string;
@@ -30,7 +30,7 @@ export type TreasuryRow = {
   created_at?: string;
 };
 
-/** Shared pilot fetch: prices + attestations + treasury, derived holdings/NAV. */
+/** Shared reserve fetch: prices + attestations + treasury, derived holdings/NAV. */
 export function usePilotData() {
   const [prices, setPrices] = useState<PriceRow[]>([]);
   const [atts, setAtts] = useState<AttRow[]>([]);
@@ -63,13 +63,14 @@ export function usePilotData() {
   const priceMap: Record<string, number> = {};
   for (const p of prices) priceMap[p.commodity] = p.usd_per_kg;
 
-  const holdings: Record<string, number> = { Au: 0, Ag: 0, Pt: 0 };
+  const holdings: Record<string, number> = Object.fromEntries(BASKET.map((row) => [row.symbol, 0]));
   for (const a of atts) {
     const v = parseFloat(a.mass_kg);
     if (a.commodity in holdings && Number.isFinite(v) && v > 0) holdings[a.commodity] += v;
   }
 
-  const { reserveUsd, navUsd } = calcNav(holdings, priceMap, SCRIT_SUPPLY);
+  // Off-chain pilot data does not establish the live on-chain supply. Never divide it by a demo constant.
+  const { reserveUsd, navUsd } = calcNav(holdings, priceMap, 0n);
 
   return { prices, atts, treasury, holdings, priceMap, reserveUsd, navUsd, dataStatus };
 }

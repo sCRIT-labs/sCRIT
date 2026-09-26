@@ -6,14 +6,14 @@ import type { AttRow, TreasuryRow } from "../hooks/usePilotData";
 type Line = { id: number; tag: "LIVE" | "SIM"; text: string; tone: "gold" | "dim" | "green" | "red" };
 
 const SIM_POOL = [
-  "gossip > peer 0x8b...7f09 announced head",
-  "txpool > 41 pending | baseFee 0.02 gwei",
-  "sync > block propagated in 312ms",
-  "router > sCRIT/ETH depth sampled",
-  "oracle > Au fix window opens in 02:14:55",
-  "hook > tax module idle | 0% promo active",
-  "p2p > 18 validator peers reachable",
-  "vault > humidity nominal | VAULT-AU-1",
+  "pipeline > waiting for confirmed chain events",
+  "indexer > no synthetic market telemetry",
+  "reserve > changes require an accepted attestation",
+  "price > source and timestamp are shown per record",
+  "custody > signatures do not replace physical audit",
+  "rail-b > testnet contracts are not deployed",
+  "market > no peg or redemption in pilot",
+  "system > simulated ambience · no live telemetry",
 ];
 
 const short = (s?: string, n = 10) =>

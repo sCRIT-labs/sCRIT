@@ -21,7 +21,7 @@ const DOCS: Record<string, LegalDoc> = {
       {
         heading: "2. Rail A Issuance & Swap Mechanics",
         content:
-          "A wallet must be approved in the pilot service registry and separately allowlisted by the launcher owner before it can use Rail A to create a token and initialize a TOKEN / sCRIT liquidity pool. Rail A has no issuance fee in the pilot and project-pool swap tax is 0%. A proposed 2.5% tax and 75% reserve / 25% operations split are inactive future options; they do not automatically purchase bullion.",
+          "A wallet must be approved in the service registry and separately allowlisted by the launcher owner before it can use Rail A to create a token and initialize a TOKEN / sCRIT liquidity pool. Rail A has no issuance fee. Mainnet project pools apply a 2.5% V4 hook fee split 75% reserve treasury / 25% operations; testnet V3 rehearsal pools are untaxed. Fee proceeds do not automatically purchase commodities or increase the attested reserve.",
       },
       {
         heading: "3. Non-Commodity Claim Separation",

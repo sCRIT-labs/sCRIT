@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import { checkAdmin, custodianScopeFor, listAttestations, listCustodians, saveAttestation } from "@/lib/db";
 import { verifyAttestation, type AttestationMsg } from "@/lib/attestation";
 import { isValidAddress } from "@/lib/custodians";
-
-const PILOT_ASSETS = ["Au", "Ag", "Pt"];
+import { isCommoditySymbol } from "@/lib/scrit-basket";
 const MAX_AGE_SECONDS = 7 * 24 * 60 * 60;
 const MAX_FUTURE_SKEW_SECONDS = 5 * 60;
 
@@ -31,7 +30,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "bad_input" }, { status: 400 });
   }
   if (typeof raw.batchId !== "string" || !/^[A-Za-z0-9._:-]{1,100}$/.test(raw.batchId) ||
-      typeof raw.commodity !== "string" || !PILOT_ASSETS.includes(raw.commodity) ||
+      typeof raw.commodity !== "string" || !isCommoditySymbol(raw.commodity) ||
       typeof raw.massKg !== "string" || !/^(?:0|[1-9]\d{0,17})(?:\.\d{1,12})?$/.test(raw.massKg) || Number(raw.massKg) <= 0 ||
       typeof raw.gradeSpec !== "string" || raw.gradeSpec.length < 1 || raw.gradeSpec.length > 100 ||
       typeof raw.certificateHash !== "string" || raw.certificateHash.length < 1 || raw.certificateHash.length > 256 ||

@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 const STEPS = [
   { id: "01", label: "NAV INPUTS", title: "An estimate starts with inputs.", body: "Indicative NAV combines accepted off-chain batch records with manual commodity prices, then divides by configured pilot supply. It is not a market quote or redemption value.", signal: "INPUTS", detail: "RECORDED MASS + MANUAL PRICES", image: "/images/scrit_assay_lab.jpg" },
   { id: "02", label: "FRESHNESS", title: "Every price carries an age.", body: "Prices are entered manually. The interface marks records older than 24 hours as stale so data age stays visible beside the estimate.", signal: "24H", detail: "STALE PRICE THRESHOLD", image: "/images/scrit_clock_feed.jpg" },
-  { id: "03", label: "PILOT FEES", title: "No launch fee is active.", body: "Rail A does not charge an issuance fee in this pilot. Project-pool swap tax is also 0%; future fee proposals remain inactive.", signal: "0%", detail: "ACTIVE PILOT CHARGES", image: "/images/scrit_treasury_safe.jpg" },
+  { id: "03", label: "PROJECT POOL FEES", title: "Show the fee before the swap.", body: "Mainnet TOKEN/sCRIT pools charge 2.5% through the V4 hook. The split is 75% reserve treasury and 25% operations. Testnet V3 rehearsal pools remain untaxed.", signal: "2.5%", detail: "MAINNET PROJECT POOLS", image: "/images/scrit_treasury_safe.jpg" },
   { id: "04", label: "MARKET", title: "Market price can diverge.", body: "sCRIT is not pegged and has no pilot redemption. Without a redemption path, market price can move independently from indicative NAV.", signal: "NO PEG", detail: "NO PILOT REDEMPTION", image: "/images/scrit_trading_floor.jpg" },
 ];
 

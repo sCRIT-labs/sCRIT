@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkAdmin, listPrices, setPrice } from "@/lib/db";
 import { STALENESS_MS } from "@/lib/scrit";
+import { isCommoditySymbol } from "@/lib/scrit-basket";
 
 export async function GET() {
   try {
@@ -24,8 +25,8 @@ export async function POST(req: Request) {
   if (!body?.commodity || typeof body.usd_per_kg !== "number" || !Number.isFinite(body.usd_per_kg) || body.usd_per_kg <= 0 || body.usd_per_kg > 1e15) {
     return NextResponse.json({ error: "bad_input" }, { status: 400 });
   }
-  if (!["Au", "Ag", "Pt"].includes(body.commodity)) {
-    return NextResponse.json({ error: "pilot_only_Au_Ag_Pt" }, { status: 400 });
+  if (!isCommoditySymbol(body.commodity)) {
+    return NextResponse.json({ error: "unsupported_index_commodity" }, { status: 400 });
   }
   const source = body.source?.trim() ?? "";
   if (source.length < 3 || source.length > 160) return NextResponse.json({ error: "bad_source" }, { status: 400 });

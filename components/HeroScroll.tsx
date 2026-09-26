@@ -50,14 +50,14 @@ const TICKER_ICONS: Record<string, React.ReactNode> = {
 };
 
 const TICKER_ITEMS = [
-  { label: "Au LBMA Good Delivery 999.9", badge: "60% BASKET", iconKey: "au" },
-  { label: "Ag Commercial Fine Silver 999", badge: "25% BASKET", iconKey: "ag" },
-  { label: "Pt Refined Platinum Sponge 999.5", badge: "15% BASKET", iconKey: "pt" },
+  { label: "Au · Ag · Pt · Pd precious metals", badge: "4 INDEX TARGETS", iconKey: "au" },
+  { label: "Nd · Dy · Tb · Sc rare earths", badge: "4 INDEX TARGETS", iconKey: "ag" },
+  { label: "Battery-grade lithium carbonate", badge: "10% TARGET", iconKey: "pt" },
   { label: "EIP-712 Cryptographic Attestation Engine", badge: "RESERVE GATE", iconKey: "shield" },
-  { label: "Zurich & Singapore Allocated Vault Custody", badge: "PHYSICAL", iconKey: "vault" },
+  { label: "Custodian-scoped attestation records", badge: "EVIDENCE FLOW", iconKey: "vault" },
   { label: "Robinhood L2 Sub-Second Settlement", badge: "EVM NATIVE", iconKey: "speed" },
   { label: "sCRIT / ETH Untaxed Base Discovery Pool", badge: "0% TOLL", iconKey: "scale" },
-  { label: "TOKEN / sCRIT Tax-Funded Reserve Engine", badge: "75% BUYBACK", iconKey: "engine" },
+  { label: "TOKEN / sCRIT V4 project pools", badge: "2.5% · 75/25", iconKey: "engine" },
 ];
 
 export function HeroScroll() {

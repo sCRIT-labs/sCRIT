@@ -11,13 +11,9 @@ type TokenItem = {
 };
 
 const TOKENS: TokenItem[] = [
-  { sym: "AU", name: "Physical Gold Bar", issuer: "LBMA Good Delivery 999.9", grad: ["#fef08a", "#ca8a04"] },
-  { sym: "AG", name: "Physical Silver Lot", issuer: "Commercial Fine Silver 999", grad: ["#f1f5f9", "#94a3b8"] },
-  { sym: "PT", name: "Platinum Ingot", issuer: "Sponge Ingot 999.5", grad: ["#e0e7ff", "#6366f1"] },
-  { sym: "PD", name: "Palladium Sponge", issuer: "Bonded Zurich Custody 999.5", grad: ["#e2e8f0", "#64748b"] },
-  { sym: "CU", name: "Copper Cathode", issuer: "Electrolytic Grade A", grad: ["#ffedd5", "#ea580c"] },
-  { sym: "NI", name: "Nickel Briquettes", issuer: "Strategic Metallurgical Reserve", grad: ["#e0f2fe", "#0284c7"] },
-  { sym: "RE", name: "Rare Earth Basket", issuer: "Nd/Dy/Tb Vault Reserves", grad: ["#fae8ff", "#9333ea"] },
+  { sym: "AU", name: "Physical Gold Bar", issuer: "LBMA Good Delivery 999.9 · pilot record", grad: ["#fef08a", "#ca8a04"] },
+  { sym: "AG", name: "Physical Silver Lot", issuer: "Commercial Fine Silver 999 · pilot record", grad: ["#f1f5f9", "#94a3b8"] },
+  { sym: "PT", name: "Platinum Ingot", issuer: "Sponge Ingot 999.5 · pilot record", grad: ["#e0e7ff", "#6366f1"] },
 ];
 
 export function TokenConverterNexus() {
@@ -77,7 +73,7 @@ export function TokenConverterNexus() {
         <div className="ondo-nexus-footer-block">
           <ScrollReveal type="fade" delayMs={100}>
             <p className="ondo-nexus-desc">
-              Nexus connects verified LBMA vault receipts directly to onchain pair liquidity. Selected asset: <strong style={{ color: "#ffffff" }}>{token.name}</strong> ({token.issuer}).
+              Nexus previews how attested pilot records map to onchain pair liquidity. Selected asset: <strong style={{ color: "#ffffff" }}>{token.name}</strong> ({token.issuer}). Pd, Cu, Ni, rare earths and other commodities are unavailable in pilot.
             </p>
           </ScrollReveal>
 

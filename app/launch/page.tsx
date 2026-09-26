@@ -14,13 +14,14 @@ import {
   toTokenUnits,
   validateLaunchParams,
 } from "@/lib/scrit-evm";
-import { HOOD_MAINNET, HOOD_TESTNET } from "@/lib/scrit";
-import { SCRIT_LAUNCHER } from "@/lib/scrit";
+import { HOOD_MAINNET, HOOD_TESTNET, PROJECT_POOL_LP_FEE_BPS, SCRIT_CHAIN_ID, scritDeploymentFor } from "@/lib/scrit";
+import { BASKET } from "@/lib/scrit-basket";
+import { TAX_ACTIVE } from "@/lib/scrit";
 
 type Step = "idle" | "checking" | "ready" | "approve" | "launch" | "done" | "error";
 
 export default function Launch() {
-  const [chainId, setChainId] = useState<4663 | 46630>(46630);
+  const [chainId, setChainId] = useState<4663 | 46630>(SCRIT_CHAIN_ID);
   const [account, setAccount] = useState<Address | null>(null);
   const [scritBal, setScritBal] = useState<bigint>(0n);
   const [name, setName] = useState("");
@@ -33,9 +34,15 @@ export default function Launch() {
   const [ack2, setAck2] = useState(false);
   const [step, setStep] = useState<Step>("idle");
   const [msg, setMsg] = useState("");
-  const [result, setResult] = useState<{ token: string; launchHash: string } | null>(null);
+  const [result, setResult] = useState<{
+    token: string;
+    pool: string;
+    positionId: bigint;
+    launchHash: string;
+  } | null>(null);
 
   const explorer = chainId === 4663 ? HOOD_MAINNET.explorer : HOOD_TESTNET.explorer;
+  const deployment = scritDeploymentFor(chainId);
   const indicativePrice = (() => {
     try {
       const p = parseFloat(pooled);
@@ -87,12 +94,12 @@ export default function Launch() {
           return;
         }
       }
-      if (!/^0x[0-9a-fA-F]{40}$/.test(SCRIT_LAUNCHER) || /^0x0{40}$/i.test(SCRIT_LAUNCHER)) {
+      if (!/^0x[0-9a-fA-F]{40}$/.test(deployment.launcher) || /^0x0{40}$/i.test(deployment.launcher) || /^0x0{40}$/i.test(deployment.token)) {
         setStep("error");
-        setMsg("No launcher contract is configured for this environment.");
+        setMsg(`sCRIT and its launcher are not configured for ${chainId === 4663 ? "Robinhood Chain mainnet" : "Robinhood Chain testnet"}.`);
         return;
       }
-      const onchainApproved = await launcherIssuerApproved(chainId, account, SCRIT_LAUNCHER as Address).catch(() => false);
+      const onchainApproved = await launcherIssuerApproved(chainId, account, deployment.launcher as Address).catch(() => false);
       if (!onchainApproved) {
         setStep("error");
         setMsg("Wallet is not approved in the launcher contract. Ask the launcher owner to enable it on-chain.");
@@ -120,6 +127,8 @@ export default function Launch() {
       const out = await launchTokenScrit({
         chainId,
         account,
+        scrit: deployment.token as Address,
+        launcher: deployment.launcher as Address,
         params: {
           name: name || cleanTicker,
           ticker: cleanTicker,
@@ -133,9 +142,9 @@ export default function Launch() {
           setMsg(s === "approve" ? "Authorize the launcher to use the selected sCRIT amount." : "Deploy token and initialize the sCRIT liquidity pool.");
         },
       });
-      setResult({ token: out.token, launchHash: out.launchHash });
+      setResult({ token: out.token, pool: out.pool, positionId: out.positionId, launchHash: out.launchHash });
       setStep("done");
-      setMsg("Token and sCRIT liquidity pool successfully deployed.");
+      setMsg(`Token and ${chainId === 4663 ? "V4 taxed" : "V3 testnet rehearsal"} liquidity position successfully deployed.`);
     } catch (e: unknown) {
       setStep("error");
       setMsg(e instanceof Error ? e.message : "launch_failed");
@@ -168,8 +177,7 @@ export default function Launch() {
           }}
         >
           Every ecosystem launch is anchored to <b style={{ color: "#ffffff" }}>TOKEN / sCRIT</b>.
-          The pilot basket targets <b className="gold">60% Gold</b>, <b style={{ color: "#c0c0c8" }}>25% Silver</b>, and{" "}
-          <b style={{ color: "#50e3c2" }}>15% Platinum</b>. These weights are a design target, not a claim of fully funded custody.
+          New project pools pair with <b className="gold">sCRIT</b>, the index target across nine critical and strategic commodities. Basket weights are allocation targets, not a claim of funded custody.
         </p>
       </div>
 
@@ -194,23 +202,13 @@ export default function Launch() {
                 <ShieldCheck size={14} color="var(--gold-bright)" strokeWidth={2} />
                 Base Bullion Anchor
               </span>
-              <span className="mono-sm" style={{ color: "var(--gold-bright)" }}>Pilot basket target</span>
+              <span className="mono-sm" style={{ color: "var(--gold-bright)" }}>Index basket target</span>
             </div>
-            <div className="metal-composition-bar">
-              <div className="metal-seg-gold" title="Gold 60%" />
-              <div className="metal-seg-silver" title="Silver 25%" />
-              <div className="metal-seg-plat" title="Platinum 15%" />
+            <div className="metal-composition-bar" aria-label="Nine-commodity target basket" style={{ display: "flex", overflow: "hidden" }}>
+              {BASKET.map((row, index) => <div key={row.symbol} title={`${row.name} ${row.weightBps / 100}%`} style={{ width: `${row.weightBps / 100}%`, height: 10, background: ["#d9a92e", "#b8b8c0", "#50e3c2", "#c27a50", "#8db4d8", "#7b93cd", "#9b7bc4", "#719875", "#b8a15f"][index] }} />)}
             </div>
-            <div className="metal-legend-row">
-              <span className="metal-legend-item">
-                <span className="metal-dot" style={{ background: "#d9a92e" }} /> Au 60%
-              </span>
-              <span className="metal-legend-item">
-                <span className="metal-dot" style={{ background: "#c0c0c8" }} /> Ag 25%
-              </span>
-              <span className="metal-legend-item">
-                <span className="metal-dot" style={{ background: "#50e3c2" }} /> Pt 15%
-              </span>
+            <div className="metal-legend-row" style={{ flexWrap: "wrap" }}>
+              {BASKET.map((row, index) => <span className="metal-legend-item" key={row.symbol}><span className="metal-dot" style={{ background: ["#d9a92e", "#b8b8c0", "#50e3c2", "#c27a50", "#8db4d8", "#7b93cd", "#9b7bc4", "#719875", "#b8a15f"][index] }} />{row.symbol} {row.weightBps / 100}%</span>)}
             </div>
           </div>
 
@@ -220,8 +218,12 @@ export default function Launch() {
               <span className="launch-metric-val">{indicativePrice} sCRIT</span>
             </div>
             <div className="launch-metric-line">
-              <span className="launch-metric-lbl">Pool Swap Tax</span>
-              <span className="launch-metric-val" style={{ color: "#2ed573" }}>0% Promo Rate</span>
+              <span className="launch-metric-lbl">Project hook fee</span>
+              <span className="launch-metric-val" style={{ color: TAX_ACTIVE ? "#2ed573" : "#f1bb65" }}>{TAX_ACTIVE ? "2.5% · 75/25 split" : chainId === 46630 ? "0% testnet rehearsal" : "Hook not configured"}</span>
+            </div>
+            <div className="launch-metric-line">
+              <span className="launch-metric-lbl">V4 LP fee</span>
+              <span className="launch-metric-val">{chainId === 4663 ? `${(PROJECT_POOL_LP_FEE_BPS / 100).toFixed(2)}% · additional` : "V3 pool tier 0.30%"}</span>
             </div>
             <div className="launch-metric-line">
               <span className="launch-metric-lbl">Pool Pair</span>
@@ -257,10 +259,10 @@ export default function Launch() {
               }}
             >
               <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--gold-bright)", textTransform: "uppercase" }}>
-                Post-audit target · not active
+                {TAX_ACTIVE ? "V4 PROJECT POOL FEE" : "NETWORK FEE STATUS"}
               </span>
               <span style={{ fontSize: 13, color: "#ffffff", fontWeight: 500 }}>
-                Proposed 2.5% project-pool fee split 75/25. Swap tax is 0% in the pilot; no automatic bullion purchase is active.
+                {TAX_ACTIVE ? "Mainnet project pools add a 2.5% V4 hook fee (75% reserve treasury / 25% operations) to the 0.30% LP fee. Collected fees are not counted as reserve until a custody attestation." : "The mainnet design adds a 2.5% V4 hook fee to the 0.30% LP fee when deployed. The testnet V3 rehearsal does not collect the hook fee."}
               </span>
             </div>
           </div>
@@ -282,7 +284,7 @@ export default function Launch() {
               <select
                 className="field"
                 value={chainId}
-                onChange={(e) => setChainId(Number(e.target.value) as 4663 | 46630)}
+                onChange={(e) => { setChainId(Number(e.target.value) as 4663 | 46630); setAccount(null); setScritBal(0n); setStep("idle"); setMsg(""); }}
               >
                 <option value={46630}>Robinhood Testnet 46630 (Rehearsal)</option>
                 <option value={4663}>Robinhood Mainnet 4663 (Gated Pilot)</option>
@@ -501,6 +503,17 @@ export default function Launch() {
                 Token Contract:{" "}
                 <a className="mono-sm" href={`${explorer}/address/${result.token}`} target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
                   <span>{result.token}</span>
+                  <ExternalLink size={12} />
+                </a>
+              </p>
+              <p style={{ fontSize: 13, marginBottom: 8, wordBreak: "break-all" }}>
+                {chainId === 4663 ? "V4 Pool ID: " : "V3 Pool: "}
+                {result.pool.length === 42 ? <a className="mono-sm" href={`${explorer}/address/${result.pool}`} target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><span>{result.pool}</span><ExternalLink size={12} /></a> : <span className="mono-sm">{result.pool}</span>}
+              </p>
+              <p style={{ fontSize: 13, marginBottom: 8, wordBreak: "break-all" }}>
+                Position NFT: #{result.positionId.toString()} at{" "}
+                <a className="mono-sm" href={`${explorer}/address/${deployment.positionManager}`} target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  <span>{deployment.positionManager}</span>
                   <ExternalLink size={12} />
                 </a>
               </p>

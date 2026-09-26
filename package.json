@@ -9,9 +9,20 @@
     "lint": "next lint",
     "test": "vitest run",
     "compile": "node scripts/compile.mjs",
-    "deploy": "node scripts/deploy.mjs"
+    "deploy": "node scripts/deploy.mjs",
+    "deploy:testnet": "node scripts/deploy.mjs --testnet",
+    "deploy:mainnet": "node scripts/deploy.mjs --mainnet",
+    "check:v3:testnet": "node scripts/check-v3-network.mjs testnet",
+    "check:v3:mainnet": "node scripts/check-v3-network.mjs mainnet",
+    "check:v4:mainnet": "node scripts/check-v4-network.mjs",
+    "market:seed:v4": "node scripts/seed-v4-base-market.mjs",
+    "index:events": "node scripts/index-events.mjs",
+    "price:publish": "node scripts/publish-price.mjs",
+    "reserve:attest": "node scripts/attest-reserve-batch.mjs",
+    "lot:attest": "node scripts/attest-physical-lot.mjs"
   },
   "dependencies": {
+    "@openzeppelin/contracts": "5.4.0",
     "framer-motion": "^12.0.0",
     "lucide-react": "^1.48.0",
     "next": "16.3.4",
@@ -24,7 +35,10 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "solc": "0.8.26",
+    "@uniswap/v4-core": "1.0.2",
+    "@uniswap/v4-periphery": "1.0.3",
+    "ganache": "7.9.2",
+    "solc": "0.8.37",
     "typescript": "^5",
     "vitest": "^4.1.11"
   }

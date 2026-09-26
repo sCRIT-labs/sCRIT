@@ -1,0 +1,35 @@
+{
+  "network": "Robinhood Chain Testnet",
+  "chainId": 46630,
+  "deployedAt": "2026-09-25",
+  "v3": {
+    "factory": "0x09b6d850382787115969a2699f107f5a974c781b",
+    "positionManager": "0x15e98cf94a32c7fd23a36fabb4fee612277da47b",
+    "feeTier": 3000,
+    "tickSpacing": 60
+  },
+  "contracts": {
+    "timelock": { "address": "0x46945057fcb85ec13065a7882900a008ab09497a", "tx": "0x34ae4a3668baa6adba2fa82a7cbb39763abcc9cf8986db6201bc34a5722c766b", "block": 124184400 },
+    "custodianRegistry": { "address": "0x7833a62f14bc1e800affc7a0fd3ab8c3f46e8cb7", "tx": "0x23bd6f84393930d8a69495fcb23db03d9ae171a62e76e10dfd104d05be7d99af", "block": 124184425 },
+    "priceAdapter": { "address": "0x00824e9c6075ff2ceb10009de7f170fc6721df1a", "tx": "0x4c1a7063e6b7c7d111a1f17c665bae7f6c1c47b7f790ccd7535f60b4ea83cfdc", "block": 124184450 },
+    "kycRegistry": { "address": "0x4993478847d03e13d5eae930878ad428cf2b27f8", "tx": "0x4120128d94f253e631a2bbc9aedcb83b53070d3b1fda6a08654b17d61a171dc3", "block": 124184477 },
+    "reserveManager": { "address": "0x5341042250dcbc11a929581d22b7be30c14640df", "tx": "0x93be8709321dbae3f3fc9e26af01e9bf3e0054a7d989858c9649f0e769ff7274", "block": 124184513 },
+    "indexToken": { "address": "0x1f1d055014348e60af47065d45247b2c1204c7e8", "tx": "0x5c62edfc3ea3e852b65b47b5ee1c2b762bdf0fd6df3e78873f29c5d6a908ecdc", "block": 124184547 },
+    "physicalLotManager": { "address": "0x0cc054ce72fc0a489732e20dd595de934be2e953", "tx": "0x51474d2d76d0e0d9089fffe08878244a194603ce46a80315662b9dfb443476be", "block": 124184577 },
+    "physicalLotToken": { "address": "0x56073943133c1c0678a753be9402b27d43cf1c22", "tx": "0x1a1fc76c56d5f2d1f55e3f9a21bad5b7e6031ad8a5959f4a92237499a8e241c9", "block": 124184605 },
+    "redemptionManager": { "address": "0xefcb390b33d5edc90f0bf1039f94e53fb18c7346", "tx": "0x0ff5c31e907493641d3aa4dc24992a680aea136f17675707c2bc643b529727bb", "block": 124184633 },
+    "lotMarketplace": { "address": "0x12e5ba487b5e2d16a9bc9416c90c31ecb42fa174", "tx": "0x8f45133f823f686e966452f4224a451e8c10f04cadffb406ba8f96a2bbb8aab9", "block": 124184652 },
+    "launcher": { "address": "0x4f0332621e9a1f2d79dc3095b0cf82297a562a33", "tx": "0x4e0d9e0e8c7ef83df2c9e778f9604d0d8d94b292436469edfa3cf96622e79d4e", "block": 124184679 }
+  },
+  "postDeployment": {
+    "launcherOwner": "0x46945057fcb85ec13065a7882900a008ab09497a",
+    "timelockMinDelaySeconds": 172800,
+    "adminIsMultisig": false,
+    "notes": [
+      "All eleven deployment receipts succeeded and deployed bytecode was present at the recorded addresses.",
+      "Launcher position manager and factory references were verified against the testnet contracts.",
+      "The configured admin is an EOA for this testnet rehearsal, not a multisig.",
+      "Role grants and operational configuration still require timelock scheduling and execution."
+    ]
+  }
+}

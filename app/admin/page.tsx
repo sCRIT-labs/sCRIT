@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { PageShell } from "@/components/PageShell";
 import { Key, Radio, Users, CheckCircle2, AlertCircle, ShieldCheck } from "lucide-react";
+import { BASKET } from "@/lib/scrit-basket";
 
 type Custodian = { address: string; name: string; scope: string[]; status: string };
 type ApApp = { wallet: string; name: string; contact: string; status: string };
@@ -17,7 +18,7 @@ export default function Admin() {
   const [priceSource, setPriceSource] = useState("");
   const [custAddr, setCustAddr] = useState("");
   const [custName, setCustName] = useState("");
-  const [custScope, setCustScope] = useState<string[]>(["Au", "Ag", "Pt"]);
+  const [custScope, setCustScope] = useState<string[]>([]);
   const [custodians, setCustodians] = useState<Custodian[]>([]);
   const [apApps, setApApps] = useState<ApApp[]>([]);
   const [issuers, setIssuers] = useState<Issuer[]>([]);
@@ -301,9 +302,7 @@ export default function Admin() {
             <div>
               <label className="launch-field-label">Target Asset</label>
               <select className="field" value={commodity} onChange={(e) => setCommodity(e.target.value)}>
-                <option value="Au">Gold (Au) - LBMA 999.9</option>
-                <option value="Ag">Silver (Ag) - Fine 999</option>
-                <option value="Pt">Platinum (Pt) - 999.5</option>
+                {BASKET.map((row) => <option key={row.symbol} value={row.symbol}>{row.name} ({row.symbol}) · {row.grade}</option>)}
               </select>
             </div>
             <div>
@@ -357,10 +356,10 @@ export default function Admin() {
 
           <div style={{ display: "flex", gap: 14, alignItems: "center", marginBottom: 20 }}>
             <span style={{ fontSize: 13, color: "#a1a1a6", fontWeight: 600 }}>Permitted Commodity Scopes:</span>
-            {["Au", "Ag", "Pt"].map((s) => (
+            {BASKET.map(({ symbol: s, name }) => (
               <label className="check" key={s}>
                 <input type="checkbox" checked={custScope.includes(s)} onChange={() => toggleScope(s)} />
-                <span>{s}</span>
+                <span>{s} · {name}</span>
               </label>
             ))}
           </div>

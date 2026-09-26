@@ -32,8 +32,10 @@ export const FlowLedger: React.FC = () => {
     {
       n: "iv.",
       title: "NAV is reference, market is truth",
-      body: `Reserve ${formatUsd(reserveUsd)} ÷ 999,000,000 = ${formatUsd(navUsd, 6)} per sCRIT. With no redemption in pilot, the premium or discount against market stays on screen — never hidden behind the word “backed”.`,
-      stat: formatUsd(navUsd, 4),
+      body: navUsd === null
+        ? `Reported reserve ${formatUsd(reserveUsd)} is service data. Live on-chain sCRIT supply is not configured, so NAV per token is unavailable.`
+        : `Reported reserve ${formatUsd(reserveUsd)} is divided by the live configured supply to calculate NAV per sCRIT. This pilot has no redemption path.`,
+      stat: navUsd === null ? "NAV unavailable" : formatUsd(navUsd, 4),
       sub: "NAV LIVE",
     },
   ];

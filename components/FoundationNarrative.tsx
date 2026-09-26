@@ -6,11 +6,11 @@ import { CounterNumber } from "./CounterNumber";
 
 const STATS = [
   {
-    num: "3",
+    num: "9",
     prefix: "",
     suffix: "",
-    label: "Target Basket Assets",
-    desc: "Design weights: gold 60%, silver 25%, platinum 15%. They do not represent current physical holdings."
+    label: "Starter Basket Targets",
+    desc: "Au 30%, Ag 5%, Pt 12%, Pd 8%, Nd 8%, Dy 12%, Tb 8%, Sc 7%, Li 10%. These weights do not represent current physical holdings."
   },
   {
     num: "100",
@@ -20,18 +20,18 @@ const STATS = [
     desc: "The pilot service checks typed signatures and scope. Records are not reserve contract state or independent proof of delivery."
   },
   {
-    num: "0",
+    num: "2.5",
     prefix: "",
     suffix: "%",
-    label: "Pilot Swap Tax",
-    desc: "Project-pool swap tax is 0% in this pilot. Market depth and price stability are not guaranteed."
+    label: "Mainnet Project Pool Fee",
+    desc: "The V4 project-pool fee routes 75% to reserve treasury and 25% to operations. The sCRIT/ETH base market is hookless."
   },
   {
     num: "75",
     prefix: "",
     suffix: "%",
     label: "Reserve Fee Routing",
-    desc: "The proposed 75/25 split is inactive. No fee is automatically converted into bullion purchases."
+    desc: "Collected fees are not reserve holdings. Reserve value changes only when scoped attestation records are accepted."
   }
 ];
 

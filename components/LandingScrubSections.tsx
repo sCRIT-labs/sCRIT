@@ -88,8 +88,8 @@ export function PinnedLedgerStory({ copy, lines, session }: { copy: { title: str
   const section = useRef<HTMLElement>(null);
   const staticMotion = useStaticMotion();
   const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end end"] });
-  return <section ref={section} className={`scrit-scrub scrit-ledger-scrub${staticMotion ? " is-static" : ""}`} id="ledger" aria-label="Live pilot telemetry">
-    <div className="scrit-scrub-stage scrit-ledger-scrub-stage"><div className="scrit-ledger-copy"><span className="scrit-kicker">LIVE PILOT TELEMETRY</span><h2>{copy.title}</h2><p>{copy.text}</p><a className="scrit-text-link" href="/proof">View all proof data <ArrowUpRight size={15} /></a></div>
+  return <section ref={section} className={`scrit-scrub scrit-ledger-scrub${staticMotion ? " is-static" : ""}`} id="ledger" aria-label="Pilot record status">
+    <div className="scrit-scrub-stage scrit-ledger-scrub-stage"><div className="scrit-ledger-copy"><span className="scrit-kicker">PILOT RECORD STATUS</span><h2>{copy.title}</h2><p>{copy.text}</p><a className="scrit-text-link" href="/proof">View all proof data <ArrowUpRight size={15} /></a></div>
       <div className="scrit-terminal"><div className="scrit-terminal-bar"><span><i /> SYSTEM OBSERVER</span><b>READ ONLY</b></div><div className="scrit-terminal-body"><div className="scrit-terminal-intro"><span>SESSION / sCRIT-PILOT</span><span>{session}</span></div>
         {lines.map((line, i) => <LedgerLine key={line.key} line={line} index={i} progress={scrollYProgress} disabled={staticMotion} />)}
         <div className="scrit-terminal-rule" /><div className="scrit-terminal-cursor"><span>pilot.reserve.observe</span><i aria-hidden="true">_</i></div>

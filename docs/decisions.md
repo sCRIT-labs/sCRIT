@@ -1,7 +1,59 @@
 # sCRIT Pilot Decisions — Open Points from the Brief
 
+## Current brief alignment (supersedes earlier narrow-pilot decisions below)
+
+The owner directed engineering to follow Dev Brief v3, with legal opinions and evidence of real-world assets treated as external work rather than implementation blockers. This section supersedes prior decisions in this file that deliberately narrowed the basket or kept the project-pool fee at zero.
+
+- **Index targets:** Au 30%, Ag 5%, Pt 12%, Pd 8%, Nd 8%, Dy 12%, Tb 8%, Sc 7%, Li 10%. These are starter design weights, not current custody.
+- **Rail B scope:** diamonds only as individually certified lots; uranium is unavailable and outside MVP.
+- **Rail A fees:** zero issuance fee; 2.5% project-pool swap fee with a fixed 75% reserve treasury / 25% operations split. The sCRIT/ETH base market remains untaxed.
+- **AMM choice:** keep the deployed V3 testnet rehearsal for testnet only. Use Uniswap V4 with a permission-encoded `TradingTaxHook` and V4 launcher on Robinhood mainnet because V3 cannot safely skim the requested swap fee.
+- **NAV/redemption:** retain floating market price and no sCRIT redemption for this build. Show market price and reserve NAV as distinct values; do not call project tokens claims on physical commodities.
+- **Accrual:** retain the existing attestation-gated mint-at-NAV reserve issuance logic. Attestations and signed manual prices remain operator trust inputs, not independently verified physical holdings or market oracles.
+- **Mainnet transaction state:** deployment tooling and frontend routing are prepared. No mainnet deployment has been sent from this workspace.
+
+Earlier entries below document historical implementation choices and are superseded wherever they conflict with this current alignment.
+
 Recorded decisions with rationale. Each has an unblock criterion: what must be
 true before the decision is revisited.
+
+## 10. V2 reserve issuance and Rail B contracts → testnet only
+
+**Decision:** add new, non-upgradeable v2 contracts using attestation-gated reserve issuance, mint-at-NAV, 100 ERC-1155 fractions per certified lot, a sCRIT-denominated limit book, and a KYC-gated lot redemption state machine. Existing token deployments remain unchanged. Deploy and rehearse on testnet first; the same stack now has a separate Robinhood Chain mainnet deployment path and network-specific app configuration.
+
+**Rationale:** this closes the core software architecture gap without claiming physical reserve, peg, audit, or legal approval. The first accepted batch uses a $1/token NAV convention; subsequent batches mint against the current on-chain reserve-value estimate. This value is computed from signed commodity mass and signed operator price records, so it is a documented trust model, not an independent oracle or price guarantee.
+
+**Code:** `ScritIndexToken`, `CustodianRegistry`, `PriceOracleAdapter`, and `ReserveManager` implement issuance. `PhysicalLotManager`, `PhysicalLotToken`, `LotMarketplace`, `KycRegistry`, and `LotRedemptionManager` implement the Rail B testnet workflow. Marketplace settlement escrows both assets, and pending physical redemptions lock all lot units until rejection unlocks them or approval burns them. `ScritTimelockController` supplies delayed admin execution. Events are stored by the restartable testnet indexer.
+
+**Next engineering step:** run the complete testnet role setup and launch rehearsal, then set mainnet-specific addresses and operations configuration from the generated deployment manifest. External custody, pricing, legal, and audit evidence remain separate product/business work; demo values must stay labelled as demos.
+
+## 11. Pilot business scope → preserve current explicit decisions
+
+**Decision:** keep the currently approved software pilot at Au/Ag/Pt 60/25/15, zero swap tax, no peg, and no sCRIT redemption. The broader basket, project-pool tax, and redemption recommendations in the dev brief are not silently activated by this engineering implementation.
+
+**Rationale:** these choices were explicitly recorded in this file before v2 implementation and depend on business, legal, custody, and supplier decisions. The contracts must not imply an operating business model that is not approved.
+
+**Code:** Rail A fee remains 0%; no sCRIT AP/redeemer is introduced. Rail B lot redemption is a separate physical-lot state machine and needs actual KYC and shipping operations.
+
+**Unblock:** written business approval and counsel-reviewed documentation, contracted counterparties, and audited implementation.
+
+## 12. Token and DEX implementation → standard ERC-20 and V3 position NFT on testnet
+
+**Decision:** replace the legacy hand-written ERC-20 methods with OpenZeppelin's ERC-20 implementation. Rail A uses a Uniswap V3 TOKEN/sCRIT pool with a full-range position NFT sent to the creator. Robinhood Testnet and mainnet use separate factory, position-manager, token, launcher, and reserve addresses; the CLI checks live bytecode and immutable dependencies on the selected chain before deploying.
+
+**Rationale:** sCRIT is fungible, so ERC-20 remains the correct token interface. V3 positions are NFTs, which gives launch creators a standard ownership and management path. Robinhood Testnet's deployed position manager reports factory `0x09b6d850382787115969a2699f107f5a974c781b` and WETH9 `0x0Dd1Df4fdd55808c9D530C9599BEA5107F6b9b4e`; mainnet's reports factory `0x1f7d7550B1b028f7571E69A784071F0205FD2EfA` and WETH9 `0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73`. Both managers and factories have live bytecode and fee-3000 tick spacing 60. The mainnet addresses match Uniswap's deployment list and their on-chain immutables were checked by `scripts/check-v3-network.mjs`. OpenZeppelin 5.5+ sources use `MCOPY` and require a Cancun EVM target; the compiler target remains Shanghai and the dependency stays at 5.4.0.
+
+**Unblock:** verify a deployed launch, position NFT ownership, and liquidity removal rehearsal; run an independent contract audit and verify the network's EVM hardfork before selecting newer OpenZeppelin releases.
+
+**Sources:** [Robinhood Chain networks](https://docs.robinhood.com/chain/connecting/), [Uniswap deployments](https://developers.uniswap.org/deployments), [testnet deployment list](https://docs.hood.mainnet.games/contracts.html), [Uniswap V3 position manager source](https://github.com/Uniswap/v3-periphery/blob/main/contracts/NonfungiblePositionManager.sol), [OpenZeppelin audited release tags](https://github.com/OpenZeppelin/openzeppelin-contracts/releases).
+
+## 13. Mainnet deployment and application routing
+
+**Decision:** allow an explicit `--mainnet` deployment after the same chain ID, bytecode, factory, WETH9, and fee-tier checks used on testnet. Mainnet actions use network-specific keys where supplied, write a deployment manifest incrementally, and emit network-specific public environment names. The app selects one complete address set using `NEXT_PUBLIC_SCRIT_CHAIN_ID`; testnet values are never a fallback for mainnet.
+
+**Rationale:** the owner asked to complete technical launch readiness without treating real-world legal or physical evidence as a code gate. Keeping testnet rehearsal and mainnet configuration isolated prevents a mainnet UI build from accidentally reading testnet addresses.
+
+**Status:** mainnet V3 dependencies verified live; mainnet contracts have not been deployed from this workspace. The current app remains configured for testnet.
 
 ## 4. Rail A fee policy → no issuance fee in pilot
 

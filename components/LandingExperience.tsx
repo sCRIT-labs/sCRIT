@@ -1,19 +1,20 @@
 "use client";
 
 import { usePilotData } from "@/hooks/usePilotData";
-import { BASKET, LITHIUM_DECISION } from "@/lib/scrit-basket";
+import { BASKET } from "@/lib/scrit-basket";
 import { formatUsd } from "@/lib/nav";
-import { SCRIT_SUPPLY, TAX_ACTIVE, TAX_TARGET_BPS } from "@/lib/scrit";
+import { SCRIT_CHAIN_ID, TAX_ACTIVE, TAX_TARGET_BPS } from "@/lib/scrit";
 import { ArrowRight } from "lucide-react";
 import { useReveal } from "@/hooks/useReveal";
+import { useReserveChainData } from "@/hooks/useReserveChainData";
 import { PinnedFlowRail } from "@/components/PinnedFlowRail";
 import { PinnedAssuranceStory, PinnedBasketStory, PinnedDispatch, PinnedEditorialStory, PinnedIndexStory, PinnedLaunchStory, PinnedLedgerStory, PinnedReserveStory } from "@/components/LandingScrubSections";
 
 const DISPATCHES = [
   {
-    tag: "THE INDEX / PILOT BASKET",
-    title: "Three metals. One transparent allocation model.",
-    body: "The pilot basket targets 60% gold, 25% silver, and 15% platinum. Lithium is excluded while custody and price-feed coverage remain unresolved.",
+    tag: "THE INDEX / STARTER BASKET",
+    title: "Nine target weights. One index design.",
+    body: "The starter basket spans precious metals, rare earths, and lithium. The weights are design inputs, not proof of inventory or contracted custody.",
     image: "/images/scrit_basket_trio.jpg",
     href: "/proof",
     link: "Explore the reserve",
@@ -40,10 +41,10 @@ const STORY = [
   {
     index: "COMPOSITION",
     title: "Start with a defined basket.",
-    copy: "Target weights are explicit: 60% Au, 25% Ag, 15% Pt. They describe the pilot design, not a guarantee of current physical holdings.",
+    copy: "Target weights span Au, Ag, Pt, Pd, Nd, Dy, Tb, Sc, and Li. They describe a starter design, not current physical holdings.",
     image: "/images/scrit_gold_vault.jpg",
-    metric: "60 / 25 / 15",
-    metricLabel: "TARGET WEIGHTS / Au / Ag / Pt",
+    metric: "9 ASSETS",
+    metricLabel: "STARTER INDEX BASKET",
   },
   {
     index: "EVIDENCE",
@@ -65,19 +66,23 @@ const STORY = [
 
 const STATUS_LINES = [
   { key: "ENVIRONMENT", value: "ROBINHOOD CHAIN / PILOT CONFIG" },
-  { key: "SWAP TAX", value: TAX_ACTIVE ? "ACTIVE" : "0% / PILOT CONFIG" },
-  { key: "FUTURE TARGET", value: `${(TAX_TARGET_BPS / 100).toFixed(1)}% / SUBJECT TO AUDIT` },
+  { key: "PROJECT POOL FEE", value: TAX_ACTIVE ? `${(TAX_TARGET_BPS / 100).toFixed(1)}% / V4 HOOK` : SCRIT_CHAIN_ID === 4663 ? "2.5% TARGET / NOT DEPLOYED" : "0% / TESTNET V3" },
+  { key: "FEE ROUTING", value: "75% RESERVE / 25% OPERATIONS" },
   { key: "REDEMPTION", value: "NOT AVAILABLE IN PILOT" },
 ];
 
 export function LandingExperience() {
   useReveal();
   const { prices, atts, holdings, reserveUsd, navUsd, dataStatus } = usePilotData();
+  const chain = useReserveChainData();
   const staleCount = prices.filter((p) => p.stale).length;
   const latest = atts[0];
-  const pricesComplete = ["Au", "Ag", "Pt"].every((commodity) => prices.some((p) => p.commodity === commodity));
+  const pricesComplete = BASKET.every((row) => prices.some((p) => p.commodity === row.symbol));
   const reserveLabel = dataStatus === "unavailable" ? "Unavailable" : pricesComplete ? formatUsd(reserveUsd) : "—";
-  const navLabel = dataStatus === "unavailable" ? "Unavailable" : pricesComplete ? formatUsd(navUsd, 6) : "—";
+  const liveChainNav = chain.status === "ready" && chain.reserveValueUsdE8 !== null && (chain.supplyE18 ?? 0n) > 0n
+    ? Number(chain.reserveValueUsdE8 ?? 0n) / 1e8 / (Number(chain.supplyE18 ?? 0n) / 1e18)
+    : null;
+  const navLabel = liveChainNav === null ? "Unavailable" : formatUsd(liveChainNav, 6);
 
   return (
     <div className="scrit-redesign scrit-landing">
@@ -85,7 +90,7 @@ export function LandingExperience() {
         <div className="scrit-market-tape-track">
           {Array.from({ length: 8 }, (_, copy) => (
             <div className="scrit-market-tape-run" key={copy} aria-hidden={copy !== 0}>
-              <span><i /> PILOT STATUS</span><b>Au 60%</b><b>Ag 25%</b><b>Pt 15%</b><b>SWAP TAX 0%</b><b>NO REDEMPTION</b><b>NOT PEGGED</b>
+              <span><i /> STARTER INDEX</span><b>9 COMMODITIES</b><b>DIAMONDS · RAIL B</b><b>URANIUM · UNAVAILABLE</b><b>{TAX_ACTIVE ? "PROJECT FEE 2.5%" : SCRIT_CHAIN_ID === 4663 ? "V4 HOOK PENDING" : "TESTNET FEE 0%"}</b><b>NO PEG</b>
             </div>
           ))}
         </div>
@@ -94,8 +99,8 @@ export function LandingExperience() {
       <PinnedDispatch items={DISPATCHES} />
 
       <PinnedIndexStory metrics={[
-        { label: "REPORTED RESERVE VALUE", value: reserveLabel, detail: pricesComplete ? "From accepted records and manual prices." : "Requires all three manual price inputs." },
-        { label: "INDICATIVE NAV / TOKEN", value: navLabel, detail: `Reference only · configured supply ${Number(SCRIT_SUPPLY).toLocaleString("en-US")} sCRIT.` },
+        { label: "REPORTED RESERVE VALUE", value: reserveLabel, detail: pricesComplete ? "From accepted records and manual prices." : "Requires all nine manual price inputs." },
+        { label: "ON-CHAIN NAV / TOKEN", value: navLabel, detail: "On-chain reserve value ÷ live sCRIT supply. Hidden until both are available." },
         { label: "ATTESTED BATCHES", value: dataStatus === "ready" ? String(atts.length) : "—", detail: dataStatus !== "ready" ? "Pilot record service unavailable." : latest ? `Latest · ${latest.commodity} · ${latest.mass_kg} kg.` : "No batches recorded in this instance." },
       ]} />
 
@@ -113,20 +118,20 @@ export function LandingExperience() {
 
       <PinnedAssuranceStory items={[
         { mark: "EIP", title: "Signatures tied to a custodian", body: "Attestation signatures are checked against the configured custodian key and its pilot commodity scope.", href: "/proof", link: "See the attestation ledger", image: "/images/scrit_hardware_key.jpg" },
-        { mark: "Au", title: "Metals only, for now", body: "Au, Ag, and Pt form the pilot target. Lithium is excluded at 0%; other commodities remain unavailable.", href: "/proof", link: "Review basket decisions", image: "/images/scrit_platinum_assay.jpg" },
+        { mark: "9×", title: "Three commodity classes", body: "The index design targets precious metals, rare earths, and battery-grade lithium. Uranium remains outside the MVP; diamonds use individually certified Rail B lots only.", href: "/proof", link: "Review basket targets", image: "/images/scrit_platinum_assay.jpg" },
         { mark: "NAV", title: "No redemption path", body: "sCRIT is not pegged. No authorised participant is active and physical redemption is unavailable in this pilot.", href: "/legal/risk", link: "Read the risk disclosure", image: "/images/scrit_vault_barrier.jpg" },
       ]} />
 
       <PinnedLaunchStory image="/images/scrit_silver_vault.jpg">
         <h2>Project tokens pair<br /><em>against sCRIT.</em></h2>
-        <p>Approved issuers can create a project token and seed a TOKEN/sCRIT pool through the launcher. The pilot swap tax is 0%; a 2.5% target is a future, post-audit proposal.</p>
-        <div className="scrit-launch-facts"><div><b>0%</b><span>Rail A issuance fee in pilot</span></div><div><b>0%</b><span>project-pool swap tax in pilot</span></div></div>
+        <p>Approved issuers can create a project token and seed a TOKEN/sCRIT pool. Mainnet project pools use the V4 hook for a 2.5% swap fee split 75/25; testnet V3 rehearsal pools do not collect that fee.</p>
+        <div className="scrit-launch-facts"><div><b>0%</b><span>Rail A issuance fee</span></div><div><b>2.5%</b><span>mainnet project-pool fee · 75/25</span></div></div>
         <a className="scrit-button scrit-button-dark" href="/launch">Explore token launch <ArrowRight size={16} /></a>
       </PinnedLaunchStory>
 
       <PinnedBasketStory
-        items={BASKET.map((row) => ({ symbol: row.symbol, name: row.symbol === "Au" ? "Gold" : row.symbol === "Ag" ? "Silver" : "Platinum", detail: `${row.grade} · ${row.tier}`, weight: row.weightBps / 100 }))}
-        excluded={LITHIUM_DECISION.reason}
+        items={BASKET.map((row) => ({ symbol: row.symbol, name: row.name, detail: `${row.grade} · ${row.tier}`, weight: row.weightBps / 100 }))}
+        excluded="Diamonds are Rail B only. Uranium is unavailable and outside the MVP. Targets do not establish holdings."
       />
 
       <PinnedEditorialStory items={[

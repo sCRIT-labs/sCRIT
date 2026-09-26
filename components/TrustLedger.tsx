@@ -16,22 +16,22 @@ const ITEMS = [
   {
     title: "Demo custodian key; first physical audit pending",
     body: "One team key signs today. Per-class custodians, SLAs, insurance and audit rights are unsigned — every dependent row stays red.",
-    flag: "STATUS · RED",
+    flag: "CONTRACT FEATURE",
   },
   {
-    title: "Manual price feed with staleness flags",
-    body: "Gold, silver and platinum update by hand; each line shows source and age. Older than 24h is flagged stale, and NAV carries the flag.",
+    title: "Nine manual price inputs with staleness flags",
+    body: "Each basket line shows its source and age. Inputs older than 24h are flagged stale, and NAV is unavailable while a target commodity lacks a price.",
     flag: "STATUS · AMBER",
   },
   {
-    title: "No contract audit, no legal opinion yet",
-    body: "Hence no swap-tax hook on mainnet, gated issuance and capped pools. The tax-to-reserve shape may be a collective investment scheme somewhere — counsel has not cleared it.",
-    flag: "STATUS · RED",
+    title: "V4 hook implementation and treasury split",
+    body: "Mainnet project pools use a permission-encoded hook with a fixed 2.5% fee and published 75/25 routing. Reserve value still changes only after attestation.",
+    flag: "CONTRACT FEATURE",
   },
   {
-    title: "Lithium, rare earths, uranium, diamonds: locked",
-    body: "Lithium wants its own humidity-controlled warehouse. Rare earths have no public feeds. Uranium wants nuclear licensing. Diamonds want a lot marketplace — never the index.",
-    flag: "SCOPE · SEALED",
+    title: "Diamonds on Rail B; uranium unavailable",
+    body: "Lithium and rare earths are index targets. Diamonds are individually certified Rail B lots only. Uranium stays outside MVP and is not offered.",
+    flag: "INDEX SCOPE",
   },
 ];
 

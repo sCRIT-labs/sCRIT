@@ -95,7 +95,7 @@ export const OrbitPools: React.FC = () => {
           Two Orbits / One Physical Core
         </span>
         <p style={{ fontSize: "14px", color: "#8e8e93", maxWidth: "620px", margin: "8px auto 0", lineHeight: 1.6 }}>
-          The base orbit (sCRIT/ETH) operates untaxed for frictionless liquidity. Project tokens circle the outer orbit, with every swap converting fees into physical metal.
+          The sCRIT/ETH base market is hookless. Mainnet TOKEN/sCRIT pools apply a 2.5% V4 hook fee split 75% to reserve treasury and 25% to operations; collected fees are not physical inventory.
         </p>
       </div>
 
@@ -192,8 +192,8 @@ export const OrbitPools: React.FC = () => {
               {selected === "base"
                 ? "Untaxed price discovery route. Protocol deployed. Anyone enters and exits index exposure here without paying swap toll."
                 : selected === "project"
-                ? "Gated launcher pools. Every swap skims configured tax to the Treasury to buy physical commodities under EIP-712 custody."
-                : "Click satellites above to inspect why the base pair must never be taxed while project pairs feed the physical reserve."}
+                ? "Gated launcher pools. Every mainnet project-pool swap pays the configured 2.5% hook fee. Treasury funds count as reserve only after signed custody attestation."
+                : "Click satellites above to inspect why the base pair must never be taxed while project pairs use the published 75/25 fee route."}
             </p>
           </div>
           <button

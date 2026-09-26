@@ -13,11 +13,11 @@ const schema = [
     approved boolean not null default false, created_at timestamptz not null default now(), updated_at timestamptz not null default now()
   )`,
   `create table if not exists scrit_prices (
-    commodity text primary key check (commodity in ('Au','Ag','Pt')), usd_per_kg numeric(30,8) not null check (usd_per_kg > 0),
+    commodity text primary key check (commodity in ('Au','Ag','Pt','Pd','Nd','Dy','Tb','Sc','Li')), usd_per_kg numeric(30,8) not null check (usd_per_kg > 0),
     source text not null, updated_at timestamptz not null default now(), updated_by text not null
   )`,
   `create table if not exists scrit_attestations (
-    batch_id text primary key, commodity text not null check (commodity in ('Au','Ag','Pt')), mass_kg numeric(30,12) not null check (mass_kg > 0),
+    batch_id text primary key, commodity text not null check (commodity in ('Au','Ag','Pt','Pd','Nd','Dy','Tb','Sc','Li')), mass_kg numeric(30,12) not null check (mass_kg > 0),
     grade_spec text not null, certificate_hash text not null, vault_id text not null, custodian text not null,
     signature text not null, attested_at timestamptz not null, created_at timestamptz not null default now()
   )`,
@@ -34,6 +34,40 @@ const schema = [
   )`,
   `create table if not exists scrit_ap_rate_limits (
     fingerprint text primary key, window_started_at timestamptz not null default now(), attempts integer not null default 0
+  )`,
+  `create table if not exists scrit_chain_events (
+    chain_id integer not null, contract_address text not null, tx_hash text not null, log_index integer not null,
+    block_number bigint not null, event_name text not null, payload jsonb not null, observed_at timestamptz not null default now(),
+    primary key(chain_id, contract_address, tx_hash, log_index)
+  )`,
+  `create index if not exists scrit_chain_events_block_idx on scrit_chain_events(chain_id, block_number desc)`,
+  `create table if not exists scrit_indexer_cursors (
+    chain_id integer not null, contract_address text not null, block_number bigint not null, updated_at timestamptz not null default now(),
+    primary key(chain_id, contract_address)
+  )`,
+  `create table if not exists scrit_reserve_batches (
+    chain_id integer not null, batch_id text not null, tx_hash text not null, block_number bigint not null,
+    commodity text not null check (commodity in ('Au','Ag','Pt','Pd','Nd','Dy','Tb','Sc','Li')), mass_kg_e12 numeric(40,0) not null,
+    certificate_hash text not null, custodian text not null, minted_amount numeric(78,0) not null,
+    reserve_value_usd_e8 numeric(40,0) not null, observed_at timestamptz not null default now(),
+    primary key(chain_id,batch_id), unique(chain_id,tx_hash)
+  )`,
+  `create table if not exists scrit_lot_records (
+    chain_id integer not null, lot_id text not null, token_id numeric(78,0) not null, tx_hash text not null,
+    block_number bigint not null, commodity text not null, certificate_hash text not null, custodian text not null,
+    status text not null default 'issued', observed_at timestamptz not null default now(),
+    primary key(chain_id,lot_id)
+  )`,
+  `create table if not exists scrit_lot_orders (
+    chain_id integer not null, order_id text not null, tx_hash text not null, block_number bigint not null,
+    lot_id text not null, maker text not null, side text not null check (side in ('ask','bid')),
+    remaining_units numeric(78,0) not null, price_per_unit numeric(78,0) not null,
+    status text not null default 'open', observed_at timestamptz not null default now(),
+    primary key(chain_id,order_id)
+  )`,
+  `create table if not exists scrit_admin_audit_log (
+    id bigserial primary key, actor text not null, action text not null, entity text not null,
+    entity_id text not null, evidence_hash text not null default '', created_at timestamptz not null default now()
   )`,
 ];
 
@@ -70,10 +104,50 @@ export async function databaseHealth(): Promise<{ ok: boolean }> {
   return { ok: true };
 }
 
+export async function getIndexerCursor(chainId: number, contractAddress: string): Promise<bigint | null> {
+  const db = await database();
+  const rows = await db`select block_number from scrit_indexer_cursors where chain_id=${chainId} and contract_address=${contractAddress.toLowerCase()}`;
+  return rows[0] ? BigInt(rows[0].block_number) : null;
+}
+
+export async function saveChainEvent(event: {
+  chainId: number; contractAddress: string; txHash: string; logIndex: number; blockNumber: bigint;
+  eventName: string; payload: unknown;
+}): Promise<boolean> {
+  const db = await database();
+  const rows = await db`insert into scrit_chain_events(chain_id,contract_address,tx_hash,log_index,block_number,event_name,payload)
+    values(${event.chainId},${event.contractAddress.toLowerCase()},${event.txHash.toLowerCase()},${event.logIndex},${event.blockNumber.toString()},${event.eventName},${JSON.stringify(event.payload)}::jsonb)
+    on conflict(chain_id,contract_address,tx_hash,log_index) do nothing returning tx_hash`;
+  return rows.length > 0;
+}
+
+export async function advanceIndexerCursor(chainId: number, contractAddress: string, blockNumber: bigint): Promise<void> {
+  const db = await database();
+  await db`insert into scrit_indexer_cursors(chain_id,contract_address,block_number) values(${chainId},${contractAddress.toLowerCase()},${blockNumber.toString()})
+    on conflict(chain_id,contract_address) do update set block_number=greatest(scrit_indexer_cursors.block_number,excluded.block_number),updated_at=now()`;
+}
+
+export async function listChainEvents(limit = 100, chainId = 46630): Promise<Array<Record<string, unknown>>> {
+  const db = await database();
+  return await db`select chain_id,contract_address,tx_hash,log_index,block_number,event_name,payload,observed_at from scrit_chain_events where chain_id=${chainId} order by block_number desc,log_index desc limit ${Math.min(Math.max(limit,1),500)}` as unknown as Array<Record<string, unknown>>;
+}
+
+export async function auditAdminAction(actor: string, action: string, entity: string, entityId: string, evidenceHash = ""): Promise<void> {
+  const db = await database();
+  await db`insert into scrit_admin_audit_log(actor,action,entity,entity_id,evidence_hash) values(${actor.toLowerCase()},${action},${entity},${entityId},${evidenceHash})`;
+}
+
 export async function isIssuerApproved(wallet: string): Promise<boolean> {
   const db = await database();
   const rows = await db`select approved from scrit_issuer_registry where wallet = ${wallet.toLowerCase()}`;
   return rows[0]?.approved === true;
+}
+
+export async function issuerApplicationStatus(wallet: string): Promise<"approved" | "pending" | "not-applied"> {
+  const db = await database();
+  const rows = await db`select approved from scrit_issuer_registry where wallet = ${wallet.toLowerCase()}`;
+  if (!rows[0]) return "not-applied";
+  return rows[0].approved === true ? "approved" : "pending";
 }
 
 export async function listIssuers(): Promise<Issuer[]> {
@@ -85,6 +159,13 @@ export async function setIssuer(input: Pick<Issuer, "wallet" | "name" | "contact
   const db = await database();
   await db`insert into scrit_issuer_registry(wallet,name,contact,approved) values(${input.wallet.toLowerCase()},${input.name},${input.contact},${input.approved})
     on conflict(wallet) do update set name=excluded.name, contact=excluded.contact, approved=excluded.approved, updated_at=now()`;
+}
+
+/** Public issuer intake can create pending records only; it can never grant approval or overwrite an existing review. */
+export async function applyIssuer(input: Pick<Issuer, "wallet" | "name" | "contact">): Promise<boolean> {
+  const db = await database();
+  const rows = await db`insert into scrit_issuer_registry(wallet,name,contact,approved) values(${input.wallet.toLowerCase()},${input.name},${input.contact},false) on conflict(wallet) do nothing returning wallet`;
+  return rows.length > 0;
 }
 
 export async function listPrices(): Promise<Price[]> {

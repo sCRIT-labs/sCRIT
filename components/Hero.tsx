@@ -4,18 +4,17 @@ import React, { useState } from "react";
 import { usePilotData } from "../hooks/usePilotData";
 import { useCountUp } from "../hooks/useCountUp";
 import { calcPremium, formatPct, formatUsd, premiumBand } from "../lib/nav";
-import { SCRIT_SUPPLY } from "../lib/scrit";
 import { TickerTape } from "./TickerTape";
 import { ChainField } from "./ChainField";
 
 export const Hero: React.FC = () => {
   const { prices, atts, reserveUsd, navUsd } = usePilotData();
   const [market, setMarket] = useState("");
-  const shownNav = useCountUp(navUsd);
+  const shownNav = useCountUp(navUsd ?? 0);
   const shownReserve = useCountUp(reserveUsd);
 
   const marketNum = parseFloat(market);
-  const premium = Number.isFinite(marketNum) && navUsd > 0 ? calcPremium(marketNum, navUsd) : null;
+  const premium = navUsd !== null && Number.isFinite(marketNum) && navUsd > 0 ? calcPremium(marketNum, navUsd) : null;
   const band = premium === null ? null : premiumBand(premium);
 
   return (
@@ -41,7 +40,7 @@ export const Hero: React.FC = () => {
           <div className="nav-cap">NAV PER sCRIT · USD · PRIMARY FIGURE</div>
           <div className="nav-sub">
             <span>RESERVE {formatUsd(shownReserve)}</span>
-            <span>SUPPLY {Number(SCRIT_SUPPLY).toLocaleString("en-US")}</span>
+            <span>SUPPLY {navUsd === null ? "UNAVAILABLE" : "ON-CHAIN"}</span>
             <span>ATTESTATIONS {atts.length}</span>
             <span>
               {premium === null ? (

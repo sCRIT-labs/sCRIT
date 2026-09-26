@@ -3,9 +3,9 @@ import "./globals.css";
 import "./redesign.css";
 
 export const metadata: Metadata = {
-  title: "sCRIT — Commodity Reserve Index Pilot",
+  title: "sCRIT — Critical Commodities Index & Launchpad",
   description:
-    "A pilot index token and launchpad. Reserve estimates use off-chain attestation records and manual prices. Project-pool swap tax is 0%; sCRIT is not pegged and has no pilot redemption.",
+    "A critical-commodities index design and sCRIT-paired token launchpad. Target weights are separate from attested holdings; mainnet project pools apply a 2.5% V4 hook fee split 75/25.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

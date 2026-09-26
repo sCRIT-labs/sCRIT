@@ -41,6 +41,9 @@ export function HeaderNav() {
           <Link href="/#launch-model" className="nav-menu-link">
             Launch model
           </Link>
+          <Link href="/issuer" className={`nav-menu-link ${pathname === "/issuer" ? "is-active-link" : ""}`}>
+            Issuer desk
+          </Link>
           <Link
             href="/proof"
             className={`nav-menu-link ${pathname === "/proof" ? "is-active-link" : ""}`}
@@ -89,6 +92,9 @@ export function HeaderNav() {
           </Link>
           <Link href="/#launch-model" onClick={() => setMobileOpen(false)}>
             Launch model
+          </Link>
+          <Link href="/issuer" onClick={() => setMobileOpen(false)}>
+            Issuer desk
           </Link>
           <Link href="/proof" onClick={() => setMobileOpen(false)}>
             Pilot evidence

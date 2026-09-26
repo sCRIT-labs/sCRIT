@@ -20,9 +20,9 @@ const QUOTES = [
   {
     author: "Pilot status",
     role: "Launch and fee model",
-    firm: "NO PEG · 0% PILOT TAX",
+    firm: "NO PEG · 2.5% V4 POOL FEE",
     initials: "PS",
-    quote: "Rail A pairs project tokens with sCRIT. It creates no price floor; the pilot has no redemption, no issuance charge, and no active project-pool swap tax."
+    quote: "Rail A pairs project tokens with sCRIT. Mainnet project pools use a 2.5% V4 hook fee split 75/25; this does not create a price floor or count as reserve inventory."
   }
 ];
 

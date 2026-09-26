@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkAdmin, listCustodians, registerCustodian } from "@/lib/db";
 import { isValidAddress } from "@/lib/custodians";
-
-const PILOT_COMMODITIES = ["Au", "Ag", "Pt"];
+import { isCommoditySymbol } from "@/lib/scrit-basket";
 
 export async function GET() {
   try {
@@ -20,7 +19,7 @@ export async function POST(req: Request) {
   if (body.name !== undefined && typeof body.name !== "string") return NextResponse.json({ error: "bad_name" }, { status: 400 });
   const name = body.name?.trim() ?? "";
   if (name.length < 1 || name.length > 100) return NextResponse.json({ error: "bad_name" }, { status: 400 });
-  if (body.scope !== undefined && (!Array.isArray(body.scope) || body.scope.some((s) => typeof s !== "string" || !PILOT_COMMODITIES.includes(s)))) {
+  if (body.scope !== undefined && (!Array.isArray(body.scope) || body.scope.some((s) => typeof s !== "string" || !isCommoditySymbol(s)))) {
     return NextResponse.json({ error: "invalid_scope" }, { status: 400 });
   }
   const scope = [...new Set(body.scope ?? [])];

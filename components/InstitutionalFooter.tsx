@@ -23,7 +23,7 @@ export function InstitutionalFooter({ theme = "light" }: { theme?: "light" | "da
           {/* Background Vault Facade */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/images/scrit_depository_monolith.jpg"
+            src="/images/scrit_depository_facade.jpg"
             alt=""
             className="ondo-footer-bg-facade"
           />
@@ -102,9 +102,8 @@ export function InstitutionalFooter({ theme = "light" }: { theme?: "light" | "da
               <ul className="ondo-footer-links-list">
                 <li><Link href="/launch">Strike a Pair (Rail A)</Link></li>
                 <li><Link href="/proof">Proof of Reserve</Link></li>
-                <li><Link href="/copilot">Pilot guide</Link></li>
                 <li><Link href="/#launch-model">Launch model</Link></li>
-                <li><Link href="/#products">Basket Breakdown (Au/Ag/Pt)</Link></li>
+                <li><Link href="/#products">Nine-Asset Basket Targets</Link></li>
                 <li><Link href="/#ledger">Pilot telemetry</Link></li>
               </ul>
             </div>

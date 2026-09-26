@@ -8,7 +8,7 @@ const PILLARS = [
   {
     num: "01",
     title: "Target Basket",
-    desc: "The pilot design targets 60% gold, 25% silver, and 15% platinum. No allocated inventory is established by this page."
+    desc: "The nine starter targets span precious metals, rare earths, and lithium. Target weights do not establish allocated inventory."
   },
   {
     num: "02",

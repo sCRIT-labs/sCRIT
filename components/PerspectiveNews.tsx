@@ -13,7 +13,7 @@ const ARTICLES = [
   {
     image: "/images/scrit_attestation_network.jpg",
     meta: "Technical Brief • Robinhood L2 Architecture",
-    title: "The Mechanics of Two-Tier Liquidity Pools: Untaxed Base Trading & Reserve Procurement",
+    title: "Uniswap V4 Project-Pool Fees and the Untaxed sCRIT Base Market",
     link: "/launch"
   },
   {

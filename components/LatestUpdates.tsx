@@ -9,7 +9,7 @@ const UPDATES = [
     id: 1,
     tag: "Pilot Basket · Target",
     title: "A defined basket, with current holdings left unclaimed",
-    summary: "The proposed design targets 60% gold, 25% silver, and 15% platinum. This software does not establish inventory or contracted vault custody.",
+    summary: "The starter design targets nine commodities across precious metals, rare earths, and lithium. Target weights are not inventory.",
     image: "/images/scrit_depository_monolith.jpg",
     link: "/proof",
     shortLabel: "Target basket"
@@ -27,7 +27,7 @@ const UPDATES = [
     id: 3,
     tag: "Mechanism · Rail A",
     title: "Project tokens can launch against sCRIT",
-    summary: "The pilot swap tax is 0%. Future tax and reserve-routing proposals are inactive, and no automatic metal purchases are implemented.",
+    summary: "Mainnet TOKEN/sCRIT pools use a 2.5% V4 hook fee split 75/25. Collected fees are not reserve inventory until a batch is attested.",
     image: "/images/scrit_kinetic_scale.jpg",
     link: "/launch",
     shortLabel: "TOKEN / sCRIT pools"

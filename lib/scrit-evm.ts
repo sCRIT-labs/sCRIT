@@ -2,16 +2,18 @@ import {
   createPublicClient,
   createWalletClient,
   custom,
+  decodeAbiParameters,
   defineChain,
   http,
+  parseAbiParameters,
   parseEther,
   type Account,
   type Address,
   type PublicClient,
   type WalletClient,
 } from "viem";
-import { SCRIT_ABI, SCRIT_LAUNCHER_ABI } from "./scrit-artifact";
-import { HOOD_MAINNET, HOOD_TESTNET, SCRIT_ADDRESS, SCRIT_LAUNCHER } from "./scrit";
+import { SCRIT_ABI, SCRIT_LAUNCHER_ABI, SCRIT_LAUNCHER_V4_ABI } from "./scrit-artifact";
+import { HOOD_MAINNET, HOOD_TESTNET, scritDeploymentFor } from "./scrit";
 
 export const SLIPPAGE_PRESETS = [
   { label: "Low 0.5%", bps: 9950 },
@@ -139,10 +141,10 @@ export async function scritAllowance(chainId: 4663 | 46630, owner: Address, spen
   }) as Promise<bigint>;
 }
 
-export async function launcherIssuerApproved(chainId: 4663 | 46630, issuer: Address, launcher: Address = SCRIT_LAUNCHER): Promise<boolean> {
+export async function launcherIssuerApproved(chainId: 4663 | 46630, issuer: Address, launcher: Address = scritDeploymentFor(chainId).launcher): Promise<boolean> {
   return await publicClientFor(chainId).readContract({
     address: launcher,
-    abi: SCRIT_LAUNCHER_ABI,
+    abi: chainId === 4663 ? SCRIT_LAUNCHER_V4_ABI : SCRIT_LAUNCHER_ABI,
     functionName: "issuerApproved",
     args: [issuer],
   }) as boolean;
@@ -165,9 +167,49 @@ export function decodeLaunchedToken(
   return null;
 }
 
+export type LaunchedV3Position = {
+  token: Address;
+  creator: Address;
+  pool: string;
+  positionId: bigint;
+  liquidity: bigint;
+  tokenAmount: bigint;
+  scritAmount: bigint;
+};
+
+/** Decode the V3 launch receipt, only accepting events emitted by the configured launcher. */
+export function decodeLaunchedPosition(
+  logs: { address: string; topics: `0x${string}`[]; data: `0x${string}` }[],
+  launcher: Address,
+  v4 = false,
+): LaunchedV3Position | null {
+  for (const log of logs) {
+    if (log.address.toLowerCase() !== launcher.toLowerCase() || log.topics.length < 4) continue;
+    const topicAddress = (topic: `0x${string}`) => `0x${topic.slice(-40)}` as Address;
+    if ([log.topics[1], log.topics[2], log.topics[3]].some((topic) => !/^0x[0-9a-fA-F]{64}$/.test(topic))) continue;
+    try {
+      const [positionId, liquidity, tokenAmount, scritAmount] = decodeAbiParameters(
+        parseAbiParameters("uint256 positionId, uint128 liquidity, uint256 tokenAmount, uint256 scritAmount"),
+        log.data
+      );
+      return {
+        token: topicAddress(log.topics[1]),
+        creator: topicAddress(log.topics[2]),
+        pool: v4 ? log.topics[3] : topicAddress(log.topics[3]),
+        positionId,
+        liquidity,
+        tokenAmount,
+        scritAmount,
+      };
+    } catch {
+      continue;
+    }
+  }
+  return null;
+}
+
 /**
- * Pilot Rail A launch: approve the launcher when needed, then create the
- * TOKEN/sCRIT pool. Issuance charges are not active on Rail A.
+ * Rail A launch: V4 taxed pools on mainnet and the existing V3 rehearsal on testnet.
  */
 export async function launchTokenScrit(args: {
   chainId: 4663 | 46630;
@@ -177,11 +219,14 @@ export async function launchTokenScrit(args: {
   launcher?: Address;
   slippageBps?: number;
   onStep?: (step: "approve" | "launch") => void;
-}): Promise<{ token: Address; launchHash: `0x${string}` }> {
+}): Promise<LaunchedV3Position & { launchHash: `0x${string}` }> {
   const err = validateLaunchParams(args.params);
   if (err) throw new Error(err);
-  const scrit = args.scrit ?? SCRIT_ADDRESS;
-  const launcher = args.launcher ?? SCRIT_LAUNCHER;
+  const deployment = scritDeploymentFor(args.chainId);
+  const isV4 = args.chainId === 4663;
+  const launcherAbi = isV4 ? SCRIT_LAUNCHER_V4_ABI : SCRIT_LAUNCHER_ABI;
+  const scrit = args.scrit ?? deployment.token;
+  const launcher = args.launcher ?? deployment.launcher;
   if (scrit === "0x0000000000000000000000000000000000000000" || launcher === "0x0000000000000000000000000000000000000000") {
     throw new Error("scrit_not_configured");
   }
@@ -214,11 +259,10 @@ export async function launchTokenScrit(args: {
   } catch {
     deadline = BigInt(Math.floor(Date.now() / 1000) + TX_DEADLINE_SECS);
   }
-  const scritMin = calcScritMin(args.params.scritAmount, args.slippageBps);
   args.onStep?.("launch");
   const launchHash = await wallet.writeContract({
     address: launcher,
-    abi: SCRIT_LAUNCHER_ABI,
+    abi: launcherAbi,
     functionName: "launch",
     args: [
       args.params.name || args.params.ticker,
@@ -226,20 +270,21 @@ export async function launchTokenScrit(args: {
       args.params.supply,
       args.params.pooled,
       args.params.scritAmount,
-      scritMin,
+      args.slippageBps ?? 9800,
       deadline,
     ],
     account: acct,
     chain,
   });
   const receipt = await pub.waitForTransactionReceipt({ hash: launchHash });
-  if (receipt.status === "reverted") throw new Error("tx_failed");
-  const token = decodeLaunchedToken(
-    receipt.logs as { address: string; topics: `0x${string}`[] }[],
-    launcher
+  if (receipt.status !== "success") throw new Error("tx_failed");
+  const launch = decodeLaunchedPosition(
+    receipt.logs as { address: string; topics: `0x${string}`[]; data: `0x${string}` }[],
+    launcher,
+    isV4
   );
-  if (!token) throw new Error("no_contract_address");
-  return { token, launchHash };
+  if (!launch) throw new Error("no_launch_event");
+  return { ...launch, launchHash };
 }
 
 export function toTokenUnits(amount: string): bigint {

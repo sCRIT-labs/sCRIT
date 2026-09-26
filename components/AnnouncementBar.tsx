@@ -7,8 +7,8 @@ export function AnnouncementBar() {
     <aside aria-label="Announcement" className="top-announcement-bar">
       <div className="top-announcement-inner">
         <span className="announcement-text">
-          <span className="hide-mobile">sCRIT PILOT · TARGET BASKET Au 60 / Ag 25 / Pt 15 · NOT PEGGED · NO REDEMPTION</span>
-          <span className="show-mobile">sCRIT PILOT · Au 60 / Ag 25 / Pt 15</span>
+          <span className="hide-mobile">sCRIT INDEX · NINE TARGET COMMODITIES · DIAMONDS RAIL B ONLY · URANIUM UNAVAILABLE</span>
+          <span className="show-mobile">sCRIT INDEX · NINE TARGET ASSETS</span>
         </span>
         <a href="#products" className="announcement-cta">
           <span>Explore the pilot</span>

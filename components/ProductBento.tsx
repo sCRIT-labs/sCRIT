@@ -93,19 +93,19 @@ export function ProductBento() {
 
               <p className="ondo-bento-product-desc" style={{ minHeight: "56px", transition: "all 0.3s ease" }}>
                 {selectedProduct === "index" &&
-                  "Proposed index design with target weights of 60% gold, 25% silver, and 15% platinum. The pilot has no contracted vault custody, on-chain reserve manager, peg, or redemption."}
+                  "Starter basket design: Au 30%, Ag 5%, Pt 12%, Pd 8%, Nd 8%, Dy 12%, Tb 8%, Sc 7%, and Li 10%. Target weights do not mean inventory exists."}
                 {selectedProduct === "raila" &&
-                  "Pilot launchpad for TOKEN/sCRIT pools. No Rail A issuance fee or project-pool swap tax is active; proposed future fee routing is not implemented."}
+                  "Approved issuers create TOKEN/sCRIT pools. Mainnet uses a 2.5% V4 project-pool hook fee split 75/25; testnet V3 rehearsal pools are untaxed."}
                 {selectedProduct === "railb" &&
-                  "Planned product only. A physical-lot order book, certification flow, and fractionalized lots are not implemented in this repository."}
+                  "Testnet contracts define signed lot certification, 100 fractional units, a sCRIT limit order book, and a KYC-gated redemption state machine. No contracts or verified physical lots are deployed yet."}
               </p>
 
               <div className="ondo-bento-badge-row">
                 <span className="ondo-bento-tag">
-                  {selectedProduct === "index" ? "TARGET 60/25/15" : selectedProduct === "raila" ? "TOKEN / sCRIT" : "PLANNED"}
+                  {selectedProduct === "index" ? "9 COMMODITY TARGETS" : selectedProduct === "raila" ? "TOKEN / sCRIT" : "PLANNED"}
                 </span>
                 <span className="ondo-bento-tag">
-                  {selectedProduct === "index" ? "OFF-CHAIN RECORDS" : selectedProduct === "raila" ? "0% PILOT TAX" : "NOT LIVE"}
+                  {selectedProduct === "index" ? "TESTNET CONTRACTS" : selectedProduct === "raila" ? "2.5% MAINNET FEE" : "TESTNET DESIGN"}
                 </span>
               </div>
 
@@ -117,10 +117,9 @@ export function ProductBento() {
               {/* Footer row with chain icons and CTA */}
               <div className="ondo-bento-action-row">
                 <div className="ondo-chain-icons-group">
-                  <span className="ondo-chain-chip is-active-chip" title="Robinhood Chain (Pilot L2)">ROBINHOOD</span>
-                  <span className="ondo-chain-chip" title="Ethereum Mainnet Base">ETHEREUM</span>
+                  <span className="ondo-chain-chip is-active-chip" title="Robinhood Chain (Pilot L2)">ROBINHOOD PILOT ONLY</span>
                 </div>
-                <a href={selectedProduct === "raila" ? "/launch" : "#simulator"} className="ondo-bento-btn-discover">
+                <a href={selectedProduct === "raila" ? "/launch" : selectedProduct === "railb" ? "/lots" : "/proof"} className="ondo-bento-btn-discover">
                   {selectedProduct === "raila" ? "Strike a Pair" : `Explore ${selectedProduct === "index" ? "sCRIT Index" : "Rail B"}`}
                 </a>
               </div>
@@ -160,7 +159,7 @@ export function ProductBento() {
             {/* Top Card: Current TVL Chart */}
             <div className="ondo-bento-card-tvl">
               <span className="ondo-tvl-label">Current TVL</span>
-              <div className="ondo-tvl-value">${(reserveUsd || 999000000).toLocaleString("en-US")}</div>
+              <div className="ondo-tvl-value">${reserveUsd.toLocaleString("en-US", { maximumFractionDigits: 2 })}</div>
               {/* Line Chart Graphic with animated draw */}
               <div className="ondo-tvl-chart-visual">
                 <svg viewBox="0 0 400 120" fill="none" className="ondo-chart-svg">

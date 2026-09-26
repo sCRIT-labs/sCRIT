@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { Address } from "viem";
 import { connectWallet, ensureChain, scritBalanceOf } from "@/lib/scrit-evm";
-import { SCRIT_ADDRESS } from "@/lib/scrit";
+import { scritDeploymentFor } from "@/lib/scrit";
 
 export function shortAddr(a: string): string {
   return `${a.slice(0, 6)}…${a.slice(-4)}`;
@@ -24,7 +24,7 @@ export default function WalletButton({
     try {
       await ensureChain(chainId);
       const acc = await connectWallet();
-      const bal = await scritBalanceOf(chainId, acc, SCRIT_ADDRESS).catch(() => 0n);
+      const bal = await scritBalanceOf(chainId, acc, scritDeploymentFor(chainId).token).catch(() => 0n);
       setAccount(acc);
       onConnect(acc, bal);
     } catch (e: unknown) {

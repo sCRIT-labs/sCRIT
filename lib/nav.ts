@@ -2,17 +2,17 @@ export function calcNav(
   holdingsKg: Record<string, number>,
   pricesUsdPerKg: Record<string, number>,
   supply: bigint
-): { reserveUsd: number; navUsd: number } {
+): { reserveUsd: number; navUsd: number | null } {
   let reserveUsd = 0;
   for (const k of Object.keys(holdingsKg)) {
     reserveUsd += (holdingsKg[k] ?? 0) * (pricesUsdPerKg[k] ?? 0);
   }
-  const navUsd = supply === 0n ? 0 : reserveUsd / Number(supply);
+  const navUsd = supply === 0n ? null : reserveUsd / Number(supply);
   return { reserveUsd, navUsd };
 }
 
 export function calcPremium(marketUsd: number, navUsd: number): number {
-  if (navUsd === 0) return 0;
+  if (!Number.isFinite(navUsd) || navUsd <= 0) return 0;
   return marketUsd / navUsd - 1;
 }
 
