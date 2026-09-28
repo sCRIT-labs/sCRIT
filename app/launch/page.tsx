@@ -215,7 +215,7 @@ export default function Launch() {
           <div className="launch-metrics-card">
             <div className="launch-metric-line">
               <span className="launch-metric-lbl">Indicative Price</span>
-              <span className="launch-metric-val">{indicativePrice} sCRIT</span>
+              <span className="launch-metric-val">{indicativePrice} sCRIT / token</span>
             </div>
             <div className="launch-metric-line">
               <span className="launch-metric-lbl">Project hook fee</span>

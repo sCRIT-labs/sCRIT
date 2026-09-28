@@ -13,7 +13,7 @@ export default function CopilotPage() {
   const [notice, setNotice] = useState("");
   const transcript = useRef<HTMLDivElement>(null);
 
-  useEffect(() => transcript.current?.scrollTo({ top: transcript.current.scrollHeight, behavior: "smooth" }), [messages, pending]);
+  useEffect(() => { transcript.current?.scrollTo({ top: transcript.current.scrollHeight, behavior: "smooth" }); }, [messages, pending]);
 
   async function send(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
