@@ -27,21 +27,23 @@ console.log(`XAG $${ag.perOz}/oz ($${ag.perKg.toFixed(2)}/kg) @ ${ag.at}`);
 
 const SOURCE = "gold-api.com free quote (Au/Ag spot; not an LBMA fix or audit)";
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-async function publishWithRetry(args, tries = 4) {
+async function publishWithRetry(args, tries = 6) {
   for (let attempt = 1; ; attempt++) {
     try {
       execFileSync("node", args, { stdio: "inherit" });
       return;
     } catch (e) {
       if (attempt >= tries) throw e;
-      console.log(`retry ${attempt}/${tries} in 25s (public RPC may be rate-limited)`);
-      await sleep(25000);
+      console.log(`retry ${attempt}/${tries} in 60s (public RPC may be rate-limited)`);
+      await sleep(60000);
     }
   }
 }
-for (const [sym, q] of [["Au", au], ["Ag", ag]]) {
-  await publishWithRetry(["scripts/publish-price.mjs", "--mainnet", sym, q.perKg.toFixed(2), SOURCE]);
-}
+// Spaced out: back-to-back publishes get throttled on the public RPC.
+await publishWithRetry(["scripts/publish-price.mjs", "--mainnet", "Au", au.perKg.toFixed(2), SOURCE]);
+console.log("cooling down 60s before Ag publish...");
+await sleep(60000);
+await publishWithRetry(["scripts/publish-price.mjs", "--mainnet", "Ag", ag.perKg.toFixed(2), SOURCE]);
 
 const admin = { "x-admin-key": env.ADMIN_KEY, "content-type": "application/json" };
 for (const [sym, q] of [["Au", au], ["Ag", ag]]) {
