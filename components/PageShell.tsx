@@ -9,11 +9,15 @@ import { useReveal } from "../hooks/useReveal";
 import { ArrowLeft } from "lucide-react";
 import { HOOD_MAINNET, HOOD_TESTNET, SCRIT_CHAIN_ID } from "@/lib/scrit";
 
-export const PageShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const PageShell: React.FC<{ children: React.ReactNode; theme?: "paper" | "dark" }> = ({
+  children,
+  theme = "paper",
+}) => {
   useReveal();
   const network = SCRIT_CHAIN_ID === 4663 ? HOOD_MAINNET : HOOD_TESTNET;
+  const isDark = theme === "dark";
   return (
-    <div className="scrit-subpage-root scrit-redesign">
+    <div className={`scrit-subpage-root scrit-redesign ${isDark ? "scrit-subpage-dark" : ""}`}>
       <AnnouncementBar />
       <HeaderNav />
       <main className="scrit-subpage-container">
@@ -29,7 +33,7 @@ export const PageShell: React.FC<{ children: React.ReactNode }> = ({ children })
         </div>
         {children}
       </main>
-      <InstitutionalFooter theme="dark" />
+      <InstitutionalFooter theme={isDark ? "dark" : "light"} />
     </div>
   );
 };

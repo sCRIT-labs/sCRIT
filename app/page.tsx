@@ -20,14 +20,18 @@ export default function Home() {
 
       <main className="scrit-landing-curtain">
         {/* Keep the existing hero experience intact. */}
-        <HeroScroll />
+        <div data-nav-theme="dark">
+          <HeroScroll />
+        </div>
         <LandingExperience />
       </main>
 
       <div className="scrit-footer-reveal-spacer" aria-hidden="true" />
 
       {/* 10. Skyscraper Subscribe Card + 4-Column White Institutional Footer */}
-      <div className="scrit-landing-footer"><InstitutionalFooter /></div>
+      <div data-nav-theme="dark" className="scrit-landing-footer">
+        <InstitutionalFooter />
+      </div>
     </div>
   );
 }

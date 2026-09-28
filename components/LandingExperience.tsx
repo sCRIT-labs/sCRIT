@@ -96,43 +96,60 @@ export function LandingExperience() {
         </div>
       </section>
 
-      <PinnedDispatch items={DISPATCHES} />
+      <div data-nav-theme="light">
+        <PinnedDispatch items={DISPATCHES} />
+      </div>
 
-      <PinnedIndexStory metrics={[
-        { label: "REPORTED RESERVE VALUE", value: reserveLabel, detail: pricesComplete ? "From accepted records and manual prices." : "Requires all nine manual price inputs." },
-        { label: "ON-CHAIN NAV / TOKEN", value: navLabel, detail: "On-chain reserve value ÷ live sCRIT supply. Hidden until both are available." },
-        { label: "ATTESTED BATCHES", value: dataStatus === "ready" ? String(atts.length) : "—", detail: dataStatus !== "ready" ? "Pilot record service unavailable." : latest ? `Latest · ${latest.commodity} · ${latest.mass_kg} kg.` : "No batches recorded in this instance." },
-      ]} />
+      <div data-nav-theme="light">
+        <PinnedIndexStory metrics={[
+          { label: "REPORTED RESERVE VALUE", value: reserveLabel, detail: pricesComplete ? "From accepted records and manual prices." : "Requires all nine manual price inputs." },
+          { label: "ON-CHAIN NAV / TOKEN", value: navLabel, detail: "On-chain reserve value ÷ live sCRIT supply. Hidden until both are available." },
+          { label: "ATTESTED BATCHES", value: dataStatus === "ready" ? String(atts.length) : "—", detail: dataStatus !== "ready" ? "Pilot record service unavailable." : latest ? `Latest · ${latest.commodity} · ${latest.mass_kg} kg.` : "No batches recorded in this instance." },
+        ]} />
+      </div>
 
-      <PinnedReserveStory scenes={STORY} />
-      <PinnedFlowRail />
+      <div data-nav-theme="dark">
+        <PinnedReserveStory scenes={STORY} />
+      </div>
 
-      <PinnedLedgerStory
-        copy={{ title: "A quiet terminal. Only real records count.", text: "Prices are manual pilot inputs. Reserve mass comes from accepted attestation records. A feed can be stale, and an empty ledger is shown as empty." }}
-        session={dataStatus === "unavailable" ? "PILOT DATA SERVICE UNAVAILABLE" : prices.length === 0 ? "WAITING FOR PRICE INPUTS" : staleCount ? `${staleCount} PRICE FEED${staleCount > 1 ? "S" : ""} STALE` : "PRICE INPUTS WITHIN 24H WINDOW"}
-        lines={[
-          ...STATUS_LINES,
-          { key: "ATTESTATION LOG", value: atts.length ? `${atts.length} SIGNED BATCH${atts.length > 1 ? "ES" : ""} · ${Object.values(holdings).reduce((a, b) => a + b, 0).toFixed(4)} KG` : "AWAITING FIRST SIGNED BATCH" },
-        ]}
-      />
+      <div data-nav-theme="light">
+        <PinnedFlowRail />
+      </div>
 
-      <PinnedAssuranceStory items={[
-        { mark: "EIP", title: "Signatures tied to a custodian", body: "Attestation signatures are checked against the configured custodian key and its pilot commodity scope.", href: "/proof", link: "See the attestation ledger", image: "/images/scrit_hardware_key.jpg" },
-        { mark: "9×", title: "Three commodity classes", body: "The index design targets precious metals, rare earths, and battery-grade lithium. Uranium remains outside the MVP; diamonds use individually certified Rail B lots only.", href: "/proof", link: "Review basket targets", image: "/images/scrit_platinum_assay.jpg" },
-        { mark: "NAV", title: "No redemption path", body: "sCRIT is not pegged. No authorised participant is active and physical redemption is unavailable in this pilot.", href: "/legal/risk", link: "Read the risk disclosure", image: "/images/scrit_vault_barrier.jpg" },
-      ]} />
+      <div data-nav-theme="light">
+        <PinnedLedgerStory
+          copy={{ title: "A quiet terminal. Only real records count.", text: "Prices are manual pilot inputs. Reserve mass comes from accepted attestation records. A feed can be stale, and an empty ledger is shown as empty." }}
+          session={dataStatus === "unavailable" ? "PILOT DATA SERVICE UNAVAILABLE" : prices.length === 0 ? "WAITING FOR PRICE INPUTS" : staleCount ? `${staleCount} PRICE FEED${staleCount > 1 ? "S" : ""} STALE` : "PRICE INPUTS WITHIN 24H WINDOW"}
+          lines={[
+            ...STATUS_LINES,
+            { key: "ATTESTATION LOG", value: atts.length ? `${atts.length} SIGNED BATCH${atts.length > 1 ? "ES" : ""} · ${Object.values(holdings).reduce((a, b) => a + b, 0).toFixed(4)} KG` : "AWAITING FIRST SIGNED BATCH" },
+          ]}
+        />
+      </div>
 
-      <PinnedLaunchStory image="/images/scrit_silver_vault.jpg">
-        <h2>Project tokens pair<br /><em>against sCRIT.</em></h2>
-        <p>Approved issuers can create a project token and seed a TOKEN/sCRIT pool. Mainnet project pools use the V4 hook for a 2.5% swap fee split 75/25; testnet V3 rehearsal pools do not collect that fee.</p>
-        <div className="scrit-launch-facts"><div><b>0%</b><span>Rail A issuance fee</span></div><div><b>2.5%</b><span>mainnet project-pool fee · 75/25</span></div></div>
-        <a className="scrit-button scrit-button-dark" href="/launch">Explore token launch <ArrowRight size={16} /></a>
-      </PinnedLaunchStory>
+      <div data-nav-theme="dark">
+        <PinnedAssuranceStory items={[
+          { mark: "EIP", title: "Signatures tied to a custodian", body: "Attestation signatures are checked against the configured custodian key and its pilot commodity scope.", href: "/proof", link: "See the attestation ledger", image: "/images/scrit_hardware_key.jpg" },
+          { mark: "9×", title: "Three commodity classes", body: "The index design targets precious metals, rare earths, and battery-grade lithium. Uranium remains outside the MVP; diamonds use individually certified Rail B lots only.", href: "/proof", link: "Review basket targets", image: "/images/scrit_platinum_assay.jpg" },
+          { mark: "NAV", title: "No redemption path", body: "sCRIT is not pegged. No authorised participant is active and physical redemption is unavailable in this pilot.", href: "/legal/risk", link: "Read the risk disclosure", image: "/images/scrit_vault_barrier.jpg" },
+        ]} />
+      </div>
 
-      <PinnedBasketStory
-        items={BASKET.map((row) => ({ symbol: row.symbol, name: row.name, detail: `${row.grade} · ${row.tier}`, weight: row.weightBps / 100 }))}
-        excluded="Diamonds are Rail B only. Uranium is unavailable and outside the MVP. Targets do not establish holdings."
-      />
+      <div data-nav-theme="light">
+        <PinnedLaunchStory image="/images/scrit_silver_vault.jpg">
+          <h2>Project tokens<br /><em>pair against<br />sCRIT.</em></h2>
+          <p>Approved issuers can create a project token and seed a TOKEN/sCRIT pool. Mainnet project pools use the V4 hook for a 2.5% swap fee split 75/25; testnet V3 rehearsal pools do not collect that fee.</p>
+          <div className="scrit-launch-facts"><div><b>0%</b><span>Rail A issuance fee</span></div><div><b>2.5%</b><span>mainnet project-pool fee · 75/25</span></div></div>
+          <a className="scrit-button scrit-button-dark" href="/launch">Explore token launch <ArrowRight size={16} /></a>
+        </PinnedLaunchStory>
+      </div>
+
+      <div data-nav-theme="light">
+        <PinnedBasketStory
+          items={BASKET.map((row) => ({ symbol: row.symbol, name: row.name, detail: `${row.grade} · ${row.tier}`, weight: row.weightBps / 100 }))}
+          excluded="Diamonds are Rail B only. Uranium is unavailable and outside the MVP. Targets do not establish holdings."
+        />
+      </div>
 
       <PinnedEditorialStory items={[
         { label: "FIELD NOTE / RESERVES", title: "How an attested batch enters the reserve view", action: "Inspect the ledger", href: "/proof", image: "/images/scrit_batch_ingestion.jpg" },

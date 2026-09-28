@@ -1,21 +1,33 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
+import { ArrowRight, Sparkles } from "lucide-react";
 
 export function AnnouncementBar() {
   return (
     <aside aria-label="Announcement" className="top-announcement-bar">
       <div className="top-announcement-inner">
-        <span className="announcement-text">
-          <span className="hide-mobile">sCRIT INDEX · NINE TARGET COMMODITIES · DIAMONDS RAIL B ONLY · URANIUM UNAVAILABLE</span>
-          <span className="show-mobile">sCRIT INDEX · NINE TARGET ASSETS</span>
-        </span>
-        <a href="#products" className="announcement-cta">
+        {/* Status Pill Badge */}
+        <div className="announcement-pill-badge">
+          <span>PILOT PROTOCOL</span>
+        </div>
+
+        {/* Centered Descriptive Text */}
+        <div className="announcement-text-wrap">
+          <span className="hide-mobile">
+            sCRIT INDEX · NINE TARGET COMMODITIES · DIAMONDS RAIL B ONLY · URANIUM UNAVAILABLE
+          </span>
+          <span className="show-mobile">
+            sCRIT INDEX · NINE TARGET COMMODITIES
+          </span>
+        </div>
+
+        {/* Refined CTA Link */}
+        <Link href="/#products" className="announcement-cta-pill">
           <span>Explore the pilot</span>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path d="M9 18l6-6-6-6" />
-          </svg>
-        </a>
+          <ArrowRight size={11} strokeWidth={2.5} />
+        </Link>
       </div>
     </aside>
   );

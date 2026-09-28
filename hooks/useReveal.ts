@@ -6,8 +6,10 @@ import { useEffect } from "react";
 export function useReveal(): void {
   useEffect(() => {
     document.documentElement.classList.add("has-reveal-js");
+    // Ensure all existing reveal elements are immediately made active/visible
+    document.querySelectorAll(".rv, .scrit-reveal").forEach((el) => el.classList.add("rv-in"));
+
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      document.querySelectorAll(".rv, .scrit-reveal").forEach((el) => el.classList.add("rv-in"));
       return;
     }
     const io = new IntersectionObserver(
@@ -19,7 +21,7 @@ export function useReveal(): void {
           }
         }
       },
-      { threshold: 0.12, rootMargin: "0px 0px -6% 0px" }
+      { threshold: 0.01, rootMargin: "60px 0px 60px 0px" }
     );
     const observeReveal = (el: Element) => {
       if (el.matches(".rv, .scrit-reveal")) io.observe(el);

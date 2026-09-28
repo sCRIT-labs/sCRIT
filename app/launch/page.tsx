@@ -1,12 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { Address } from "viem";
 import { formatEther } from "viem";
 import Image from "next/image";
+import Link from "next/link";
 import { PageShell } from "@/components/PageShell";
 import WalletButton from "@/components/WalletButton";
-import { Rocket, ShieldCheck, CheckCircle2, AlertCircle, Loader2, Sparkles, ExternalLink } from "lucide-react";
+import ChainLogo from "@/components/ChainLogo";
+import CropModal from "@/components/CropModal";
+import { saveLocalToken } from "@/lib/tokens";
+import {
+  Rocket,
+  ShieldCheck,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  Sparkles,
+  ExternalLink,
+  Copy,
+  Check,
+  Coins,
+  TrendingUp,
+  Layers,
+  ArrowRight,
+  Info,
+  CheckSquare,
+  Square,
+  Zap,
+  Upload,
+  Camera,
+  Image as ImageIcon,
+} from "lucide-react";
 import {
   SLIPPAGE_PRESETS,
   launcherIssuerApproved,
@@ -26,6 +51,9 @@ export default function Launch() {
   const [scritBal, setScritBal] = useState<bigint>(0n);
   const [name, setName] = useState("");
   const [ticker, setTicker] = useState("");
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [cropSource, setCropSource] = useState<{ src: string; fileName: string } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [supply, setSupply] = useState("1000000000");
   const [pooled, setPooled] = useState("200000000");
   const [scritAmt, setScritAmt] = useState("1000");
@@ -34,6 +62,7 @@ export default function Launch() {
   const [ack2, setAck2] = useState(false);
   const [step, setStep] = useState<Step>("idle");
   const [msg, setMsg] = useState("");
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [result, setResult] = useState<{
     token: string;
     pool: string;
@@ -43,18 +72,50 @@ export default function Launch() {
 
   const explorer = chainId === 4663 ? HOOD_MAINNET.explorer : HOOD_TESTNET.explorer;
   const deployment = scritDeploymentFor(chainId);
-  const indicativePrice = (() => {
-    try {
-      const p = parseFloat(pooled);
-      const s = parseFloat(scritAmt);
-      if (p > 0 && s > 0) {
-        return (s / p).toLocaleString("en-US", { maximumSignificantDigits: 6 });
-      }
-      return "—";
-    } catch {
-      return "—";
+
+  // Computed Economics
+  const parsedSupply = parseFloat(supply) || 0;
+  const parsedPooled = parseFloat(pooled) || 0;
+  const parsedScrit = parseFloat(scritAmt) || 0;
+
+  const pooledPercent = useMemo(() => {
+    if (parsedSupply <= 0 || parsedPooled <= 0) return 0;
+    return Math.min(100, Math.max(0, (parsedPooled / parsedSupply) * 100));
+  }, [parsedSupply, parsedPooled]);
+
+  const indicativePrice = useMemo(() => {
+    if (parsedPooled > 0 && parsedScrit > 0) {
+      return (parsedScrit / parsedPooled).toLocaleString("en-US", { maximumSignificantDigits: 6 });
     }
-  })();
+    return "—";
+  }, [parsedPooled, parsedScrit]);
+
+  const impliedFdvScrit = useMemo(() => {
+    if (parsedPooled > 0 && parsedScrit > 0 && parsedSupply > 0) {
+      const pricePerToken = parsedScrit / parsedPooled;
+      const totalFdv = pricePerToken * parsedSupply;
+      return totalFdv.toLocaleString("en-US", { maximumFractionDigits: 0 });
+    }
+    return "—";
+  }, [parsedPooled, parsedScrit, parsedSupply]);
+
+  // Procedural gradient avatar based on ticker
+  const avatarGradient = useMemo(() => {
+    const chars = (ticker || "SCR").toUpperCase();
+    let hash = 0;
+    for (let i = 0; i < chars.length; i++) hash = chars.charCodeAt(i) + ((hash << 5) - hash);
+    const h1 = Math.abs(hash % 360);
+    const h2 = (h1 + 45) % 360;
+    return `linear-gradient(135deg, hsl(${h1}, 70%, 25%) 0%, hsl(${h2}, 80%, 15%) 100%)`;
+  }, [ticker]);
+
+  function copyToClipboard(text: string, key: string) {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+      setCopiedKey(key);
+      setTimeout(() => setCopiedKey(null), 2500);
+    }
+  }
 
   async function checkAccess() {
     setStep("checking");
@@ -73,45 +134,45 @@ export default function Launch() {
       });
       if (err) {
         setStep("error");
-        setMsg(`Invalid params: ${err}`);
+        setMsg(`Parameter validation error: ${err}`);
         return;
       }
       if (!account) {
         setStep("error");
-        setMsg("Connect wallet first.");
+        setMsg("Please connect your issuer wallet first.");
         return;
       }
       if (scritU > scritBal) {
         setStep("error");
-        setMsg("Insufficient sCRIT for the selected pool contribution.");
+        setMsg("Insufficient sCRIT balance for the chosen liquidity contribution.");
         return;
       }
       if (chainId === 4663) {
         const r = await fetch(`/api/issuers?wallet=${account}`).then((x) => x.json()).catch(() => null);
         if (!r?.approved) {
           setStep("error");
-          setMsg("Gated pilot — wallet not approved. Submit an application via the issuer desk.");
+          setMsg("Gated pilot: wallet not approved in issuer registry. Submit an application via Issuer Desk.");
           return;
         }
       }
       if (!/^0x[0-9a-fA-F]{40}$/.test(deployment.launcher) || /^0x0{40}$/i.test(deployment.launcher) || /^0x0{40}$/i.test(deployment.token)) {
         setStep("error");
-        setMsg(`sCRIT and its launcher are not configured for ${chainId === 4663 ? "Robinhood Chain mainnet" : "Robinhood Chain testnet"}.`);
+        setMsg(`sCRIT and its launcher contracts are not configured for ${chainId === 4663 ? "Robinhood Chain mainnet" : "Robinhood Chain testnet"}.`);
         return;
       }
       const onchainApproved = await launcherIssuerApproved(chainId, account, deployment.launcher as Address).catch(() => false);
       if (!onchainApproved) {
         setStep("error");
-        setMsg("Wallet is not approved in the launcher contract. Ask the launcher owner to enable it on-chain.");
+        setMsg("Wallet is not approved in the launcher contract. The launcher owner must enable this issuer on-chain.");
         return;
       }
       if (!ack1 || !ack2) {
         setStep("error");
-        setMsg("Tick both disclosures first.");
+        setMsg("Please accept both required compliance and risk disclosures below.");
         return;
       }
       setStep("ready");
-      setMsg("Parameters verified. Proceed with Strike Pair.");
+      setMsg("Parameters and permissions verified! Ready to Strike Pair.");
     } catch (e: unknown) {
       setStep("error");
       setMsg(e instanceof Error ? e.message : "check_failed");
@@ -121,7 +182,7 @@ export default function Launch() {
   async function launch() {
     if (!account) return;
     setStep("approve");
-    setMsg("Confirm the sCRIT allowance if requested, then create the pool.");
+    setMsg("Authorizing sCRIT allowance in your wallet...");
     try {
       const cleanTicker = ticker.toUpperCase().replace(/[^A-Z0-9]/g, "");
       const out = await launchTokenScrit({
@@ -139,12 +200,40 @@ export default function Launch() {
         slippageBps: slippage,
         onStep: (s) => {
           setStep(s);
-          setMsg(s === "approve" ? "Authorize the launcher to use the selected sCRIT amount." : "Deploy token and initialize the sCRIT liquidity pool.");
+          if (s === "approve") {
+            setMsg("Step 1/2: Authorize the launcher contract to spend your sCRIT tokens.");
+          } else if (s === "launch") {
+            setMsg("Step 2/2: Deploying token contract and initializing the Uniswap liquidity pool...");
+          }
         },
       });
       setResult({ token: out.token, pool: out.pool, positionId: out.positionId, launchHash: out.launchHash });
+      const newLaunchedToken = {
+        id: `${chainId}-${out.token.toLowerCase()}`,
+        chainId,
+        address: out.token,
+        name: name || cleanTicker,
+        symbol: cleanTicker,
+        creator: account,
+        supply,
+        pooled,
+        scritAmount: scritAmt,
+        txHash: out.launchHash,
+        poolId: out.pool,
+        poolType: chainId === 4663 ? "v4_hook" as const : "v3_standard" as const,
+        logoUrl: logoUrl || undefined,
+        backingCategory: "Critical Commodity Reserve",
+        description: `Deployed via Rail A token launcher on ${chainId === 4663 ? "Robinhood Mainnet" : "Robinhood Testnet"}.`,
+        createdAt: Date.now(),
+      };
+      saveLocalToken(newLaunchedToken);
+      fetch("/api/tokens", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newLaunchedToken),
+      }).catch((err) => console.warn("Could not sync token to db:", err));
       setStep("done");
-      setMsg(`Token and ${chainId === 4663 ? "V4 taxed" : "V3 testnet rehearsal"} liquidity position successfully deployed.`);
+      setMsg(`Success! Token contract and ${chainId === 4663 ? "Uniswap V4 taxed pool" : "V3 rehearsal pool"} successfully deployed.`);
     } catch (e: unknown) {
       setStep("error");
       setMsg(e instanceof Error ? e.message : "launch_failed");
@@ -153,381 +242,769 @@ export default function Launch() {
 
   return (
     <PageShell>
-      {/* Header section */}
-      <div className="scrit-reveal" style={{ maxWidth: 840, marginBottom: 28 }}>
-        <p className="eyebrow">Rail A · Gated Pilot & Testnet Rehearsal</p>
+      {/* Editorial Header */}
+      <div style={{ maxWidth: 860, marginBottom: 36 }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "4px 12px", borderRadius: 2, background: "rgba(83, 103, 83, 0.08)", border: "1px solid rgba(83, 103, 83, 0.2)", marginBottom: 14 }}>
+          <Sparkles size={13} color="var(--moss)" />
+          <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--moss)", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+            Rail A · Uniswap V4 Liquidity Engine
+          </span>
+        </div>
         <h1
           style={{
-            fontFamily: "var(--font-sans)",
+            fontFamily: "var(--font-serif)",
             fontSize: "clamp(34px, 4.5vw, 56px)",
-            fontWeight: 600,
-            letterSpacing: "-0.02em",
-            margin: "12px 0 16px",
-            lineHeight: 1.1,
+            fontWeight: 450,
+            letterSpacing: "-0.04em",
+            margin: "0 0 16px",
+            lineHeight: 1.08,
+            color: "var(--ink)",
           }}
         >
           Strike your liquidity engine.
         </h1>
         <p
           style={{
-            color: "var(--parchment-dim)",
+            color: "#5e645d",
             fontSize: "clamp(15px, 1.8vw, 17px)",
             lineHeight: 1.6,
             margin: 0,
           }}
         >
-          Every ecosystem launch is anchored to <b style={{ color: "#ffffff" }}>TOKEN / sCRIT</b>.
-          New project pools pair with <b className="gold">sCRIT</b>, the index target across nine critical and strategic commodities. Basket weights are allocation targets, not a claim of funded custody.
+          Every ecosystem launch is anchored to <b style={{ color: "var(--ink)" }}>TOKEN / sCRIT</b>.
+          Project pools pair with <b style={{ color: "#8c6418" }}>sCRIT</b>, establishing exposure to nine physical critical commodities without misleading 1:1 claims.
         </p>
       </div>
 
-      <div className="launch-grid-layout scrit-reveal">
-        {/* Left Column: Real-time Pool Economics & Metal Anchor Console */}
+      <div className="launch-grid-layout">
+        {/* Left Column: Live Economics & Metal Anchor Console */}
         <div className="launch-preview-panel">
-          <div className="launch-header-row">
-            <div>
-              <span className="mono-sm" style={{ letterSpacing: "0.08em" }}>PAIR ANCHOR</span>
-              <h3 style={{ fontSize: 22, fontWeight: 700, margin: "4px 0 0" }}>
-                {ticker ? ticker.toUpperCase() : "TOKEN"} / sCRIT
-              </h3>
+          {/* Token Card Live Header */}
+          <div className="launch-header-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 18, borderBottom: "1px solid var(--line-ink)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <div className="launch-token-avatar-badge" style={{ overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {logoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={logoUrl} alt="Token Emblem" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                ) : (
+                  ticker ? ticker.slice(0, 3).toUpperCase() : "SCR"
+                )}
+              </div>
+              <div>
+                <span className="mono-sm" style={{ letterSpacing: "0.08em", color: "#6b7268", textTransform: "uppercase", fontSize: 11 }}>
+                  PAIR ANCHOR
+                </span>
+                <h3 style={{ fontSize: 20, fontWeight: 700, margin: "2px 0 0", color: "var(--ink)", fontFamily: "var(--font-mono)" }}>
+                  {ticker ? ticker.toUpperCase() : "TOKEN"} <span style={{ color: "#a5aba1" }}>/</span> <span style={{ color: "#8c6418" }}>sCRIT</span>
+                </h3>
+                <span style={{ fontSize: 12, color: "#6b7268" }}>
+                  {name ? name : "Unnamed Token"}
+                </span>
+              </div>
             </div>
-            <div className="launch-token-avatar-badge">
-              {ticker ? ticker.slice(0, 3).toUpperCase() : "SCR"}
-            </div>
-          </div>
-
-          <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-              <span style={{ fontSize: 13, fontWeight: 600, color: "#a1a1a6", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                <ShieldCheck size={14} color="var(--gold-bright)" strokeWidth={2} />
-                Base Bullion Anchor
+            <div style={{ textAlign: "right" }}>
+              <span className="scrit-nav-pill-active" style={{ fontSize: 10, padding: "3px 9px" }}>
+                {chainId === 4663 ? "Mainnet" : "Testnet"}
               </span>
-              <span className="mono-sm" style={{ color: "var(--gold-bright)" }}>Index basket target</span>
-            </div>
-            <div className="metal-composition-bar" aria-label="Nine-commodity target basket" style={{ display: "flex", overflow: "hidden" }}>
-              {BASKET.map((row, index) => <div key={row.symbol} title={`${row.name} ${row.weightBps / 100}%`} style={{ width: `${row.weightBps / 100}%`, height: 10, background: ["#d9a92e", "#b8b8c0", "#50e3c2", "#c27a50", "#8db4d8", "#7b93cd", "#9b7bc4", "#719875", "#b8a15f"][index] }} />)}
-            </div>
-            <div className="metal-legend-row" style={{ flexWrap: "wrap" }}>
-              {BASKET.map((row, index) => <span className="metal-legend-item" key={row.symbol}><span className="metal-dot" style={{ background: ["#d9a92e", "#b8b8c0", "#50e3c2", "#c27a50", "#8db4d8", "#7b93cd", "#9b7bc4", "#719875", "#b8a15f"][index] }} />{row.symbol} {row.weightBps / 100}%</span>)}
             </div>
           </div>
 
+          {/* Real-time Economics & FDV */}
           <div className="launch-metrics-card">
             <div className="launch-metric-line">
               <span className="launch-metric-lbl">Indicative Price</span>
-              <span className="launch-metric-val">{indicativePrice} sCRIT / token</span>
+              <span className="launch-metric-val" style={{ color: "#8c6418" }}>
+                {indicativePrice} sCRIT
+              </span>
             </div>
             <div className="launch-metric-line">
-              <span className="launch-metric-lbl">Project hook fee</span>
-              <span className="launch-metric-val" style={{ color: TAX_ACTIVE ? "#2ed573" : "#f1bb65" }}>{TAX_ACTIVE ? "2.5% · 75/25 split" : chainId === 46630 ? "0% testnet rehearsal" : "Hook not configured"}</span>
+              <span className="launch-metric-lbl">Implied Market Cap (FDV)</span>
+              <span className="launch-metric-val">
+                {impliedFdvScrit} sCRIT
+              </span>
             </div>
             <div className="launch-metric-line">
-              <span className="launch-metric-lbl">V4 LP fee</span>
-              <span className="launch-metric-val">{chainId === 4663 ? `${(PROJECT_POOL_LP_FEE_BPS / 100).toFixed(2)}% · additional` : "V3 pool tier 0.30%"}</span>
+              <span className="launch-metric-lbl">Initial Liquidity Depth</span>
+              <span className="launch-metric-val" suppressHydrationWarning>
+                {parsedScrit.toLocaleString("en-US")} sCRIT + {parsedPooled.toLocaleString("en-US")} {ticker || "tokens"}
+              </span>
             </div>
             <div className="launch-metric-line">
-              <span className="launch-metric-lbl">Pool Pair</span>
-              <span className="launch-metric-val">TOKEN / sCRIT</span>
+              <span className="launch-metric-lbl">Trading Hook Fee</span>
+              <span className="launch-metric-val" style={{ color: TAX_ACTIVE ? "#2e7d32" : "#8c6418" }}>
+                {TAX_ACTIVE ? "2.5% · 75/25 split" : chainId === 46630 ? "0% testnet rehearsal" : "V4 Hook Pending"}
+              </span>
+            </div>
+            <div className="launch-metric-line">
+              <span className="launch-metric-lbl">Uniswap V4 LP Fee</span>
+              <span className="launch-metric-val">
+                {chainId === 4663 ? `${(PROJECT_POOL_LP_FEE_BPS / 100).toFixed(2)}% · LP share` : "0.30% V3 standard"}
+              </span>
             </div>
           </div>
 
-          {/* Visual card */}
+          {/* Allocation Ratio Bar */}
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 8, color: "#636b60" }}>
+              <span>Liquidity Allocation</span>
+              <span className="mono-sm" style={{ color: "var(--ink)" }}>
+                <b>{pooledPercent.toFixed(1)}%</b> in LP ({parsedSupply > 0 ? (100 - pooledPercent).toFixed(1) : 0}% retained)
+              </span>
+            </div>
+            <div style={{ height: 8, background: "#edeae0", borderRadius: 999, overflow: "hidden", display: "flex" }}>
+              <div
+                style={{
+                  width: `${pooledPercent}%`,
+                  background: "linear-gradient(90deg, #997022, #536753)",
+                  borderRadius: 999,
+                  transition: "width 0.3s ease",
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Nine-Commodity Basket Anchor */}
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
+              <span style={{ fontSize: 12.5, fontWeight: 600, color: "var(--ink)", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                <ShieldCheck size={14} color="#8c6418" strokeWidth={2} />
+                Physical Commodity Index Target
+              </span>
+              <span className="mono-sm" style={{ color: "#8c6418", fontSize: 11 }}>
+                9 target commodities
+              </span>
+            </div>
+            <div className="metal-composition-bar" aria-label="Nine-commodity target basket" style={{ display: "flex", height: 7, borderRadius: 999, overflow: "hidden" }}>
+              {BASKET.map((row, index) => (
+                <div
+                  key={row.symbol}
+                  title={`${row.name} ${row.weightBps / 100}%`}
+                  style={{
+                    width: `${row.weightBps / 100}%`,
+                    height: "100%",
+                    background: ["#d9a92e", "#b8b8c0", "#50e3c2", "#c27a50", "#8db4d8", "#7b93cd", "#9b7bc4", "#719875", "#b8a15f"][index],
+                  }}
+                />
+              ))}
+            </div>
+            <div className="metal-legend-row" style={{ display: "flex", flexWrap: "wrap", gap: "6px 12px", marginTop: 10 }}>
+              {BASKET.map((row, index) => (
+                <span className="metal-legend-item" key={row.symbol} style={{ fontSize: 11, color: "#636b60", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                  <span
+                    className="metal-dot"
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: "50%",
+                      background: ["#d9a92e", "#b8b8c0", "#50e3c2", "#c27a50", "#8db4d8", "#7b93cd", "#9b7bc4", "#719875", "#b8a15f"][index],
+                    }}
+                  />
+                  {row.symbol} {row.weightBps / 100}%
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Visual Vault Card */}
           <div
             style={{
               position: "relative",
-              height: 140,
-              borderRadius: 14,
+              height: 120,
+              borderRadius: 4,
               overflow: "hidden",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
+              border: "1px solid var(--line-ink)",
             }}
           >
             <Image
               src="/images/scrit_kinetic_scale.jpg"
-              alt="Quantum Metal Anchor"
+              alt="Physical Metal Anchor"
               fill
-              style={{ objectFit: "cover", opacity: 0.65 }}
+              style={{ objectFit: "cover" }}
             />
             <div
               style={{
                 position: "absolute",
                 inset: 0,
-                background: "linear-gradient(180deg, transparent 0%, rgba(9,9,12,0.85) 100%)",
+                background: "linear-gradient(180deg, rgba(24,26,24,0.15) 0%, rgba(24,26,24,0.85) 100%)",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "flex-end",
-                padding: 16,
+                padding: 14,
               }}
             >
-              <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--gold-bright)", textTransform: "uppercase" }}>
-                {TAX_ACTIVE ? "V4 PROJECT POOL FEE" : "NETWORK FEE STATUS"}
+              <span style={{ fontSize: 10, fontFamily: "var(--font-mono)", color: "#f2c94c", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 700 }}>
+                {TAX_ACTIVE ? "V4 PROJECT POOL FEE STRUCTURE" : "ROBINHOOD NETWORK STATUS"}
               </span>
-              <span style={{ fontSize: 13, color: "#ffffff", fontWeight: 500 }}>
-                {TAX_ACTIVE ? "Mainnet project pools add a 2.5% V4 hook fee (75% reserve treasury / 25% operations) to the 0.30% LP fee. Collected fees are not counted as reserve until a custody attestation." : "The mainnet design adds a 2.5% V4 hook fee to the 0.30% LP fee when deployed. The testnet V3 rehearsal does not collect the hook fee."}
+              <span style={{ fontSize: 12, color: "#ffffff", fontWeight: 500, lineHeight: 1.4 }}>
+                {TAX_ACTIVE
+                  ? "2.5% hook tax split 75% reserve treasury / 25% operations. Reserve figure updates only on custodian attestation."
+                  : "Mainnet applies 2.5% V4 hook fee. Testnet rehearsal runs V3 zero-tax pools for developer testing."}
               </span>
             </div>
           </div>
         </div>
 
-        {/* Right Column: Interactive Deployment Console */}
+        {/* Right Column: Interactive Deployment Terminal */}
         <div className="launch-form-panel">
-          {/* Notice banner */}
+          {/* Important Pilot Disclaimer */}
           <div className="launch-disclaimer-box">
-            <p>
-              <b>Pilot &amp; risk notice:</b> Project tokens are not commodity claims. sCRIT is not pegged and has no redemption in the pilot. Basket weights are targets, not proof of funded custody.
+            <p style={{ margin: 0 }}>
+              <b>Pilot &amp; Compliance Notice:</b> Project tokens launched on Rail A pair exclusively with sCRIT. They are <u>not</u> direct claims on specific physical metal. sCRIT market price floats on pool liquidity and is not pegged to NAV.
             </p>
           </div>
 
-          {/* Network & Wallet Row */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
-            <div className="launch-field-group" style={{ marginBottom: 0 }}>
-              <label className="launch-field-label">Target Network</label>
-              <select
-                className="field"
-                value={chainId}
-                onChange={(e) => { setChainId(Number(e.target.value) as 4663 | 46630); setAccount(null); setScritBal(0n); setStep("idle"); setMsg(""); }}
-              >
-                <option value={46630}>Robinhood Testnet 46630 (Rehearsal)</option>
-                <option value={4663}>Robinhood Mainnet 4663 (Gated Pilot)</option>
-              </select>
-            </div>
-            <div className="launch-field-group" style={{ marginBottom: 0 }}>
-              <label className="launch-field-label">
-                Issuer Wallet {account ? <span>{account.slice(0, 6)}...{account.slice(-4)}</span> : null}
-              </label>
-              <WalletButton chainId={chainId} onConnect={(acc, bal) => { setAccount(acc); setScritBal(bal); }} />
-            </div>
-          </div>
-
-          {account ? (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                padding: "8px 14px",
-                background: "rgba(217, 169, 46, 0.06)",
-                border: "1px solid rgba(217, 169, 46, 0.2)",
-                borderRadius: 8,
-                marginBottom: 20,
-              }}
-            >
-              <span className="mono-sm" style={{ color: "#a1a1a6" }}>Available sCRIT balance</span>
-              <span className="mono-sm" style={{ color: "var(--gold-bright)", fontWeight: 700 }}>
-                {parseFloat(formatEther(scritBal)).toLocaleString("en-US", { maximumFractionDigits: 4 })} sCRIT
-              </span>
-            </div>
-          ) : null}
-
-          {/* Token Name and Ticker */}
-          <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 14, marginBottom: 18 }}>
-            <div className="launch-field-group" style={{ marginBottom: 0 }}>
-              <label className="launch-field-label">Token Name <span>Max 32 chars</span></label>
-              <input
-                className="field"
-                placeholder="e.g. Apex Sovereign"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </div>
-            <div className="launch-field-group" style={{ marginBottom: 0 }}>
-              <label className="launch-field-label">Symbol / Ticker <span>A-Z0-9</span></label>
-              <input
-                className="field"
-                placeholder="e.g. APEX"
-                value={ticker}
-                onChange={(e) => setTicker(e.target.value.toUpperCase())}
-              />
-            </div>
-          </div>
-
-          {/* Supply and Pooled */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 18 }}>
-            <div className="launch-field-group" style={{ marginBottom: 0 }}>
-              <label className="launch-field-label">Total Supply <span>18 decimals</span></label>
-              <input
-                className="field"
-                placeholder="1000000000"
-                value={supply}
-                onChange={(e) => setSupply(e.target.value)}
-              />
-              <div className="launch-quick-chips">
-                <button type="button" className="launch-chip-btn" onClick={() => setSupply("100000000")}>100M</button>
-                <button type="button" className="launch-chip-btn" onClick={() => setSupply("1000000000")}>1B</button>
-                <button type="button" className="launch-chip-btn" onClick={() => setSupply("10000000000")}>10B</button>
-              </div>
-            </div>
-
-            <div className="launch-field-group" style={{ marginBottom: 0 }}>
-              <label className="launch-field-label">Pooled to Liquidity <span>Tokens to pair</span></label>
-              <input
-                className="field"
-                placeholder="200000000"
-                value={pooled}
-                onChange={(e) => setPooled(e.target.value)}
-              />
-              <div className="launch-quick-chips">
-                <button
-                  type="button"
-                  className="launch-chip-btn"
-                  onClick={() => {
-                    const s = parseFloat(supply) || 0;
-                    setPooled(Math.round(s * 0.2).toString());
+          {/* SECTION 01: Network & Issuer Wallet */}
+          <div style={{ paddingBottom: 16, borderBottom: "1px solid var(--line-ink)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+              <div className="launch-field-group">
+                <label className="launch-field-label">Target Network</label>
+                <select
+                  className="field"
+                  value={chainId}
+                  onChange={(e) => {
+                    setChainId(Number(e.target.value) as 4663 | 46630);
+                    setAccount(null);
+                    setScritBal(0n);
+                    setStep("idle");
+                    setMsg("");
                   }}
                 >
-                  20%
-                </button>
-                <button
-                  type="button"
-                  className="launch-chip-btn"
-                  onClick={() => {
-                    const s = parseFloat(supply) || 0;
-                    setPooled(Math.round(s * 0.5).toString());
-                  }}
-                >
-                  50%
-                </button>
-                <button
-                  type="button"
-                  className="launch-chip-btn"
-                  onClick={() => {
-                    setPooled(supply);
-                  }}
-                >
-                  100%
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* sCRIT and Slippage */}
-          <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 14, marginBottom: 22 }}>
-            <div className="launch-field-group" style={{ marginBottom: 0 }}>
-              <label className="launch-field-label">sCRIT to Pair <span>Initial depth</span></label>
-              <input
-                className="field"
-                placeholder="1000"
-                value={scritAmt}
-                onChange={(e) => setScritAmt(e.target.value)}
-              />
-              <div className="launch-quick-chips">
-                <button type="button" className="launch-chip-btn" onClick={() => setScritAmt("500")}>500</button>
-                <button type="button" className="launch-chip-btn" onClick={() => setScritAmt("1000")}>1,000</button>
-                <button type="button" className="launch-chip-btn" onClick={() => setScritAmt("5000")}>5,000</button>
-                <button type="button" className="launch-chip-btn" onClick={() => setScritAmt("10000")}>10,000</button>
-              </div>
-            </div>
-
-            <div className="launch-field-group" style={{ marginBottom: 0 }}>
-              <label className="launch-field-label">Slippage Tolerance <span>Pool bounds</span></label>
-              <select className="field" value={slippage} onChange={(e) => setSlippage(Number(e.target.value))}>
-                {SLIPPAGE_PRESETS.map((s) => (
-                  <option key={s.bps} value={s.bps}>
-                    {s.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Disclosures checkboxes */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
-            <label className="check">
-              <input type="checkbox" checked={ack1} onChange={(e) => setAck1(e.target.checked)} />
-              <span>I understand this token is not a direct claim on any physical commodity.</span>
-            </label>
-            <label className="check">
-              <input type="checkbox" checked={ack2} onChange={(e) => setAck2(e.target.checked)} />
-              <span>I accept Rail A Pilot Terms and understand sCRIT has no pilot redemption or peg.</span>
-            </label>
-          </div>
-
-          {/* Action buttons */}
-          <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-            <button
-              className="btn btn-ghost"
-              style={{ flex: "1 1 200px", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}
-              onClick={checkAccess}
-              disabled={step === "checking" || step === "approve" || step === "launch"}
-            >
-              {step === "checking" ? <Loader2 size={14} className="spin" /> : <Sparkles size={14} />}
-              <span>{step === "checking" ? "Verifying..." : "1 · Validate Parameters"}</span>
-            </button>
-            <button
-              className="btn btn-gold"
-              style={{ flex: "1 1 240px", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}
-              onClick={launch}
-              disabled={step !== "ready"}
-            >
-              <Rocket size={15} strokeWidth={2} />
-              <span>2 · Strike Liquidity Pair</span>
-            </button>
-          </div>
-
-          {/* Status Tracker */}
-          <div className="launch-stepper-tracker">
-            <span
-              className={`launch-step-dot ${
-                step === "checking" || step === "approve" || step === "launch" || step === "done"
-                  ? "active"
-                  : ""
-              }`}
-            />
-            <div style={{ flex: 1 }}>
-              <span className="mono-sm" style={{ color: "#8e8e93", textTransform: "uppercase" }}>
-                Engine Status: <b style={{ color: step === "error" ? "#f87171" : "#ffffff" }}>{step}</b>
-              </span>
-              {msg ? (
-                <p style={{ margin: "3px 0 0", fontSize: 13, color: step === "error" ? "#fca5a5" : "#e5e5ea" }}>
-                  {msg}
+                  <option value={46630}>Robinhood Testnet 46630 (V3 Rehearsal)</option>
+                  <option value={4663}>Robinhood Mainnet 4663 (V4 Gated Pilot)</option>
+                </select>
+                <p className="mono-sm" style={{ color: "#8e8e93", margin: "6px 0 0", display: "flex", alignItems: "center", gap: 6, fontSize: 11 }}>
+                  <ChainLogo kind="hood" size={14} />
+                  {chainId === 4663 ? "Robinhood Chain · Chain 4663" : "Robinhood Testnet · Chain 46630"}
                 </p>
-              ) : null}
+              </div>
+
+              <div className="launch-field-group">
+                <label className="launch-field-label">
+                  Issuer Wallet
+                  {account ? <span style={{ color: "#2ed573" }}>● Connected</span> : null}
+                </label>
+                <WalletButton
+                  chainId={chainId}
+                  onConnect={(acc, bal) => {
+                    setAccount(acc);
+                    setScritBal(bal);
+                  }}
+                  onDisconnect={() => {
+                    setAccount(null);
+                    setScritBal(0n);
+                    setStep("idle");
+                  }}
+                />
+              </div>
+            </div>
+
+            {account ? (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  padding: "10px 14px",
+                  background: "#fbf6ea",
+                  border: "1px solid rgba(153, 112, 34, 0.3)",
+                  borderRadius: 4,
+                  marginTop: 12,
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <Coins size={15} color="#8c6418" />
+                  <span className="mono-sm" style={{ color: "#636b60", fontSize: 12 }}>Available sCRIT Balance:</span>
+                </div>
+                <span className="mono-sm" style={{ color: "#8c6418", fontWeight: 700, fontSize: 13 }}>
+                  {parseFloat(formatEther(scritBal)).toLocaleString("en-US", { maximumFractionDigits: 4 })} sCRIT
+                </span>
+              </div>
+            ) : null}
+          </div>
+
+          {/* SECTION 02: Token Identity */}
+          <div style={{ paddingBottom: 18, borderBottom: "1px solid var(--line-ink)" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "2px 8px", background: "#edf2ed", border: "1px solid rgba(83, 103, 83, 0.22)", borderRadius: 3, marginBottom: 14 }}>
+              <span style={{ fontSize: 10.5, fontFamily: "var(--font-mono)", color: "#2e4a2e", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em" }}>
+                01 · Token Identity
+              </span>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 14 }}>
+              <div className="launch-field-group">
+                <label className="launch-field-label">
+                  Token Name <span>{name.length}/32</span>
+                </label>
+                <input
+                  className="field"
+                  placeholder="e.g. Sovereign Bullion"
+                  maxLength={32}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </div>
+              <div className="launch-field-group">
+                <label className="launch-field-label">
+                  Symbol / Ticker <span>A-Z0-9</span>
+                </label>
+                <input
+                  className="field"
+                  placeholder="e.g. SOV"
+                  maxLength={12}
+                  value={ticker}
+                  onChange={(e) => setTicker(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))}
+                />
+              </div>
+            </div>
+            {/* Quick Suggestions */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8 }}>
+              <span style={{ fontSize: 11, color: "#7d8479", fontFamily: "var(--font-mono)" }}>Suggestions:</span>
+              {["APEX", "TITAN", "AURUM", "NOVA"].map((sug) => (
+                <button
+                  key={sug}
+                  type="button"
+                  className="launch-chip-btn"
+                  onClick={() => {
+                    setTicker(sug);
+                    if (!name) setName(`${sug.charAt(0) + sug.slice(1).toLowerCase()} Protocol`);
+                  }}
+                >
+                  {sug}
+                </button>
+              ))}
+            </div>
+
+            {/* Logo / Emblem Artwork Section */}
+            <div style={{ marginTop: 14, paddingTop: 14, borderTop: "1px dashed rgba(24, 26, 24, 0.12)" }}>
+              <label className="launch-field-label" style={{ marginBottom: 8, display: "flex", justifyContent: "space-between" }}>
+                <span>Token Emblem / Artwork</span>
+                <span>Square 1:1 · Optional</span>
+              </label>
+
+              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  style={{
+                    width: 50,
+                    height: 50,
+                    borderRadius: 8,
+                    border: "1.5px dashed rgba(24, 26, 24, 0.25)",
+                    background: logoUrl ? "transparent" : "#f6f3eb",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    overflow: "hidden",
+                    flexShrink: 0,
+                  }}
+                  title="Click to upload custom emblem"
+                >
+                  {logoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={logoUrl} alt="Emblem" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ) : (
+                    <Upload size={18} color="#7d8479" />
+                  )}
+                </div>
+
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    <button
+                      type="button"
+                      className="launch-chip-btn"
+                      onClick={() => fileInputRef.current?.click()}
+                      style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "5px 10px" }}
+                    >
+                      <Upload size={12} />
+                      <span>Upload &amp; Crop Emblem</span>
+                    </button>
+                    {logoUrl ? (
+                      <button
+                        type="button"
+                        className="launch-chip-btn"
+                        onClick={() => setLogoUrl(null)}
+                        style={{ color: "#b91c1c", borderColor: "rgba(185, 28, 28, 0.3)" }}
+                      >
+                        Reset
+                      </button>
+                    ) : null}
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = () => {
+                        if (typeof reader.result === "string") {
+                          setCropSource({ src: reader.result, fileName: file.name });
+                        }
+                      };
+                      reader.readAsDataURL(file);
+                      e.target.value = "";
+                    }}
+                    style={{ display: "none" }}
+                  />
+                  <p style={{ margin: "5px 0 0", fontSize: 11, color: "#7d8479", fontFamily: "var(--font-mono)" }}>
+                    PNG, JPG, WebP · Cropped to 512×512 square.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Result panel */}
-          {result ? (
-            <div
-              className="panel"
-              style={{
-                marginTop: 20,
-                borderColor: "rgba(217, 169, 46, 0.45)",
-                background: "rgba(217, 169, 46, 0.05)",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 10px" }}>
-                <CheckCircle2 size={18} color="#2ed573" />
-                <h4 style={{ margin: 0, color: "var(--gold-bright)", fontSize: 16 }}>
-                  Deployment Success
-                </h4>
-              </div>
-              <p style={{ fontSize: 13, marginBottom: 8, wordBreak: "break-all" }}>
-                Token Contract:{" "}
-                <a className="mono-sm" href={`${explorer}/address/${result.token}`} target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  <span>{result.token}</span>
-                  <ExternalLink size={12} />
-                </a>
-              </p>
-              <p style={{ fontSize: 13, marginBottom: 8, wordBreak: "break-all" }}>
-                {chainId === 4663 ? "V4 Pool ID: " : "V3 Pool: "}
-                {result.pool.length === 42 ? <a className="mono-sm" href={`${explorer}/address/${result.pool}`} target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><span>{result.pool}</span><ExternalLink size={12} /></a> : <span className="mono-sm">{result.pool}</span>}
-              </p>
-              <p style={{ fontSize: 13, marginBottom: 8, wordBreak: "break-all" }}>
-                Position NFT: #{result.positionId.toString()} at{" "}
-                <a className="mono-sm" href={`${explorer}/address/${deployment.positionManager}`} target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  <span>{deployment.positionManager}</span>
-                  <ExternalLink size={12} />
-                </a>
-              </p>
-              <p style={{ fontSize: 13, margin: 0, wordBreak: "break-all" }}>
-                Launch Tx:{" "}
-                <a className="mono-sm" href={`${explorer}/tx/${result.launchHash}`} target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  <span>{result.launchHash}</span>
-                  <ExternalLink size={12} />
-                </a>
-              </p>
+          {/* SECTION 03: Supply & Liquidity Configuration */}
+          <div style={{ paddingBottom: 18, borderBottom: "1px solid var(--line-ink)" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "2px 8px", background: "#edf2ed", border: "1px solid rgba(83, 103, 83, 0.22)", borderRadius: 3, marginBottom: 14 }}>
+              <span style={{ fontSize: 10.5, fontFamily: "var(--font-mono)", color: "#2e4a2e", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em" }}>
+                02 · Economics &amp; Liquidity Parameters
+              </span>
             </div>
-          ) : null}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 16 }}>
+              <div className="launch-field-group">
+                <label className="launch-field-label">
+                  Total Supply <span>18 decimals</span>
+                </label>
+                <input
+                  className="field"
+                  placeholder="1000000000"
+                  value={supply}
+                  onChange={(e) => setSupply(e.target.value.replace(/[^0-9]/g, ""))}
+                />
+                <div className="launch-quick-chips">
+                  <button type="button" className={`launch-chip-btn ${supply === "100000000" ? "active" : ""}`} onClick={() => setSupply("100000000")}>100M</button>
+                  <button type="button" className={`launch-chip-btn ${supply === "1000000000" ? "active" : ""}`} onClick={() => setSupply("1000000000")}>1 Billion</button>
+                  <button type="button" className={`launch-chip-btn ${supply === "10000000000" ? "active" : ""}`} onClick={() => setSupply("10000000000")}>10 Billion</button>
+                </div>
+              </div>
+
+              <div className="launch-field-group">
+                <label className="launch-field-label">
+                  Pooled to Liquidity <span>{pooledPercent.toFixed(0)}% of supply</span>
+                </label>
+                <input
+                  className="field"
+                  placeholder="200000000"
+                  value={pooled}
+                  onChange={(e) => setPooled(e.target.value.replace(/[^0-9]/g, ""))}
+                />
+                <div className="launch-quick-chips">
+                  <button
+                    type="button"
+                    className={`launch-chip-btn ${pooledPercent === 20 ? "active" : ""}`}
+                    onClick={() => {
+                      const s = parseFloat(supply) || 0;
+                      setPooled(Math.round(s * 0.2).toString());
+                    }}
+                  >
+                    20%
+                  </button>
+                  <button
+                    type="button"
+                    className={`launch-chip-btn ${pooledPercent === 50 ? "active" : ""}`}
+                    onClick={() => {
+                      const s = parseFloat(supply) || 0;
+                      setPooled(Math.round(s * 0.5).toString());
+                    }}
+                  >
+                    50%
+                  </button>
+                  <button
+                    type="button"
+                    className={`launch-chip-btn ${pooledPercent === 80 ? "active" : ""}`}
+                    onClick={() => {
+                      const s = parseFloat(supply) || 0;
+                      setPooled(Math.round(s * 0.8).toString());
+                    }}
+                  >
+                    80%
+                  </button>
+                  <button
+                    type="button"
+                    className={`launch-chip-btn ${pooledPercent === 100 ? "active" : ""}`}
+                    onClick={() => setPooled(supply)}
+                  >
+                    100%
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 14 }}>
+              <div className="launch-field-group">
+                <label className="launch-field-label">
+                  sCRIT to Pair <span>Initial pool depth</span>
+                </label>
+                <input
+                  className="field"
+                  placeholder="1000"
+                  value={scritAmt}
+                  onChange={(e) => setScritAmt(e.target.value.replace(/[^0-9.]/g, ""))}
+                />
+                <div className="launch-quick-chips">
+                  <button type="button" className={`launch-chip-btn ${scritAmt === "500" ? "active" : ""}`} onClick={() => setScritAmt("500")}>500</button>
+                  <button type="button" className={`launch-chip-btn ${scritAmt === "1000" ? "active" : ""}`} onClick={() => setScritAmt("1000")}>1,000</button>
+                  <button type="button" className={`launch-chip-btn ${scritAmt === "5000" ? "active" : ""}`} onClick={() => setScritAmt("5000")}>5,000</button>
+                  {scritBal > 0n ? (
+                    <button
+                      type="button"
+                      className="launch-chip-btn"
+                      onClick={() => setScritAmt(formatEther(scritBal))}
+                      style={{ color: "#7a5205", borderColor: "rgba(184, 134, 11, 0.4)", fontWeight: 700 }}
+                    >
+                      Max Balance
+                    </button>
+                  ) : null}
+                </div>
+              </div>
+
+              <div className="launch-field-group">
+                <label className="launch-field-label">
+                  Slippage Tolerance <span>Pool bounds</span>
+                </label>
+                <select
+                  className="field"
+                  value={slippage}
+                  onChange={(e) => setSlippage(Number(e.target.value))}
+                >
+                  {SLIPPAGE_PRESETS.map((s) => (
+                    <option key={s.bps} value={s.bps}>
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* SECTION 04: Compliance & Risk Disclosures */}
+          <div style={{ paddingBottom: 18, borderBottom: "1px solid var(--line-ink)" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "2px 8px", background: "#edf2ed", border: "1px solid rgba(83, 103, 83, 0.22)", borderRadius: 3, marginBottom: 14 }}>
+              <span style={{ fontSize: 10.5, fontFamily: "var(--font-mono)", color: "#2e4a2e", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em" }}>
+                03 · Mandatory Regulatory Acknowledgements
+              </span>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <div
+                className={`launch-disclosure-card ${ack1 ? "is-checked" : ""}`}
+                onClick={() => setAck1(!ack1)}
+              >
+                <input
+                  type="checkbox"
+                  className="launch-disclosure-checkbox"
+                  checked={ack1}
+                  onChange={(e) => setAck1(e.target.checked)}
+                />
+                <div className="launch-disclosure-text">
+                  <strong>Not a Direct Claim on Physical Inventory</strong>
+                  I acknowledge that this token is paired with sCRIT in an AMM liquidity pool. It does not represent title or direct redeemability to any specific gold bar, diamond, or physical commodity.
+                </div>
+              </div>
+
+              <div
+                className={`launch-disclosure-card ${ack2 ? "is-checked" : ""}`}
+                onClick={() => setAck2(!ack2)}
+              >
+                <input
+                  type="checkbox"
+                  className="launch-disclosure-checkbox"
+                  checked={ack2}
+                  onChange={(e) => setAck2(e.target.checked)}
+                />
+                <div className="launch-disclosure-text">
+                  <strong>Acceptance of sCRIT Float &amp; Hook Fee Model</strong>
+                  I accept the 2.5% V4 project pool trading tax (75% reserve / 25% ops) and acknowledge that sCRIT is not pegged to NAV and has no physical redemption in this pilot.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* SECTION 05: Action Deck & Stepper */}
+          <div>
+            <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 16 }}>
+              <button
+                className="btn btn-ghost"
+                style={{ flex: "1 1 200px", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+                onClick={checkAccess}
+                disabled={step === "checking" || step === "approve" || step === "launch"}
+              >
+                {step === "checking" ? <Loader2 size={15} className="spin" /> : <Sparkles size={15} />}
+                <span>{step === "checking" ? "Verifying..." : "1 · Validate Parameters"}</span>
+              </button>
+
+              <button
+                className="btn btn-gold"
+                style={{ flex: "1 1 240px", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+                onClick={launch}
+                disabled={step !== "ready"}
+              >
+                {step === "approve" || step === "launch" ? (
+                  <Loader2 size={16} className="spin" />
+                ) : (
+                  <Rocket size={16} strokeWidth={2.2} />
+                )}
+                <span>
+                  {step === "approve"
+                    ? "Confirming Approval..."
+                    : step === "launch"
+                    ? "Striking Pair on-chain..."
+                    : "2 · Strike Liquidity Pair"}
+                </span>
+              </button>
+            </div>
+
+            {/* Stepper Status Feedback */}
+            <div className="launch-stepper-tracker">
+              <span
+                className={`launch-step-dot ${
+                  step === "error"
+                    ? "error"
+                    : step === "done"
+                    ? "done"
+                    : step === "checking" || step === "approve" || step === "launch" || step === "ready"
+                    ? "active"
+                    : ""
+                }`}
+              />
+              <div style={{ flex: 1 }}>
+                <span className="mono-sm" style={{ color: "#636b60", textTransform: "uppercase", fontSize: 11, letterSpacing: "0.06em" }}>
+                  ENGINE STATUS:{" "}
+                  <b style={{ color: step === "error" ? "#dc2626" : step === "done" ? "#2e7d32" : "var(--ink)" }}>
+                    {step.toUpperCase()}
+                  </b>
+                </span>
+                {msg ? (
+                  <p style={{ margin: "3px 0 0", fontSize: 13, color: step === "error" ? "#b91c1c" : "#2e7d32" }}>
+                    {msg}
+                  </p>
+                ) : (
+                  <p style={{ margin: "3px 0 0", fontSize: 12, color: "#7d8479" }}>
+                    Complete token parameters and click Validate to proceed.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Result Trophy Card */}
+            {result ? (
+              <div className="launch-success-trophy">
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(46, 125, 50, 0.12)", border: "1px solid rgba(46, 125, 50, 0.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <CheckCircle2 size={20} color="#2e7d32" />
+                    </div>
+                    <div>
+                      <h4 style={{ margin: 0, color: "#2e7d32", fontSize: 17, fontWeight: 700 }}>
+                        Liquidity Pair Successfully Struck!
+                      </h4>
+                      <span style={{ fontSize: 12, color: "#636b60" }}>
+                        Token and pool position minted on {chainId === 4663 ? "Robinhood Mainnet" : "Robinhood Testnet"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {/* Token Address */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", background: "#ffffff", borderRadius: 4, border: "1px solid var(--line-ink)" }}>
+                    <div>
+                      <span className="mono-sm" style={{ color: "#7d8479", fontSize: 11, display: "block" }}>TOKEN CONTRACT</span>
+                      <a href={`${explorer}/address/${result.token}`} target="_blank" rel="noreferrer" className="mono-sm" style={{ color: "#8c6418", fontSize: 13, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                        {result.token}
+                        <ExternalLink size={12} />
+                      </a>
+                    </div>
+                    <button type="button" className="launch-chip-btn" onClick={() => copyToClipboard(result.token, "token")}>
+                      {copiedKey === "token" ? <Check size={13} color="#2e7d32" /> : <Copy size={13} />}
+                    </button>
+                  </div>
+
+                  {/* Pool Address / ID */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", background: "#ffffff", borderRadius: 4, border: "1px solid var(--line-ink)" }}>
+                    <div>
+                      <span className="mono-sm" style={{ color: "#7d8479", fontSize: 11, display: "block" }}>
+                        {chainId === 4663 ? "UNISWAP V4 POOL ID" : "UNISWAP V3 POOL"}
+                      </span>
+                      <span className="mono-sm" style={{ color: "var(--ink)", fontSize: 13 }}>
+                        {result.pool}
+                      </span>
+                    </div>
+                    <button type="button" className="launch-chip-btn" onClick={() => copyToClipboard(result.pool, "pool")}>
+                      {copiedKey === "pool" ? <Check size={13} color="#2e7d32" /> : <Copy size={13} />}
+                    </button>
+                  </div>
+
+                  {/* Position NFT */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", background: "#ffffff", borderRadius: 4, border: "1px solid var(--line-ink)" }}>
+                    <div>
+                      <span className="mono-sm" style={{ color: "#7d8479", fontSize: 11, display: "block" }}>LIQUIDITY POSITION NFT</span>
+                      <span className="mono-sm" style={{ color: "var(--ink)", fontSize: 13 }}>
+                        Token ID #{result.positionId.toString()} (Owned by you)
+                      </span>
+                    </div>
+                    <a
+                      href={`${explorer}/address/${deployment.positionManager}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="launch-chip-btn"
+                      style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5 }}
+                    >
+                      <span>Position Manager</span>
+                      <ExternalLink size={12} />
+                    </a>
+                  </div>
+
+                  {/* Tx Hash */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", background: "#ffffff", borderRadius: 4, border: "1px solid var(--line-ink)" }}>
+                    <div>
+                      <span className="mono-sm" style={{ color: "#7d8479", fontSize: 11, display: "block" }}>TRANSACTION HASH</span>
+                      <a href={`${explorer}/tx/${result.launchHash}`} target="_blank" rel="noreferrer" className="mono-sm" style={{ color: "var(--ink)", fontSize: 13, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                        {result.launchHash.slice(0, 18)}...{result.launchHash.slice(-10)}
+                        <ExternalLink size={12} />
+                      </a>
+                    </div>
+                    <button type="button" className="launch-chip-btn" onClick={() => copyToClipboard(result.launchHash, "tx")}>
+                      {copiedKey === "tx" ? <Check size={13} color="#2e7d32" /> : <Copy size={13} />}
+                    </button>
+                  </div>
+
+                  {/* View in Directory Button */}
+                  <Link
+                    href="/tokens"
+                    className="btn btn-gold"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 8,
+                      textDecoration: "none",
+                      marginTop: 6,
+                      width: "100%",
+                      height: 40,
+                    }}
+                  >
+                    <span>View in Launched Tokens Directory</span>
+                    <ArrowRight size={15} />
+                  </Link>
+                </div>
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
+
+      {cropSource ? (
+        <CropModal
+          src={cropSource.src}
+          fileName={cropSource.fileName}
+          onCancel={() => setCropSource(null)}
+          onDone={(dataUrl) => {
+            setLogoUrl(dataUrl);
+            setCropSource(null);
+          }}
+        />
+      ) : null}
     </PageShell>
   );
 }

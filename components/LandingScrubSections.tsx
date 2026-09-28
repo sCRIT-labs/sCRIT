@@ -1,8 +1,8 @@
 "use client";
 
-import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
+import { motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { ArrowUpRight, ShieldCheck } from "lucide-react";
+import { ArrowUpRight, ShieldCheck, Activity, CheckCircle2, Terminal as TerminalIcon } from "lucide-react";
 
 type Dispatch = { tag: string; title: string; body: string; image: string; href: string; link: string };
 type Narrative = { index: string; title: string; copy: string; image: string; metric: string; metricLabel: string };
@@ -26,15 +26,35 @@ export function PinnedDispatch({ items }: { items: Dispatch[] }) {
   const section = useRef<HTMLElement>(null);
   const staticMotion = useStaticMotion();
   const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end end"] });
-  return <section ref={section} id="dispatches" className={`scrit-scrub scrit-dispatch-scrub${staticMotion ? " is-static" : ""}`} aria-label="sCRIT pilot overview">
-    <div className="scrit-scrub-stage">
-      <div className="scrit-scrub-head"><span className="scrit-kicker">THE PILOT, CLEARLY STATED</span><h2>Designed around evidence.<br /><em>Honest about the limits.</em></h2><p>Scroll through the basket, evidence model, and market limits.</p></div>
-      <div className="scrit-dispatch-deck">
-        {items.map((item, index) => <DispatchLayer key={item.tag} item={item} index={index} progress={scrollYProgress} disabled={staticMotion} />)}
+  const activeIndex = useTransform(scrollYProgress, (value) => {
+    if (value < 0.35) return 0;
+    if (value < 0.68) return 1;
+    return 2;
+  });
+  const [activeLabel, setActiveLabel] = useState(items[0]?.tag || "THE INDEX");
+  useMotionValueEvent(activeIndex, "change", (index) => {
+    if (items[index]) setActiveLabel(items[index].tag);
+  });
+  return (
+    <section ref={section} id="dispatches" className={`scrit-scrub scrit-dispatch-scrub${staticMotion ? " is-static" : ""}`} aria-label="sCRIT pilot overview">
+      <div className="scrit-scrub-stage">
+        <div className="scrit-dispatch-header-bar">
+          <div className="scrit-dispatch-title-block">
+            <span className="scrit-kicker">THE PILOT, CLEARLY STATED</span>
+            <h2>Designed around evidence.<br /><em>Honest about the limits.</em></h2>
+          </div>
+          <div className="scrit-dispatch-meta-block">
+            <p>Scroll through the basket, evidence model, and market limits.</p>
+            <span className="scrit-dispatch-hud-status"><i className="scrit-hud-dot" /><span className="scrit-hud-label">{activeLabel}</span></span>
+          </div>
+        </div>
+        <div className="scrit-dispatch-deck">
+          {items.map((item, index) => <DispatchLayer key={item.tag} item={item} index={index} progress={scrollYProgress} disabled={staticMotion} />)}
+        </div>
+        <ScrubMeter progress={scrollYProgress} disabled={staticMotion} labels={["BASKET", "EVIDENCE", "MARKET"]} />
       </div>
-      <ScrubMeter progress={scrollYProgress} disabled={staticMotion} labels={["BASKET", "EVIDENCE", "MARKET"]} />
-    </div>
-  </section>;
+    </section>
+  );
 }
 
 function DispatchLayer({ item, index, progress, disabled }: { item: Dispatch; index: number; progress: MotionValue<number>; disabled: boolean }) {
@@ -42,10 +62,15 @@ function DispatchLayer({ item, index, progress, disabled }: { item: Dispatch; in
   const y = useTransform(progress, [start, Math.min(.98, start + .28)], [44, 0]);
   const opacity = useTransform(progress, [start, Math.min(.98, start + .12)], [0, 1]);
   const imageScale = useTransform(progress, [start, Math.min(.98, start + .38)], [1.14, 1]);
+  const scanTop = useTransform(progress, [start, Math.min(.98, start + .38)], ["0%", "100%"]);
   const pointerEvents = useTransform(progress, (value) => value >= start + .1 ? "auto" : "none");
   return <motion.article className="scrit-dispatch-scrub-card" style={disabled ? undefined : { y, opacity, pointerEvents }}>
-    <div className="scrit-dispatch-scrub-image"><motion.img src={item.image} alt="" loading="lazy" decoding="async" style={disabled ? undefined : { scale: imageScale }} /><span className="scrit-dispatch-image-index">PILOT OBSERVATION</span><i aria-hidden="true" /></div>
-    <div className="scrit-dispatch-scrub-copy"><span className="scrit-kicker">{item.tag}</span><h3>{item.title}</h3><p>{item.body}</p><a className="scrit-text-link" href={item.href}>{item.link}<ArrowUpRight size={15} /></a></div>
+    <div className="scrit-dispatch-scrub-image">
+      <motion.img src={item.image} alt="" loading="lazy" decoding="async" style={disabled ? undefined : { scale: imageScale }} />
+      <motion.span className="scrit-dispatch-scanner-line" style={disabled ? undefined : { top: scanTop }} aria-hidden="true" />
+      <div className="scrit-dispatch-image-hud"><span className="scrit-dispatch-image-index"><i className="scrit-hud-ping" />{item.tag}</span><span className="scrit-dispatch-optic-reticle">⌖</span></div>
+    </div>
+    <div className="scrit-dispatch-scrub-copy"><span className="scrit-dispatch-card-badge mono-sm">0{index + 1}</span><span className="scrit-kicker">{item.tag}</span><h3>{item.title}</h3><p>{item.body}</p><a className="scrit-text-link" href={item.href}>{item.link}<ArrowUpRight size={15} /></a></div>
   </motion.article>;
 }
 
@@ -88,21 +113,52 @@ export function PinnedLedgerStory({ copy, lines, session }: { copy: { title: str
   const section = useRef<HTMLElement>(null);
   const staticMotion = useStaticMotion();
   const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end end"] });
+  const beamTop = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
   return <section ref={section} className={`scrit-scrub scrit-ledger-scrub${staticMotion ? " is-static" : ""}`} id="ledger" aria-label="Pilot record status">
     <div className="scrit-scrub-stage scrit-ledger-scrub-stage"><div className="scrit-ledger-copy"><span className="scrit-kicker">PILOT RECORD STATUS</span><h2>{copy.title}</h2><p>{copy.text}</p><a className="scrit-text-link" href="/proof">View all proof data <ArrowUpRight size={15} /></a></div>
-      <div className="scrit-terminal"><div className="scrit-terminal-bar"><span><i /> SYSTEM OBSERVER</span><b>READ ONLY</b></div><div className="scrit-terminal-body"><div className="scrit-terminal-intro"><span>SESSION / sCRIT-PILOT</span><span>{session}</span></div>
-        {lines.map((line, i) => <LedgerLine key={line.key} line={line} index={i} progress={scrollYProgress} disabled={staticMotion} />)}
-        <div className="scrit-terminal-rule" /><div className="scrit-terminal-cursor"><span>pilot.reserve.observe</span><i aria-hidden="true">_</i></div>
-      </div></div><ScrubMeter progress={scrollYProgress} disabled={staticMotion} labels={["PRICE", "SUPPLY", "ATTESTATION", "STATUS"]} />
+      <div>
+        <div className="scrit-terminal-telemetry-hud">
+          <div className="scrit-hud-telemetry-bar"><Activity size={13} className="scrit-telemetry-pulse-icon" /><span>TERMINAL TELEMETRY</span></div>
+          <div className="scrit-hud-telemetry-metrics">
+            <div className="scrit-telemetry-item"><span>SESSION</span><b>sCRIT-PILOT</b></div>
+            <div className="scrit-telemetry-item"><span>STATUS</span><b className="scrit-status-pass">READ ONLY</b></div>
+          </div>
+          <div className="scrit-hud-scroll-cue"><i className="scrit-scan-indicator-light" /><span>FOLLOW SCROLL TO VERIFY LINES</span></div>
+        </div>
+        <div className="scrit-terminal-enhanced"><div className="scrit-terminal-crt-scanlines" aria-hidden="true" />
+          <div className="scrit-terminal-bar"><span className="scrit-terminal-window-buttons"><i className="scrit-btn-dot dot-red" /><i className="scrit-btn-dot dot-yellow" /><i className="scrit-btn-dot dot-green" /></span><span className="scrit-terminal-title"><TerminalIcon size={13} /> SYSTEM OBSERVER</span><span className="scrit-terminal-ping">LIVE</span></div>
+          <div className="scrit-terminal-body">
+            <div className="scrit-terminal-intro"><span className="scrit-intro-tag"><span className="scrit-intro-label">SESSION / sCRIT-PILOT</span><b>{session}</b></span><span className="scrit-intro-status">SYNCED</span></div>
+            <motion.span className="scrit-terminal-laser-beam" style={staticMotion ? undefined : { top: beamTop }} aria-hidden="true" />
+            <div className="scrit-terminal-lines-stack">
+              {lines.map((line, i) => <LedgerLine key={line.key} line={line} index={i} progress={scrollYProgress} disabled={staticMotion} />)}
+            </div>
+            <div className="scrit-terminal-rule" /><div className="scrit-terminal-cursor"><span>pilot.reserve.observe</span><i aria-hidden="true">_</i></div>
+            <div className="scrit-terminal-bottom-console">
+              <div className="scrit-terminal-cmd-stream"><span className="scrit-prompt-symbol">$</span><span className="scrit-prompt-cmd">pilot.reserve.observe --chain 4663</span><span className="scrit-prompt-tag">READ-ONLY</span><i className="scrit-terminal-blinker">▌</i></div>
+              <div className="scrit-terminal-status-footer"><span>INDEXER · 5 CONFIRMATIONS</span><span>NO WRITE ACCESS</span></div>
+            </div>
+          </div>
+        </div>
+        <ScrubMeter progress={scrollYProgress} disabled={staticMotion} labels={["PRICE", "SUPPLY", "ATTESTATION", "STATUS"]} />
+      </div>
     </div>
   </section>;
+}
+
+function isRecordLive(value: string): boolean {
+  return !/AWAITING|UNAVAILABLE|NOT AVAILABLE|WAITING|MISSING/i.test(value);
 }
 
 function LedgerLine({ line, index, progress, disabled }: { line: { key: string; value: string }; index: number; progress: MotionValue<number>; disabled: boolean }) {
   const start = .08 + index * .19;
   const opacity = useTransform(progress, [start, Math.min(.99, start + .13)], [0, 1]);
   const x = useTransform(progress, [start, Math.min(.99, start + .13)], [24, 0]);
-  return <motion.div className="scrit-terminal-line" style={disabled ? undefined : { opacity, x }}><span>{line.key}</span><b>{line.value}</b></motion.div>;
+  const live = isRecordLive(line.value);
+  return <motion.div className={`scrit-terminal-line${live ? " is-verified" : " is-pending"}`} style={disabled ? undefined : { opacity, x }}>
+    <span className="scrit-terminal-line-head"><span className="scrit-terminal-line-num">0{index + 1}</span><span className="scrit-terminal-key">{line.key}</span></span>
+    <span className="scrit-terminal-line-val-group"><span className="scrit-terminal-value">{line.value}</span><span className="scrit-terminal-ack-tag">{live ? "ACK" : "PENDING"}</span></span>
+  </motion.div>;
 }
 
 export function PinnedAssuranceStory({ items }: { items: { title: string; body: string; href: string; link: string; mark: string; image: string }[] }) {
@@ -110,7 +166,10 @@ export function PinnedAssuranceStory({ items }: { items: { title: string; body: 
   const staticMotion = useStaticMotion();
   const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end end"] });
   return <section ref={section} className={`scrit-scrub scrit-assurance-scrub${staticMotion ? " is-static" : ""}`} id="trust" aria-label="Pilot assurances and limitations">
-      <div className="scrit-scrub-stage"><header className="scrit-assurance-head"><span className="scrit-kicker">TRUST, WITHOUT THE GLOSS</span><h2>What the pilot can show.<br /><em>And what it cannot promise.</em></h2></header>
+      <div className="scrit-scrub-stage"><header className="scrit-assurance-header-bar">
+        <div className="scrit-assurance-title-block"><span className="scrit-kicker">TRUST, WITHOUT THE GLOSS</span><h2>What the pilot can show.<br /><em>And what it cannot promise.</em></h2></div>
+        <div className="scrit-assurance-meta-block"><p>Three principles, scrubbed into view. Nothing here claims custody, audit, or redemption.</p><span className="scrit-assurance-pill"><ShieldCheck size={13} className="scrit-assurance-shield-icon" /><span>{items.length} PILOT PRINCIPLES</span></span></div>
+      </header>
       <div className="scrit-assurance-deck">{items.map((item, index) => <AssuranceLayer key={item.title} item={item} index={index} progress={scrollYProgress} disabled={staticMotion} />)}</div>
       <ScrubMeter progress={scrollYProgress} disabled={staticMotion} labels={["SIGNATURES", "BASKET", "MARKET"]} />
     </div>
@@ -118,15 +177,72 @@ export function PinnedAssuranceStory({ items }: { items: { title: string; body: 
 }
 
 function AssuranceLayer({ item, index, progress, disabled }: { item: { title: string; body: string; href: string; link: string; mark: string; image: string }; index: number; progress: MotionValue<number>; disabled: boolean }) {
-  const start = .05 + index * .2;
-  const y = useTransform(progress, [start, Math.min(.98, start + .3)], [48, 0]);
-  const opacity = useTransform(progress, [start, Math.min(.98, start + .14)], [0, 1]);
-  const imageScale = useTransform(progress, [start, Math.min(.98, start + .4)], [1.14, 1]);
-  const pointerEvents = useTransform(progress, (value) => value >= start + .1 ? "auto" : "none");
-  return <motion.article className="scrit-assurance-card scrit-assurance-scrub-card" style={disabled ? undefined : { y, opacity, pointerEvents }}>
-    <div className="scrit-assurance-art" aria-hidden="true"><motion.img src={item.image} alt="" loading="lazy" decoding="async" style={disabled ? undefined : { scale: imageScale }} /><span className="scrit-assurance-glyph">{item.mark}</span><i /><b /><small>FIELD RECORD / sCRIT</small></div>
-    <div className="scrit-assurance-copy"><span className="scrit-assurance-label">PILOT PRINCIPLE</span><h3>{item.title}</h3><p>{item.body}</p><a href={item.href}>{item.link} <ArrowUpRight size={14} /></a></div>
-  </motion.article>;
+  // Staggered entry intervals:
+  // Card 0: 0.03 -> 0.16
+  // Card 1: 0.18 -> 0.31
+  // Card 2: 0.33 -> 0.46
+  const entryStart = 0.03 + index * 0.15;
+  const entryEnd = entryStart + 0.13;
+
+  // Once landed, cards remain locked at rotateX: 0, y: 0, and opacity: 1 for the entire rest of the section
+  // (one-way latch: measured scroll progress can jitter backward near the pin edge)
+  const [held, setHeld] = useState(false);
+  useMotionValueEvent(progress, "change", (value) => {
+    if (!disabled && !held && value >= entryEnd) setHeld(true);
+  });
+  const rotateX = useTransform(progress, [entryStart, entryEnd], [14, 0]);
+  const y = useTransform(progress, [entryStart, entryEnd], [48, 0]);
+  const opacity = useTransform(progress, [entryStart, entryEnd], [0, 1]);
+  const pointerEvents = useTransform(progress, (value) => (value >= entryStart + 0.04 ? "auto" : "none"));
+
+  const ringRotate = useTransform(progress, [0, 1], [0, 240]);
+  const ringScale = useTransform(progress, [entryStart, entryEnd], [0.8, 1]);
+
+  // Active laser sweep window for holographic sheen
+  const activeStart = 0.03 + index * 0.24;
+  const activeEnd = activeStart + 0.24;
+  const sweepX = useTransform(progress, [activeStart, activeEnd], ["-100%", "200%"]);
+
+  const boundaryNotes = [
+    "PILOT SCOPE: OFF-CHAIN VERIFIED RECORDS ONLY",
+    "BASKET TARGETS: NOT PHYSICAL INVENTORY",
+    "MARKET REALITY: NO REDEMPTION ARBITRAGE",
+  ];
+  const boundaryText = boundaryNotes[index] || "PILOT PROTOCOL BOUNDARY";
+
+  return (
+    <motion.article
+      className="scrit-assurance-card scrit-assurance-scrub-card"
+      style={disabled ? undefined : held ? { y: 0, rotateX: 0, opacity: 1, pointerEvents: "auto", transformPerspective: 1200 } : { y, rotateX, opacity, pointerEvents, transformPerspective: 1200 }}
+    >
+      <div className="scrit-assurance-art" aria-hidden="true">
+        <motion.img src={item.image} alt="" loading="lazy" decoding="async" style={disabled ? undefined : { scale: ringScale }} />
+        <div className="scrit-assurance-reticle">
+          <motion.span className="scrit-reticle-ring-outer" style={disabled ? undefined : { rotate: ringRotate, scale: ringScale }} />
+          <span className="scrit-reticle-ring-inner" />
+          <span className="scrit-assurance-glyph">{item.mark}</span>
+        </div>
+        <div className="scrit-assurance-art-footer">
+          <span className="scrit-assurance-status-chip"><i className="scrit-assurance-beacon" />PILOT ACTIVE</span>
+          <small>FIELD RECORD / sCRIT</small>
+        </div>
+        <motion.span className="scrit-assurance-hologram-sweep" style={disabled ? undefined : { left: sweepX }} />
+      </div>
+      <div className="scrit-assurance-copy">
+        <div className="scrit-assurance-facet-top">
+          <span className="scrit-assurance-label">PILOT PRINCIPLE</span>
+          <CheckCircle2 size={14} className="scrit-assurance-check" />
+        </div>
+        <h3>{item.title}</h3>
+        <p>{item.body}</p>
+        <div className="scrit-assurance-boundary-box">
+          <span className="scrit-boundary-tag">PROTOCOL BOUNDARY</span>
+          <span className="scrit-boundary-text">{boundaryText}</span>
+        </div>
+        <a href={item.href}>{item.link} <ArrowUpRight size={14} /></a>
+      </div>
+    </motion.article>
+  );
 }
 
 export function PinnedLaunchStory({ image, children }: { image: string; children: ReactNode }) {
@@ -170,7 +286,6 @@ export function PinnedEditorialStory({ items }: { items: { label: string; title:
   return <section ref={section} className={`scrit-scrub scrit-editorial-scrub${staticMotion ? " is-static" : ""}`} id="perspective" aria-label="Notes from the pilot">
     <div className="scrit-scrub-stage"><header className="scrit-editorial-head"><div><span className="scrit-kicker">NOTES FROM THE PILOT</span><h2>Understand the mechanism.</h2></div><a className="scrit-text-link" href="/proof">Explore proof of reserve <ArrowUpRight size={15} /></a></header>
       <div className="scrit-editorial-deck">{items.map((item, index) => <EditorialLayer key={item.label} item={item} index={index} progress={scrollYProgress} disabled={staticMotion} />)}</div>
-      <ScrubMeter progress={scrollYProgress} disabled={staticMotion} labels={["LEDGER", "RISK", "LAUNCH"]} />
     </div>
   </section>;
 }

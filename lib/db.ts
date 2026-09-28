@@ -78,6 +78,15 @@ const schema = [
     id bigserial primary key, actor text not null, action text not null, entity text not null,
     entity_id text not null, evidence_hash text not null default '', created_at timestamptz not null default now()
   )`,
+  `create table if not exists scrit_tokens (
+    id text primary key, chain_id integer not null, address text not null, name text not null,
+    symbol text not null, creator text not null, supply text not null, pooled text not null,
+    scrit_amount text not null, tx_hash text not null, pool_id text not null, pool_type text not null,
+    logo_url text, backing_category text not null default 'Critical Commodity Reserve',
+    description text not null default '', created_at timestamptz not null default now(),
+    constraint scrit_tokens_chain_address_unique unique (chain_id, address)
+  )`,
+  `create index if not exists scrit_tokens_chain_idx on scrit_tokens(chain_id, created_at desc)`,
 ];
 
 let client: Sql | undefined;
@@ -87,7 +96,7 @@ export async function database(): Promise<Sql> {
   const url = process.env.DATABASE_URL?.trim();
   if (!url) throw new Error("database_not_configured");
   if (!ready) {
-    client = postgres(url, { max: 5, idle_timeout: 20, connect_timeout: 10, prepare: false });
+    client = postgres(url, { max: 5, idle_timeout: 20, connect_timeout: 15, prepare: false, ssl: "require" });
     ready = (async () => {
       const db = client!;
       await db`select 1`;
@@ -274,3 +283,72 @@ export function checkAdmin(req: Request): boolean {
   const key = process.env.ADMIN_KEY;
   return Boolean(key && key.length >= 32 && req.headers.get("x-admin-key") === key);
 }
+
+export type DbToken = {
+  id: string;
+  chain_id: number;
+  address: string;
+  name: string;
+  symbol: string;
+  creator: string;
+  supply: string;
+  pooled: string;
+  scrit_amount: string;
+  tx_hash: string;
+  pool_id: string;
+  pool_type: string;
+  logo_url: string | null;
+  backing_category: string;
+  description: string;
+  created_at: string;
+};
+
+export async function listTokensFromDb(): Promise<DbToken[]> {
+  const db = await database();
+  const rows = await db<DbToken[]>`select id, chain_id, address, name, symbol, creator, supply, pooled, scrit_amount, tx_hash, pool_id, pool_type, logo_url, backing_category, description, created_at from scrit_tokens order by created_at desc limit 200`;
+  return rows;
+}
+
+export async function insertTokenToDb(t: {
+  id: string;
+  chain_id: number;
+  address: string;
+  name: string;
+  symbol: string;
+  creator: string;
+  supply: string;
+  pooled: string;
+  scrit_amount: string;
+  tx_hash: string;
+  pool_id: string;
+  pool_type: string;
+  logo_url?: string | null;
+  backing_category?: string;
+  description?: string;
+}): Promise<void> {
+  const db = await database();
+  await db`
+    insert into scrit_tokens(
+      id, chain_id, address, name, symbol, creator, supply, pooled,
+      scrit_amount, tx_hash, pool_id, pool_type, logo_url, backing_category, description
+    ) values (
+      ${t.id}, ${t.chain_id}, ${t.address.toLowerCase()}, ${t.name}, ${t.symbol.toUpperCase()},
+      ${t.creator.toLowerCase()}, ${t.supply}, ${t.pooled}, ${t.scrit_amount},
+      ${t.tx_hash}, ${t.pool_id}, ${t.pool_type}, ${t.logo_url ?? null},
+      ${t.backing_category ?? 'Critical Commodity Reserve'}, ${t.description ?? ''}
+    )
+    on conflict (chain_id, address) do update set
+      name = excluded.name,
+      symbol = excluded.symbol,
+      supply = excluded.supply,
+      pooled = excluded.pooled,
+      scrit_amount = excluded.scrit_amount,
+      tx_hash = excluded.tx_hash,
+      pool_id = excluded.pool_id,
+      pool_type = excluded.pool_type,
+      logo_url = coalesce(excluded.logo_url, scrit_tokens.logo_url),
+      backing_category = excluded.backing_category,
+      description = excluded.description
+  `;
+}
+

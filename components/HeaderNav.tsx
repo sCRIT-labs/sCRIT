@@ -1,115 +1,166 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowUpRight, Menu, X } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
+import { NavigationDialog } from "./NavigationDialog";
 
 export function HeaderNav() {
   const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [navTheme, setNavTheme] = useState<"dark" | "light">("light");
+  const [dialogOpen, setDialogOpen] = useState(false);
   const pathname = usePathname();
 
+  const updateNavState = useCallback(() => {
+    const scrollY = window.scrollY;
+    setScrolled(scrollY > 20);
+
+    if (pathname !== "/") {
+      // Subpages: check for dark subpage override
+      const isDarkSubpage = document.querySelector(".scrit-subpage-dark");
+      setNavTheme(isDarkSubpage ? "dark" : "light");
+      return;
+    }
+
+    // Home Landing Page: dynamically probe the section directly behind the floating navbar
+    const navY = 65; // Approx center Y coordinate of navbar pill
+    // Probe 12px from viewport left margin to avoid hitting the pill container itself
+    const el = document.elementFromPoint(12, navY);
+    const themeEl = el ? el.closest<HTMLElement>("[data-nav-theme]") : null;
+
+    if (themeEl) {
+      const themeAttr = themeEl.getAttribute("data-nav-theme");
+      if (themeAttr === "light" || themeAttr === "dark") {
+        setNavTheme(themeAttr);
+        return;
+      }
+    }
+
+    // Fallback based on scroll position: hero is dark at top
+    if (scrollY < 600) {
+      setNavTheme("dark");
+    } else {
+      setNavTheme("light");
+    }
+  }, [pathname]);
+
   useEffect(() => {
-    const onScroll = () => {
-      setScrolled(window.scrollY > 20);
+    updateNavState();
+    window.addEventListener("scroll", updateNavState, { passive: true });
+    window.addEventListener("resize", updateNavState, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", updateNavState);
+      window.removeEventListener("resize", updateNavState);
     };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [updateNavState]);
 
   return (
-    <header className={`main-nav-wrapper ${scrolled ? "is-docked" : "is-top"}`}>
-      <nav className="main-nav-pill">
-        {/* Brandmark - points to home */}
-        <Link href="/" className="nav-brand-group">
-          <svg width="28" height="28" viewBox="0 0 32 32" fill="none" className="nav-brand-icon">
-            <circle cx="16" cy="16" r="14" stroke="currentColor" strokeWidth="2.5" strokeOpacity="0.3" />
-            <path d="M16 6C10.477 6 6 10.477 6 16C6 21.523 10.477 26 16 26" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-            <path d="M16 11C13.2386 11 11 13.2386 11 16C11 18.7614 13.2386 21 16 21" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-            <circle cx="16" cy="16" r="2.5" fill="currentColor" />
-          </svg>
-          <span className="nav-brand-text">sCRIT</span>
-        </Link>
+    <>
+      <header
+        className={`main-nav-wrapper ${scrolled ? "is-docked" : "is-top"} nav-theme-${navTheme}`}
+      >
+        <nav className="main-nav-pill">
+          {/* Brand Group */}
+          <Link href="/" className="nav-brand-group" aria-label="sCRIT Protocol Home">
+            <div className="nav-brand-icon-wrap">
+              <svg width="24" height="24" viewBox="0 0 32 32" fill="none" className="nav-brand-icon">
+                <circle cx="16" cy="16" r="14" stroke="currentColor" strokeWidth="2.5" strokeOpacity="0.3" />
+                <path d="M16 6C10.477 6 6 10.477 6 16C6 21.523 10.477 26 16 26" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                <path d="M16 11C13.2386 11 11 13.2386 11 16C11 18.7614 13.2386 21 16 21" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                <circle cx="16" cy="16" r="2.5" fill="currentColor" />
+              </svg>
+            </div>
 
-        {/* Center Links - works globally across all pages */}
-        <div className="nav-center-menu">
-          <Link href="/#products" className="nav-menu-link">
-            Products
-          </Link>
-          <Link href="/#launch-model" className="nav-menu-link">
-            Launch model
-          </Link>
-          <Link href="/issuer" className={`nav-menu-link ${pathname === "/issuer" ? "is-active-link" : ""}`}>
-            Issuer desk
-          </Link>
-          <Link
-            href="/proof"
-            className={`nav-menu-link ${pathname === "/proof" ? "is-active-link" : ""}`}
-          >
-            Pilot evidence
-          </Link>
-          <Link href="/copilot" className={`nav-menu-link ${pathname === "/copilot" ? "is-active-link" : ""}`}>
-            Pilot guide
-          </Link>
-          <Link href="/#ledger" className="nav-menu-link">
-            Pilot telemetry
-          </Link>
-        </div>
-
-        {/* Right CTA */}
-        <div className="nav-right-actions">
-          <Link
-            href="/launch"
-            className={`nav-btn-launch ${pathname === "/launch" ? "is-active-btn" : ""}`}
-            style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
-          >
-            <span>Launch Pair</span>
-            <ArrowUpRight size={14} strokeWidth={2.5} />
+            <div className="nav-brand-text-block">
+              <span className="nav-brand-text">sCRIT</span>
+              <span className="nav-brand-sub">INDEX</span>
+            </div>
           </Link>
 
-          {/* Mobile hamburger */}
-          <button
-            type="button"
-            className="nav-hamburger-btn"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Toggle Navigation"
-            aria-expanded={mobileOpen}
-            aria-controls="mobile-site-navigation"
-            style={{ display: "inline-flex", alignItems: "center", justifyContent: "center" }}
-          >
-            {mobileOpen ? <X size={20} strokeWidth={2} /> : <Menu size={20} strokeWidth={2} />}
-          </button>
-        </div>
-      </nav>
+          {/* Desktop Center Links */}
+          <div className="nav-center-menu">
+            <Link
+              href="/tokens"
+              className={`nav-menu-link ${pathname === "/tokens" ? "is-active-link" : ""}`}
+            >
+              <span>Tokens</span>
+              {pathname === "/tokens" && <span className="nav-link-dot" />}
+            </Link>
 
-      {/* Mobile Drawer */}
-      {mobileOpen && (
-        <div className="mobile-nav-panel" id="mobile-site-navigation">
-          <Link href="/#products" onClick={() => setMobileOpen(false)}>
-            Products
-          </Link>
-          <Link href="/#launch-model" onClick={() => setMobileOpen(false)}>
-            Launch model
-          </Link>
-          <Link href="/issuer" onClick={() => setMobileOpen(false)}>
-            Issuer desk
-          </Link>
-          <Link href="/proof" onClick={() => setMobileOpen(false)}>
-            Pilot evidence
-          </Link>
-          <Link href="/copilot" onClick={() => setMobileOpen(false)}>
-            Pilot guide
-          </Link>
-          <Link href="/#ledger" onClick={() => setMobileOpen(false)}>
-            Pilot telemetry
-          </Link>
-          <Link href="/launch" className="mobile-launch-btn" onClick={() => setMobileOpen(false)}>
-            Strike a Pair (Rail A)
-          </Link>
-        </div>
-      )}
-    </header>
+            <Link href="/#products" className="nav-menu-link">
+              <span>Products</span>
+            </Link>
+
+            <Link href="/#launch-model" className="nav-menu-link">
+              <span>Launch Model</span>
+            </Link>
+
+            <Link
+              href="/proof"
+              className={`nav-menu-link ${pathname === "/proof" ? "is-active-link" : ""}`}
+            >
+              <span>Evidence</span>
+              {pathname === "/proof" && <span className="nav-link-dot" />}
+            </Link>
+
+            <Link
+              href="/lots"
+              className={`nav-menu-link ${pathname === "/lots" ? "is-active-link" : ""}`}
+            >
+              <span>Lots (Rail B)</span>
+              {pathname === "/lots" && <span className="nav-link-dot" />}
+            </Link>
+
+            <Link
+              href="/issuer"
+              className={`nav-menu-link ${pathname === "/issuer" ? "is-active-link" : ""}`}
+            >
+              <span>Issuer</span>
+              {pathname === "/issuer" && <span className="nav-link-dot" />}
+            </Link>
+
+            <Link
+              href="/copilot"
+              className={`nav-menu-link ${pathname === "/copilot" ? "is-active-link" : ""}`}
+            >
+              <span>Copilot AI</span>
+              {pathname === "/copilot" && <span className="nav-link-dot" />}
+            </Link>
+          </div>
+
+          {/* Right Action Deck */}
+          <div className="nav-right-actions">
+            {/* Launch Pair CTA */}
+            <Link
+              href="/launch"
+              className={`nav-btn-launch ${pathname === "/launch" ? "is-active-btn" : ""}`}
+            >
+              <span>Launch Pair</span>
+              <ArrowUpRight size={13} strokeWidth={2.5} />
+            </Link>
+
+            {/* Explore / Hamburger Button */}
+            <button
+              type="button"
+              className="nav-explore-btn"
+              onClick={() => setDialogOpen(true)}
+              aria-label="Open exploration directory"
+              aria-expanded={dialogOpen}
+            >
+              <span className="nav-explore-label">EXPLORE</span>
+              <span className="nav-hamburger-bars" aria-hidden="true">
+                <i />
+                <i />
+              </span>
+            </button>
+          </div>
+        </nav>
+      </header>
+
+      {/* Full-screen Luxury Navigation Dialog */}
+      <NavigationDialog isOpen={dialogOpen} onClose={() => setDialogOpen(false)} />
+    </>
   );
 }

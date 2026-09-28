@@ -14,6 +14,7 @@ import {
 } from "viem";
 import { SCRIT_ABI, SCRIT_LAUNCHER_ABI, SCRIT_LAUNCHER_V4_ABI } from "./scrit-artifact";
 import { HOOD_MAINNET, HOOD_TESTNET, scritDeploymentFor } from "./scrit";
+import { getActiveEvmProvider } from "./wallets";
 
 export const SLIPPAGE_PRESETS = [
   { label: "Low 0.5%", bps: 9950 },
@@ -79,6 +80,10 @@ export function pickInjectedProvider(eth: unknown): unknown {
 }
 
 function ethProvider() {
+  // Prefer the wallet chosen in the wallet modal (persisted); otherwise fall
+  // back to the previous default-provider behavior.
+  const active = getActiveEvmProvider();
+  if (active) return active as never;
   const w = window as unknown as { ethereum?: unknown };
   if (!w.ethereum) throw new Error("no_wallet");
   return pickInjectedProvider(w.ethereum);

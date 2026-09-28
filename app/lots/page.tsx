@@ -46,16 +46,20 @@ export default function LotsPage() {
   useEffect(() => { void refresh(); const timer = window.setInterval(refresh, 15_000); return () => window.clearInterval(timer); }, [refresh]);
 
   async function connect() {
-    if (!window.ethereum) { setStatus("Install an EVM wallet to use the sCRIT order book."); return; }
-    const chainId = await window.ethereum.request({ method: "eth_chainId" });
-    if (Number(chainId) !== chain.id) {
-      const chainHex = `0x${chain.id.toString(16)}`;
-      try { await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: chainHex }] }); }
-      catch { setStatus(`Switch your wallet to ${activeNetwork.name} (${chain.id}).`); return; }
-    }
-    const addresses = await window.ethereum.request({ method: "eth_requestAccounts" }) as Address[];
-    const client = createWalletClient({ account: addresses[0], chain, transport: custom(window.ethereum as never) });
-    setAccount(addresses[0]); setWallet(client); setStatus(`Wallet connected to ${activeNetwork.name}.`);
+    const { getActiveEvmProvider, walletLabel } = await import("@/lib/wallets");
+    const provider = getActiveEvmProvider();
+    if (!provider) { setStatus("Install an EVM wallet to use the sCRIT order book."); return; }
+    try {
+      const chainId = await provider.request({ method: "eth_chainId" });
+      if (Number(chainId) !== chain.id) {
+        const chainHex = `0x${chain.id.toString(16)}`;
+        try { await provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: chainHex }] }); }
+        catch { setStatus(`Switch your wallet to ${activeNetwork.name} (${chain.id}).`); return; }
+      }
+      const addresses = await provider.request({ method: "eth_requestAccounts" }) as Address[];
+      const client = createWalletClient({ account: addresses[0], chain, transport: custom(provider as never) });
+      setAccount(addresses[0]); setWallet(client); setStatus(`Wallet connected to ${activeNetwork.name}.`);
+    } catch (e: unknown) { setStatus(walletLabel(e)); }
   }
 
   async function place(side: "ask" | "bid") {
@@ -110,9 +114,92 @@ export default function LotsPage() {
     <header className="proof-page-head scrit-reveal"><p className="eyebrow">RAIL B · {activeNetwork.name.toUpperCase()} ORDER BOOK</p><h1>Certified lots,<br /><em>fractionalised into 100 units.</em></h1><p>Orders settle in sCRIT on {activeNetwork.name}. Demo/testnet records do not prove item authenticity, custody, liquidity, or redemption.</p></header>
     {!configured ? <section className="panel proof-section"><h2>{activeNetwork.name} contracts are not configured</h2><p>Deploy the sCRIT stack and set the network-specific Rail B addresses before using this screen.</p></section> : <>
       <section className="panel proof-section"><div className="proof-section-head"><div><span className="eyebrow">WALLET</span><h2>{account ? `${account.slice(0, 8)}…${account.slice(-6)}` : `Connect to ${activeNetwork.name}`}</h2></div><button className="btn btn-gold" disabled={loading} onClick={connect}>{account ? "Connected" : "Connect wallet"}</button></div><p className="proof-intro">Lot token: {lotToken}<br />sCRIT: {scritToken}<br />Marketplace: {marketplace}</p>{status && <p role="status" className="proof-intro">{status}</p>}</section>
-      <section className="panel proof-section"><div className="proof-section-head"><div><span className="eyebrow">ORDER ENTRY</span><h2>Place a limit order</h2></div></div><div className="proof-table-wrap"><label>Lot ID <input className="field" inputMode="numeric" value={lotId} onChange={(event) => setLotId(event.target.value)} /></label><label>Fractions (max 100) <input className="field" inputMode="numeric" value={fractions} onChange={(event) => setFractions(event.target.value)} /></label><label>Price per fraction (sCRIT) <input className="field" inputMode="decimal" value={price} onChange={(event) => setPrice(event.target.value)} /></label></div><div style={{ display: "flex", gap: 12, marginTop: 16 }}><button className="btn btn-ghost" disabled={loading || !account} onClick={() => place("ask")}>Place ask</button><button className="btn btn-gold" disabled={loading || !account} onClick={() => place("bid")}>Place bid</button></div><p className="proof-method-note">Asks escrow ERC-1155 units; bids escrow sCRIT. Prices include no platform fee. Expired orders can be cancelled by their maker; open orders are public.</p></section>
-      <section className="panel proof-section"><div className="proof-section-head"><div><span className="eyebrow">OPEN ORDERS</span><h2>Live {activeNetwork.name} book</h2></div><button className="btn btn-ghost" onClick={() => void refresh()}>Refresh</button></div>{book.length === 0 ? <div className="proof-empty"><div><b>No active orders read</b><span>Order book is empty or contract data is unavailable.</span></div></div> : <div className="proof-table-wrap"><table className="dtable"><thead><tr><th>Side</th><th>Lot ID</th><th>Open fractions</th><th>Price / unit</th><th>Maker</th><th>Expiry</th><th>Action</th></tr></thead><tbody>{book.map((order) => <tr key={order.id.toString()}><td>{order.side === 0 ? "Ask" : "Bid"}</td><td>{order.lotId.toString()}</td><td>{order.remaining.toString()}</td><td>{formatEther(order.price)} sCRIT</td><td>{order.maker.slice(0, 8)}…{order.maker.slice(-6)}</td><td>{new Date(Number(order.expiry) * 1000).toLocaleString()}</td><td>{account && order.maker.toLowerCase() === account.toLowerCase() && <button className="btn btn-ghost" disabled={loading} onClick={() => void cancel(order)}>Cancel</button>}</td></tr>)}</tbody></table></div>}
-        <div style={{ display: "flex", gap: 12, alignItems: "end", marginTop: 16 }}><label>Fill fractions <input className="field" inputMode="numeric" value={fillAmount} onChange={(event) => setFillAmount(event.target.value)} /></label><label>Ask order ID <input className="field" inputMode="numeric" value={fillId} onChange={(event) => setFillId(event.target.value)} /></label><button className="btn btn-gold" disabled={loading || !account} onClick={() => { if (!/^\d+$/.test(fillId)) { setStatus("Enter a valid ask order ID."); return; } const ask = book.find((order) => order.id === BigInt(fillId) && order.side === 0); const bid = book.filter((order) => order.side === 1 && ask && order.lotId === ask.lotId && order.price >= ask.price).toSorted((a, b) => a.price > b.price ? -1 : 1)[0]; if (!ask || !bid) { setStatus("No compatible open bid found for this ask."); return; } void match(ask, bid); }}>Match ask with best bid</button></div>
+      <section className="panel proof-section">
+        <div className="proof-section-head">
+          <div><span className="eyebrow">ORDER ENTRY</span><h2>Place a limit order</h2></div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14 }}>
+          <div>
+            <label className="launch-field-label">Lot ID <span>ERC-1155 Token</span></label>
+            <input className="field" inputMode="numeric" placeholder="e.g. 1" value={lotId} onChange={(event) => setLotId(event.target.value)} />
+          </div>
+          <div>
+            <label className="launch-field-label">Fractions <span>Max 100 units</span></label>
+            <input className="field" inputMode="numeric" placeholder="100" value={fractions} onChange={(event) => setFractions(event.target.value)} />
+          </div>
+          <div>
+            <label className="launch-field-label">Price per fraction <span>sCRIT units</span></label>
+            <input className="field" inputMode="decimal" placeholder="e.g. 25.5" value={price} onChange={(event) => setPrice(event.target.value)} />
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
+          <button className="btn btn-ghost" disabled={loading || !account} onClick={() => place("ask")}>Place Ask (Sell)</button>
+          <button className="btn btn-gold" disabled={loading || !account} onClick={() => place("bid")}>Place Bid (Buy)</button>
+        </div>
+        <p className="proof-method-note">Asks escrow ERC-1155 units; bids escrow sCRIT. Prices include no platform fee. Expired orders can be cancelled by their maker; open orders are public.</p>
+      </section>
+      <section className="panel proof-section">
+        <div className="proof-section-head">
+          <div><span className="eyebrow">OPEN ORDERS</span><h2>Live {activeNetwork.name} book</h2></div>
+          <button className="btn btn-ghost" onClick={() => void refresh()}>Refresh</button>
+        </div>
+        {book.length === 0 ? (
+          <div className="proof-empty">
+            <div><b>No active orders read</b><span>Order book is empty or contract data is unavailable.</span></div>
+          </div>
+        ) : (
+          <div className="proof-table-wrap">
+            <table className="dtable">
+              <thead>
+                <tr>
+                  <th>Side</th>
+                  <th>Lot ID</th>
+                  <th>Open fractions</th>
+                  <th>Price / unit</th>
+                  <th>Maker</th>
+                  <th>Expiry</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {book.map((order) => (
+                  <tr key={order.id.toString()}>
+                    <td>
+                      <span style={{
+                        display: "inline-block",
+                        padding: "2px 7px",
+                        borderRadius: 3,
+                        fontWeight: 650,
+                        fontSize: 11,
+                        background: order.side === 0 ? "rgba(220, 38, 38, 0.1)" : "rgba(46, 125, 50, 0.1)",
+                        color: order.side === 0 ? "#b91c1c" : "#2e7d32",
+                      }}>
+                        {order.side === 0 ? "ASK" : "BID"}
+                      </span>
+                    </td>
+                    <td className="mono-sm"><b>Lot #{order.lotId.toString()}</b></td>
+                    <td className="mono-sm">{order.remaining.toString()} / 100</td>
+                    <td className="mono-sm"><b>{formatEther(order.price)} sCRIT</b></td>
+                    <td className="mono-sm">{order.maker.slice(0, 8)}…{order.maker.slice(-6)}</td>
+                    <td className="mono-sm" suppressHydrationWarning>{new Date(Number(order.expiry) * 1000).toLocaleString("en-US")}</td>
+                    <td>{account && order.maker.toLowerCase() === account.toLowerCase() && <button className="btn btn-ghost" style={{ padding: "4px 10px", fontSize: 11 }} disabled={loading} onClick={() => void cancel(order)}>Cancel</button>}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, alignItems: "end", marginTop: 22, paddingTop: 18, borderTop: "1px solid rgba(24,26,24,0.1)" }}>
+          <div>
+            <label className="launch-field-label">Fill fractions <span>Units</span></label>
+            <input className="field" inputMode="numeric" value={fillAmount} onChange={(event) => setFillAmount(event.target.value)} />
+          </div>
+          <div>
+            <label className="launch-field-label">Ask order ID <span>Order #</span></label>
+            <input className="field" inputMode="numeric" placeholder="e.g. 1" value={fillId} onChange={(event) => setFillId(event.target.value)} />
+          </div>
+          <button className="btn btn-gold" style={{ height: 46 }} disabled={loading || !account} onClick={() => { if (!/^\d+$/.test(fillId)) { setStatus("Enter a valid ask order ID."); return; } const ask = book.find((order) => order.id === BigInt(fillId) && order.side === 0); const bid = book.filter((order) => order.side === 1 && ask && order.lotId === ask.lotId && order.price >= ask.price).toSorted((a, b) => a.price > b.price ? -1 : 1)[0]; if (!ask || !bid) { setStatus("No compatible open bid found for this ask."); return; } void match(ask, bid); }}>Match ask with best bid</button>
+        </div>
       </section>
       <section className="panel proof-section"><div className="proof-section-head"><div><span className="eyebrow">PHYSICAL REDEMPTION</span><h2>KYC and delivery workflow</h2></div></div><p className="proof-intro">The testnet contracts provide a KYC approval interface and request → approved → shipped → completed state machine. This app does not yet connect a production KYC provider or carrier, and a testnet status is not proof of physical delivery. sCRIT itself remains non-redeemable.</p></section>
     </>}
