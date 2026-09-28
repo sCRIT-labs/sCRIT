@@ -886,6 +886,28 @@ html.has-reveal-js .scrit-redesign.scrit-landing .scrit-reveal.rv-in { opacity: 
 .scrit-index-scrub.is-static .scrit-index-scrub-reveal,
 .scrit-index-scrub.is-static .scrit-index-scrub-caliper,
 .scrit-launch-scrub.is-static .scrit-launch-scrub-wipe { display: none; }
+/* Basket: two items per row on desktop. Layout-only change — the per-row
+   scroll-driven fill animation (scaleX) and its stagger timing are untouched.
+   Mobile / reduced-motion fallbacks keep the single-column block layout. */
+@media (min-width: 761px) {
+  .scrit-basket-scrub-stage > .scrit-basket-rows {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 44px;
+  }
+  .scrit-basket-scrub-stage .scrit-basket-row {
+    min-height: 72px;
+    grid-template-columns: 38px minmax(0, 1fr) minmax(0, 1fr) 46px;
+    gap: 12px;
+  }
+  .scrit-basket-scrub-stage .scrit-basket-name { font-size: 17px; }
+  .scrit-basket-scrub-stage .scrit-basket-row > strong { font-size: 20px; }
+  .scrit-basket-scrub-stage .scrit-basket-excluded {
+    grid-column: 1 / -1;
+    grid-template-columns: 38px minmax(0, 1fr) 46px;
+    gap: 12px;
+  }
+}
 @media (max-width: 760px) {
   .scrit-chapter,.scrit-chapter.is-static { min-height: 0; padding: 70px 20px; }
   .scrit-chapter-stage { position: relative; top: auto; height: auto; min-height: 0; overflow: visible; padding: 0; }

@@ -90,7 +90,7 @@ export default function Launch() {
         const r = await fetch(`/api/issuers?wallet=${account}`).then((x) => x.json()).catch(() => null);
         if (!r?.approved) {
           setStep("error");
-          setMsg("Gated pilot — wallet not approved. Request access via Telegram.");
+          setMsg("Gated pilot — wallet not approved. Submit an application via the issuer desk.");
           return;
         }
       }
