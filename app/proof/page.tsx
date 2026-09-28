@@ -12,6 +12,13 @@ import { calcPremiumPercent } from "@/lib/scrit-market";
 
 const activeNetwork = SCRIT_CHAIN_ID === 4663 ? HOOD_MAINNET : HOOD_TESTNET;
 
+function formatPayload(payload: unknown): string {
+  const obj = payload !== null && typeof payload === "object" && !Array.isArray(payload)
+    ? (payload as Record<string, unknown>)
+    : {};
+  return Object.entries(obj).map(([key, value]) => `${key}: ${String(value)}`).join(" · ");
+}
+
 function freshness(updatedAt: string): string {
   const age = Date.now() - new Date(updatedAt).getTime();
   if (!Number.isFinite(age) || age < 0) return "Unknown";
@@ -109,7 +116,7 @@ export default function Proof() {
 
       <section className="panel proof-section scrit-reveal" id="chain-events">
         <div className="proof-section-head"><div><span className="eyebrow">INDEXER · CONFIRMED TESTNET LOGS</span><h2>Contract event stream</h2></div><span className="proof-section-note">5 confirmation target · database indexed</span></div>
-        {chainEvents.length === 0 ? <div className="proof-empty"><FileCheck2 /><div><b>No indexed contract events</b><span>Configure v2 contract addresses and run the event indexer. An empty event list does not imply a zero chain history.</span></div></div> : <div className="proof-table-wrap"><table className="dtable"><thead><tr><th>Event</th><th>Block</th><th>Transaction</th><th>Indexed fields</th></tr></thead><tbody>{chainEvents.map((event, index) => <tr key={`${event.tx_hash}-${index}`}><td>{event.event_name}</td><td>{event.block_number}</td><td className="proof-hash">{event.tx_hash}</td><td>{Object.entries(event.payload ?? {}).map(([key, value]) => `${key}: ${String(value)}`).join(" · ")}</td></tr>)}</tbody></table></div>}
+        {chainEvents.length === 0 ? <div className="proof-empty"><FileCheck2 /><div><b>No indexed contract events</b><span>Configure v2 contract addresses and run the event indexer. An empty event list does not imply a zero chain history.</span></div></div> : <div className="proof-table-wrap"><table className="dtable"><thead><tr><th>Event</th><th>Block</th><th>Transaction</th><th>Indexed fields</th></tr></thead><tbody>{chainEvents.map((event, index) => <tr key={`${event.tx_hash}-${index}`}><td>{event.event_name}</td><td>{event.block_number}</td><td className="proof-hash">{event.tx_hash}</td><td>{formatPayload(event.payload)}</td></tr>)}</tbody></table></div>}
       </section>
 
       <section className="panel proof-section scrit-reveal" id="treasury">

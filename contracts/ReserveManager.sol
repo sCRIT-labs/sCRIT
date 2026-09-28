@@ -108,7 +108,7 @@ contract ReserveManager is AccessControl, Pausable, EIP712 {
         token.mint(reserveTreasury, minted, a.batchId);
         emit PhysicalPurchaseAttested(a.batchId, a.commodity, a.massKgE12, a.certificateHash, signer);
         emit ReserveMinted(a.batchId, addedValueUsdE8, minted, currentSupply + minted);
-        emit NAVSnapshot(newReserveValue, currentSupply + minted, Math.mulDiv(newReserveValue, USD_SCALE, currentSupply + minted), uint64(block.timestamp));
+        emit NAVSnapshot(newReserveValue, currentSupply + minted, Math.mulDiv(newReserveValue, 1e18, currentSupply + minted), uint64(block.timestamp));
     }
 
     function snapshotNav() external whenNotPaused returns (uint256 valueUsdE8, uint256 navUsdE8) {
@@ -116,7 +116,7 @@ contract ReserveManager is AccessControl, Pausable, EIP712 {
         uint256 supply = token.totalSupply();
         require(supply > 0, "no supply");
         lastReserveValueUsdE8 = valueUsdE8;
-        navUsdE8 = Math.mulDiv(valueUsdE8, USD_SCALE, supply);
+        navUsdE8 = Math.mulDiv(valueUsdE8, 1e18, supply);
         emit NAVSnapshot(valueUsdE8, supply, navUsdE8, uint64(block.timestamp));
     }
 

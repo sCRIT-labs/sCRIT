@@ -168,3 +168,10 @@ the 75/25 fee split. Its simulation manifest is
 `deployments/rehearsals/robinhood-mainnet-v4-fork-2026-09-26.json`; these local
 fork transactions are not canonical. The signer currently has only
 `0.000315410748224 ETH`, so actual deployment funding remains outstanding.
+
+**Confirmed final (2026-09-28):** `project-index` stays. No PONS/external token
+integration will be attempted; any separately launched sCRIT meme coin is a
+different contract address and is not backed, managed, or priced by this repo.
+The operator also accepted the risk of continuing with the current deployer
+wallet whose key was previously exposed in session output; rotation was offered
+and declined.

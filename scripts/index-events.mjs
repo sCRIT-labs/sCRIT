@@ -71,7 +71,13 @@ try {
       for (const log of logs) {
         const parsed = parseEventLogs({ abi: contract.abi, logs: [log], strict: false })[0];
         if (!parsed || !log.transactionHash || log.blockNumber === null || log.logIndex === null) continue;
-        const payload = JSON.parse(JSON.stringify(parsed.args, (_, value) => typeof value === "bigint" ? value.toString() : value));
+        let payload = JSON.parse(JSON.stringify(parsed.args, (_, value) => typeof value === "bigint" ? value.toString() : value));
+        // Never store a string scalar: older rows were double-encoded and break
+        // consumers that expect a jsonb object. Unwrap string layers (max 2).
+        for (let depth = 0; depth < 2 && typeof payload === "string"; depth++) {
+          try { payload = JSON.parse(payload); } catch { payload = {}; break; }
+        }
+        if (payload === null || typeof payload !== "object" || Array.isArray(payload)) payload = {};
         await sql`insert into scrit_chain_events(chain_id,contract_address,tx_hash,log_index,block_number,event_name,payload)
           values(${chain.id},${contract.address},${log.transactionHash.toLowerCase()},${log.logIndex},${log.blockNumber.toString()},${parsed.eventName},${JSON.stringify(payload)}::jsonb)
           on conflict(chain_id,contract_address,tx_hash,log_index) do nothing`;

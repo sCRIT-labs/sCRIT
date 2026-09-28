@@ -50,7 +50,7 @@ export function useReserveChainData(): ReserveChainState {
         ]);
         if (chainId !== chain.id) throw new Error("wrong_chain");
         const reserveValueUsdE8 = await publicClient.readContract({ address: reserveManager, abi: SCRIT_RESERVE_ABI, functionName: "currentReserveValue" }).catch(() => null);
-        if (active) setState({ status: "ready", chainId, reserveManager, token, reserveValueUsdE8, supplyE18, holdingsKgE12: Object.fromEntries(BASKET.map((row, index) => [row.symbol, holdings[index + 3] as bigint])), blockNumber });
+        if (active) setState({ status: "ready", chainId, reserveManager, token, reserveValueUsdE8, supplyE18, holdingsKgE12: Object.fromEntries(BASKET.map((row, index) => [row.symbol, holdings[index] as bigint])), blockNumber });
       } catch {
         if (active) setState({ status: "unavailable", chainId: chain.id, reserveManager, token });
       }

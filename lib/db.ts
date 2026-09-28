@@ -136,9 +136,27 @@ export async function advanceIndexerCursor(chainId: number, contractAddress: str
     on conflict(chain_id,contract_address) do update set block_number=greatest(scrit_indexer_cursors.block_number,excluded.block_number),updated_at=now()`;
 }
 
+/** Normalize a chain-event payload. Older indexed rows store the payload as a
+ * jsonb string scalar (double-encoded); new rows may already be objects. */
+export function normalizeEventPayload(value: unknown): Record<string, unknown> {
+  let current = value;
+  for (let depth = 0; depth < 2; depth++) {
+    if (typeof current !== "string") break;
+    try {
+      current = JSON.parse(current);
+    } catch {
+      return {};
+    }
+  }
+  return current !== null && typeof current === "object" && !Array.isArray(current)
+    ? (current as Record<string, unknown>)
+    : {};
+}
+
 export async function listChainEvents(limit = 100, chainId = 46630): Promise<Array<Record<string, unknown>>> {
   const db = await database();
-  return await db`select chain_id,contract_address,tx_hash,log_index,block_number,event_name,payload,observed_at from scrit_chain_events where chain_id=${chainId} order by block_number desc,log_index desc limit ${Math.min(Math.max(limit,1),500)}` as unknown as Array<Record<string, unknown>>;
+  const rows = await db`select chain_id,contract_address,tx_hash,log_index,block_number,event_name,payload,observed_at from scrit_chain_events where chain_id=${chainId} order by block_number desc,log_index desc limit ${Math.min(Math.max(limit,1),500)}` as unknown as Array<Record<string, unknown>>;
+  return rows.map((row) => ({ ...row, payload: normalizeEventPayload(row.payload) }));
 }
 
 export async function auditAdminAction(actor: string, action: string, entity: string, entityId: string, evidenceHash = ""): Promise<void> {
