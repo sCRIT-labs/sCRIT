@@ -187,3 +187,15 @@ and declined.
   exact 2.5% fee split 75% reserve / 25% operations. Swap executed through the
   unaudited one-off `DemoSwapHelper`; pool economics remain dust-scale and all
   records stay labeled demo. See the mainnet manifest `projectPools` entry.
+
+## 6. Timelock ops runbook (delay is 0, proposer/executor is the admin EOA)
+
+All admin writes go through `ScritTimelockController`: `schedule(target, 0,
+data, 0x0, salt, 0)` then `execute(...)` with the same args once the schedule
+receipt confirms. Proven pattern (used for custodian registration and issuer
+approval on mainnet): pick a unique `salt = keccak256("...")` per action,
+`predecessor = 0x0`, `delay = 0`. Verify on-chain afterwards
+(`isAuthorized`, `issuerApproved`). Never reuse a salt. Every privileged action
+already emits an event consumed by `pnpm index:events --mainnet`, which now
+also runs every 10 minutes via the `sCRIT-mainnet-indexer` scheduled task
+(idempotent, cursor-based; fails gracefully without VPN and retries next cycle).
