@@ -1,0 +1,39 @@
+# Refresh Au/Ag spot from the free gold-api.com quote every 12 hours.
+# Same pilot script as local ops (`scripts/publish-free-prices.mjs`):
+# on-chain signed quote + off-chain mirror, fails loudly without inventing data.
+# Secrets (repo Settings > Secrets and variables > Actions):
+#   MAINNET_PRICE_SIGNER_KEY - oracle-only key, holds no funds
+#   ADMIN_KEY                - pilot API admin key
+name: prices
+
+on:
+  schedule:
+    - cron: "0 */12 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Provide local-only env from secrets (ephemeral runner)
+        run: |
+          cat > .env.local <<EOF
+          MAINNET_PRICE_ADAPTER_PRIVATE_KEY=${{ secrets.MAINNET_PRICE_SIGNER_KEY }}
+          ADMIN_KEY=${{ secrets.ADMIN_KEY }}
+          NEXT_PUBLIC_SCRIT_PRICE_ADAPTER_MAINNET=0x5341042250dcbc11a929581d22b7be30c14640df
+          ROBINHOOD_MAINNET_RPC_URL=https://rpc.mainnet.chain.robinhood.com
+          EOF
+      - run: node scripts/publish-free-prices.mjs
