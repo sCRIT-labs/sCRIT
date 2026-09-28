@@ -83,7 +83,7 @@ const schema = [
 let client: Sql | undefined;
 let ready: Promise<Sql> | undefined;
 
-async function database(): Promise<Sql> {
+export async function database(): Promise<Sql> {
   const url = process.env.DATABASE_URL?.trim();
   if (!url) throw new Error("database_not_configured");
   if (!ready) {
