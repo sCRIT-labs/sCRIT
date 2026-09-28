@@ -110,5 +110,36 @@
     "reserveTreasury": "0xCdbdc82A021071eE445d9f897433a7E4B4EAfD8d",
     "operationsTreasury": "0xCdbdc82A021071eE445d9f897433a7E4B4EAfD8d"
   },
-  "launcherOwnershipTransferTx": "0x907567c878f6d81d16a9bb89d2c2abb1f37f4e077c03865901466fe888992a53"
+  "launcherOwnershipTransferTx": "0x907567c878f6d81d16a9bb89d2c2abb1f37f4e077c03865901466fe888992a53",
+  "projectPools": [
+    {
+      "note": "Pilot Rail A demo (testnet-style rehearsal on mainnet). All values demo-only.",
+      "token": {
+        "name": "Pilot Demo",
+        "symbol": "PDMO",
+        "address": "0xEaad835Ab56de5EFF1D2B303B166B8aFA220C537",
+        "supply": "1000000",
+        "pooled": "1000",
+        "scritPaired": "0.5"
+      },
+      "poolId": "0x807c3523b5b47cb53a78cbf03283dfb6c5117b7d1c72d2aaadb5aa5caad30d19",
+      "positionId": "3370272",
+      "launchTx": "0xdd8d74717fb0b0cedd3d72d9dad001337c1220858732eacc76cdd45bf7986537",
+      "issuerApprovalTimelockTxs": [
+        "0x9c749c95492569fdfbdf4f0675607e6e1945ab2276c33119ca1420e019d37d77",
+        "0x0036b18f36bf41f5915429d957795e5c05d88f43c85605303b9e29faf7739efb"
+      ],
+      "demoSwapHelper": "0x8094e63ee75119769c114ff4ac77dbdd562aba8c",
+      "demoSwapHelperTx": "0x2b4fe8c1f4160ef13f087144c8ec4767c292650546d995a99638fd20179bedb5",
+      "firstTaxedSwapTx": "0x2e2b78ee1f88027a74bfcd6243b5282b6670e77a0f0754f1f715fa3033ea7e7f",
+      "firstSwap": {
+        "in": "100 PDMO",
+        "out": "0.04419728076657269 sCRIT",
+        "feeTotal": "0.001133263617350186 sCRIT",
+        "feeReserve": "0.000849947713012639 sCRIT",
+        "feeOps": "0.000283315904337547 sCRIT"
+      }
+    }
+  ],
+  "demoNotes": "DemoSwapHelper is unaudited one-off pilot tooling, not part of the protocol."
 }

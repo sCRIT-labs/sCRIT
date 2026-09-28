@@ -175,3 +175,15 @@ different contract address and is not backed, managed, or priced by this repo.
 The operator also accepted the risk of continuing with the current deployer
 wallet whose key was previously exposed in session output; rotation was offered
 and declined.
+
+## 5. Mainnet pilot loop (2026-09-28, all demo-only)
+
+- Deployed 13 contracts, seeded hookless sCRIT/ETH base pool (position NFT to
+  timelock), published one synthetic Au quote, attested two demo batches
+  (0.001 kg + 0.01 kg), approved the deployer as issuer via timelock.
+- Launched demo token PDMO (`0xEaad835Ab56de5EFF1D2B303B166B8aFA220C537`) in a
+  taxed `PDMO/sCRIT` pool (`0x807c3523…ad30d19`, position NFT #3370272).
+- First taxed swap (100 PDMO → 0.04419728 sCRIT) emitted `TaxCollected` with an
+  exact 2.5% fee split 75% reserve / 25% operations. Swap executed through the
+  unaudited one-off `DemoSwapHelper`; pool economics remain dust-scale and all
+  records stay labeled demo. See the mainnet manifest `projectPools` entry.
