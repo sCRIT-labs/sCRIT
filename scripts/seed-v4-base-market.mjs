@@ -2,7 +2,7 @@
 // Usage: pnpm market:seed:v4 -- --token 0x... --timelock 0x... --scrit 1000 --eth 0.25 [--manifest deployments/file.json]
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import {
-  createPublicClient, createWalletClient, defineChain, encodeAbiParameters, encodeFunctionData, http,
+  createPublicClient, createWalletClient, defineChain, encodeAbiParameters, encodeFunctionData, formatEther, http,
   keccak256, parseAbi, parseAbiParameters, parseEther, parseEventLogs,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
@@ -164,7 +164,10 @@ if (permitReceipt.status !== "success") throw new Error(`Permit2 position-manage
 
 const actions = "0x020d";
 const params = [
-  encodeAbiParameters(parseAbiParameters("((address currency0,address currency1,uint24 fee,int24 tickSpacing,address hooks) key,int24 tickLower,int24 tickUpper,uint256 liquidity,uint128 amount0Max,uint128 amount1Max,address owner,bytes hookData)"), [poolKey, tickLower, tickUpper, liquidity, amountEthMax, amountScritMax, timelock, "0x"]),
+  // 8 separate top-level params (no outer tuple): byte-identical to the
+  // launcher's abi.encode(key,tickLower,...,hookData). Wrapping in one outer
+  // tuple adds a stray offset word and reverts with SliceOutOfBounds.
+  encodeAbiParameters(parseAbiParameters("(address currency0,address currency1,uint24 fee,int24 tickSpacing,address hooks),int24 tickLower,int24 tickUpper,uint256 liquidity,uint128 amount0Max,uint128 amount1Max,address owner,bytes hookData"), [poolKey, tickLower, tickUpper, liquidity, amountEthMax, amountScritMax, timelock, "0x"]),
   encodeAbiParameters(parseAbiParameters("address currency0,address currency1"), [ZERO, token]),
 ];
 const unlockData = encodeAbiParameters(parseAbiParameters("bytes actions,bytes[] params"), [actions, params]);

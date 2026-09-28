@@ -92,8 +92,13 @@
     },
     "poolId": "0xd029d347e9706be039efab5de2da16919fc145d31ea0e3c9a8bd0a773bf6c69e",
     "stateView": "0xf3334192d15450cdd385c8b70e03f9a6bd9e673b",
-    "seeded": false,
-    "note": "Canonical hookless native-ETH/sCRIT pool; seed only after sCRIT issuance and explicit ETH liquidity are available."
+    "seeded": true,
+    "positionId": "3370083",
+    "initializedTx": "0xe1d56d831c4ea6305d1c47c5298fce39f335e50954b8086e03b2764609d94c50",
+    "liquidityTx": "0xe1d56d831c4ea6305d1c47c5298fce39f335e50954b8086e03b2764609d94c50",
+    "fee": "0.30% LP · no hook tax",
+    "seedProvider": "0xCdbdc82A021071eE445d9f897433a7E4B4EAfD8d",
+    "positionOwner": "0x00824e9c6075ff2ceb10009de7f170fc6721df1a"
   },
   "v4": {
     "poolManager": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
