@@ -188,6 +188,17 @@ and declined.
   unaudited one-off `DemoSwapHelper`; pool economics remain dust-scale and all
   records stay labeled demo. See the mainnet manifest `projectPools` entry.
 
+## 6b. Issuer approval policy: fully automatic (2026-09-28)
+
+No human approves issuers. `scripts/auto-approve-issuers.mjs` runs on a
+schedule and approves every pending applicant whose wallet holds at least
+0.001 sCRIT on the target chain (checked live via RPC), writing both the
+service record and the on-chain allowlist through timelock (delay 0).
+Rationale: buying sCRIT costs real money through the taxed pool, which is the
+entire spam deterrent. Identity, token quality, and intent are explicitly NOT
+checked. A well-funded spammer can still get in; that is the accepted price of
+removing the human gate.
+
 ## 6. Timelock ops runbook (delay is 0, proposer/executor is the admin EOA)
 
 All admin writes go through `ScritTimelockController`: `schedule(target, 0,
