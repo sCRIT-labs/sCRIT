@@ -13,13 +13,18 @@ describe("holdings mapping bug repro", () => {
       BASKET.map((row, index) => [row.symbol, fakeHoldings[index + 3] as bigint | undefined])
     );
     // Buggy code leaves last 3 undefined (out of bounds) and shifts first 6.
-    // This assertion documents CORRECT behavior — it must FAIL on buggy logic:
+    // This assertion documents CORRECT behavior — it must FAIL on buggy logic.
+    // Order-independent: expectations derive from each symbol's position.
     const correct = Object.fromEntries(BASKET.map((row, index) => [row.symbol, fakeHoldings[index]]));
-    // Au should be 1kg, not 4kg:
-    expect(buggy["Au"]).not.toBe(correct["Au"]); // proves bug exists (shifted)
-    expect(correct["Au"]).toBe(1_000_000_000_000n);
-    expect(correct["Li"]).toBe(9_000_000_000_000n);
-    expect(buggy["Li"]).toBeUndefined(); // last entries out of bounds
+    const idxOf = (sym: string) => BASKET.findIndex((row) => row.symbol === sym);
+    const first = BASKET[0].symbol;
+    const last = BASKET[BASKET.length - 1].symbol;
+    expect(correct[first]).toBe(1_000_000_000_000n);
+    expect(correct[last]).toBe(BigInt(BASKET.length) * 1_000_000_000_000n);
+    expect(buggy[first]).not.toBe(correct[first]); // proves bug exists (shifted)
+    expect(buggy[last]).toBeUndefined(); // last entries out of bounds
+    expect(idxOf("Au")).toBeGreaterThanOrEqual(0);
+    expect(correct["Au"]).toBe(BigInt(idxOf("Au") + 1) * 1_000_000_000_000n);
   });
 
   it("source file must use holdings[index] (regression guard)", () => {
