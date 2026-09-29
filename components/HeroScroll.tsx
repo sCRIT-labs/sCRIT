@@ -50,9 +50,11 @@ const TICKER_ICONS: Record<string, React.ReactNode> = {
 };
 
 const TICKER_ITEMS = [
-  { label: "Au · Ag · Pt · Pd precious metals", badge: "4 INDEX TARGETS", iconKey: "au" },
-  { label: "Nd · Dy · Tb · Sc rare earths", badge: "4 INDEX TARGETS", iconKey: "ag" },
-  { label: "Battery-grade lithium carbonate", badge: "10% TARGET", iconKey: "pt" },
+  { label: "Dy · Tb heavy rare earths (HREE)", badge: "40% TARGET", iconKey: "au" },
+  { label: "Nd · Sc magnet and minor rare earths", badge: "15% TARGET", iconKey: "ag" },
+  { label: "Pt · Pd platinum-group metals", badge: "15% TARGET", iconKey: "pt" },
+  { label: "Battery-grade lithium carbonate", badge: "5% TARGET", iconKey: "pt" },
+  { label: "Au · Ag monetary ballast", badge: "25% TARGET", iconKey: "vault" },
   { label: "EIP-712 Cryptographic Attestation Engine", badge: "RESERVE GATE", iconKey: "shield" },
   { label: "Custodian-scoped attestation records", badge: "EVIDENCE FLOW", iconKey: "vault" },
   { label: "Robinhood L2 Sub-Second Settlement", badge: "EVM NATIVE", iconKey: "speed" },
@@ -117,12 +119,12 @@ export function HeroScroll() {
   const cropY = Math.max(0, (viewport.h - minDim) / 2) * progress;
   const currentCornerRadius = 48 * progress;
 
-  // Split offset: capped safely so text never touches or clips screen borders
-  const maxSafeSplit = isMobile ? 120 : Math.max(60, (viewport.w / 2) - 320);
-  const targetSplitOffset = isMobile
-    ? (targetCardSize / 2 + 32)
-    : Math.min(targetCardSize / 2 + 20, maxSafeSplit);
-  const currentSplitOffset = targetSplitOffset * progress;
+  // Center spacer between headline words that expands as card shrinks into view
+  const targetSpacerWidth = targetCardSize + (isMobile ? 24 : 64);
+  const currentSpacerWidth = 8 + (targetSpacerWidth - 8) * progress;
+
+  const targetSpacerHeight = targetCardSize + 32;
+  const currentSpacerHeight = 6 + (targetSpacerHeight - 6) * progress;
 
   // Interpolated colors
   const textColorVal = Math.round(255 * (1 - progress));
@@ -237,19 +239,25 @@ export function HeroScroll() {
           >
             <h1
               style={{
-                display: "contents",
+                display: "flex",
+                flexDirection: isMobile ? "column" : "row",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "100%",
                 color: textColor,
+                margin: 0,
+                padding: 0,
               }}
             >
               <span
                 style={{
-                  display: "inline-block",
-                  transform: isMobile
-                    ? `translateY(-${currentSplitOffset}px)`
-                    : `translateX(-${currentSplitOffset}px) scale(${1 - progress * 0.08})`,
+                  flex: isMobile ? "none" : "1 1 0",
+                  display: "flex",
+                  justifyContent: isMobile ? "center" : "flex-end",
                   textAlign: isMobile ? "center" : "right",
                   whiteSpace: "nowrap",
                   willChange: "transform",
+                  transform: `scale(${1 - progress * 0.05})`,
                 }}
               >
                 <span
@@ -262,19 +270,31 @@ export function HeroScroll() {
                     color: textColor,
                   }}
                 >
-                  Stockpile&nbsp;
+                  Stockpile
                 </span>
               </span>
 
+              {/* Dynamic breathing spacer that pushes words cleanly outside the image card */}
+              <span
+                aria-hidden="true"
+                style={{
+                  width: isMobile ? "0px" : `${currentSpacerWidth}px`,
+                  height: isMobile ? `${currentSpacerHeight}px` : "0px",
+                  flexShrink: 0,
+                  display: "inline-block",
+                  pointerEvents: "none",
+                }}
+              />
+
               <span
                 style={{
-                  display: "inline-block",
-                  transform: isMobile
-                    ? `translateY(${currentSplitOffset}px)`
-                    : `translateX(${currentSplitOffset}px) scale(${1 - progress * 0.08})`,
+                  flex: isMobile ? "none" : "1 1 0",
+                  display: "flex",
+                  justifyContent: isMobile ? "center" : "flex-start",
                   textAlign: isMobile ? "center" : "left",
                   whiteSpace: "nowrap",
                   willChange: "transform",
+                  transform: `scale(${1 - progress * 0.05})`,
                 }}
               >
                 <span
