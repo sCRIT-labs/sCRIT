@@ -43,5 +43,8 @@ jobs:
           NEXT_PUBLIC_SCRIT_TIMELOCK_TESTNET=0x9295ccce50ce773b7c5c400fdbd8d3b0b7c6bd
           ROBINHOOD_MAINNET_RPC_URL=https://rpc.mainnet.chain.robinhood.com
           SCRIT_INDEXER_RPC_URL=https://rpc.testnet.chain.robinhood.com
+          NEXT_PUBLIC_SCRIT_TESTNET=0x761333eaf1cd18d3846edb11299e4162be5e8755
+          NEXT_PUBLIC_SCRIT_LAUNCHER_TESTNET=0xff4a94315a312d076adce12c9c8c7f459194c0ef
+          NEXT_PUBLIC_SCRIT_TIMELOCK_TESTNET=0x9295ccce50ce773b7c5c400fdbd8d3b0b7c6bd
           EOF
       - run: node scripts/auto-approve-issuers.mjs
