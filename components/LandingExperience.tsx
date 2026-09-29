@@ -90,7 +90,40 @@ export function LandingExperience() {
         <div className="scrit-market-tape-track">
           {Array.from({ length: 8 }, (_, copy) => (
             <div className="scrit-market-tape-run" key={copy} aria-hidden={copy !== 0}>
-              <span>STARTER INDEX</span><b>9 COMMODITIES</b><b>DIAMONDS · RAIL B</b><b>URANIUM · UNAVAILABLE</b><b>{TAX_ACTIVE ? "PROJECT FEE 2.5%" : SCRIT_CHAIN_ID === 4663 ? "V4 HOOK PENDING" : "TESTNET FEE 0%"}</b><b>NO PEG</b>
+              <span className="scrit-market-tape-item">
+                <img src="/images/ticker/ticker_index.png" alt="" className="scrit-market-tape-icon" width={22} height={22} />
+                STARTER INDEX
+              </span>
+              <b>
+                <span className="scrit-market-tape-item">
+                  <img src="/images/ticker/ticker_commodities.png" alt="" className="scrit-market-tape-icon" width={22} height={22} />
+                  9 COMMODITIES
+                </span>
+              </b>
+              <b>
+                <span className="scrit-market-tape-item">
+                  <img src="/images/ticker/ticker_diamond.png" alt="" className="scrit-market-tape-icon" width={22} height={22} />
+                  DIAMONDS · RAIL B
+                </span>
+              </b>
+              <b>
+                <span className="scrit-market-tape-item">
+                  <img src="/images/ticker/ticker_uranium.png" alt="" className="scrit-market-tape-icon" width={22} height={22} />
+                  URANIUM · UNAVAILABLE
+                </span>
+              </b>
+              <b>
+                <span className="scrit-market-tape-item">
+                  <img src="/images/ticker/ticker_fee.png" alt="" className="scrit-market-tape-icon" width={22} height={22} />
+                  {TAX_ACTIVE ? "PROJECT FEE 2.5%" : SCRIT_CHAIN_ID === 4663 ? "V4 HOOK PENDING" : "TESTNET FEE 0%"}
+                </span>
+              </b>
+              <b>
+                <span className="scrit-market-tape-item">
+                  <img src="/images/ticker/ticker_no_peg.png" alt="" className="scrit-market-tape-icon" width={22} height={22} />
+                  NO PEG
+                </span>
+              </b>
             </div>
           ))}
         </div>
