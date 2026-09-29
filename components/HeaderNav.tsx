@@ -66,7 +66,7 @@ export function HeaderNav() {
           {/* Brand Group */}
           <Link href="/" className="nav-brand-group" aria-label="sCRIT Protocol Home">
             <div className="nav-brand-icon-wrap">
-              <ScritLogo size={26} variant="image" />
+              <ScritLogo size={28} variant="image" />
             </div>
 
             <div className="nav-brand-text-block">

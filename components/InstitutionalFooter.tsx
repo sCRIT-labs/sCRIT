@@ -78,7 +78,7 @@ export function InstitutionalFooter({ theme = "light" }: { theme?: "light" | "da
                   display: "inline-block",
                 }}
               >
-                <ScritLogo size={20} variant="image" style={{ marginRight: "10px", verticalAlign: "middle", display: "inline-block" }} />
+                <ScritLogo size={24} variant="image" style={{ marginRight: "10px", verticalAlign: "middle", display: "inline-block" }} />
                 sCRIT
               </Link>
               <p
