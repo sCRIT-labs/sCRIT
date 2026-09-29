@@ -28,33 +28,69 @@ const DISPATCH_METADATA = [
     shortTitle: "Rail A Liquidity",
     shortDesc: "Uniswap V4 Hooks & Reserve Tax",
     pillBadge: "LIQUIDITY RAIL",
-    chips: ["Uniswap V4 Hooks", "2.5% Reserve Sink", "Direct Arbitrage"],
+    chips: ["Uniswap V4 Hooks", "2.5% Reserve Sink", "Direct Arbitrage", "Singleton Hook"],
     telemetryKey: "ROUTING PROTOCOL",
     telemetryVal: "sCRIT/TOKEN Single-Hop Pool",
     statusText: "V4 HOOK ACTIVE",
     actionNote: "Inspect Rail A launchpad & liquidity pools",
+    hudStatus: "HOOK ENGAGED",
+    hudCert: "UNISWAP_V4 // SINGLETON",
+    watermark: "HOOK: 0x48a1...3f92 · ROUTING: SINGLE-HOP",
+    metrics: [
+      { val: "2.50%", label: "Reserve Fee", note: "Treasury Tax" },
+      { val: "V4 Hook", label: "Architecture", note: "Singleton Pool" },
+      { val: "100%", label: "Reserve Backed", note: "Physical Floor" },
+    ],
+    specs: [
+      { key: "EXECUTION RAIL", val: "Ecosystem Pairs Directly Against sCRIT in V4 Pools" },
+      { key: "TREASURY SINK", val: "Continuous Flow to Certified Commodity Procurement" },
+    ],
   },
   {
     pillarCode: "PILLAR 02",
     shortTitle: "Strategic Basket",
     shortDesc: "9 Minerals Across 3 Sectors",
     pillBadge: "CRITICAL BASKET",
-    chips: ["9 Strategic Minerals", "3 Commodity Classes", "Zero Synthetics"],
+    chips: ["9 Strategic Minerals", "3 Commodity Classes", "Zero Synthetics", "Audited Assays"],
     telemetryKey: "ASSET ALLOCATION",
     telemetryVal: "Battery, Magnet & Catalyst Metals",
     statusText: "ALLOCATION DEFINED",
     actionNote: "Inspect commodity targets & physical reserves",
+    hudStatus: "SECURED VAULT",
+    hudCert: "ISO-9001 // BONDED LOGISTICS",
+    watermark: "FACILITY: FREEPORT GENEVA · ZURICH LOGISTICS",
+    metrics: [
+      { val: "9 Assets", label: "Target Basket", note: "Critical Minerals" },
+      { val: "3 Sectors", label: "Asset Classes", note: "Tech Commodities" },
+      { val: "0% Synth", label: "Pure Physical", note: "No Paper Claims" },
+    ],
+    specs: [
+      { key: "ALLOCATION PROFILE", val: "Lithium, Neodymium, Dysprosium, Platinum Group" },
+      { key: "STORAGE STANDARD", val: "Insured Bonded Vaults with Segregated Lot Tracking" },
+    ],
   },
   {
     pillarCode: "PILLAR 03",
     shortTitle: "Custodian Gate",
     shortDesc: "EIP-712 Attestation Proofs",
     pillBadge: "CRYPTOGRAPHIC GATE",
-    chips: ["EIP-712 Signatures", "Assay Certified", "Verifiable On-Chain"],
+    chips: ["EIP-712 Signatures", "Assay Certified", "Verifiable On-Chain", "Zero Trust"],
     telemetryKey: "VERIFICATION GATE",
     telemetryVal: "Signed Custodian Ledger Records",
     statusText: "ATTESTATION VERIFIED",
     actionNote: "Read evidence model & signed custodian proofs",
+    hudStatus: "PROOF VERIFIED",
+    hudCert: "ECDSA // SECP256K1",
+    watermark: "STANDARD: EIP-712 TYPED DATA · ASSAY ATTESTED",
+    metrics: [
+      { val: "EIP-712", label: "Cryptographic", note: "Typed Signature" },
+      { val: "100% Purity", label: "Assay Verified", note: "Certified Lots" },
+      { val: "On-Chain", label: "Public Ledger", note: "Real-Time Proof" },
+    ],
+    specs: [
+      { key: "ATTESTATION MODEL", val: "Signatures Required Before Reserve Recognition" },
+      { key: "AUDIT TRANSPARENCY", val: "Every Batch Merkle-Linked to Assayer Documents" },
+    ],
   },
 ];
 
@@ -344,17 +380,49 @@ function DispatchKineticCard({
           style={disabled ? undefined : { top: scanTop }}
           aria-hidden="true"
         />
+        {/* Holographic Top Status & Certificate Pills */}
+        <div className="scrit-focal-image-top-tags">
+          <span className="mono-sm scrit-focal-status-tag">
+            <span className="scrit-focal-status-dot" />
+            {meta.hudStatus}
+          </span>
+          <span className="mono-sm scrit-focal-cert-tag">{meta.hudCert}</span>
+        </div>
+        {/* Holographic Bottom HUD */}
         <div className="scrit-focal-optic-hud">
-          <span className="mono-sm scrit-focal-ref">[SYS_DISPATCH_0{index + 1}]</span>
-          <span className="mono-sm scrit-focal-target-cross">◈ VERIFIED</span>
+          <span className="mono-sm scrit-focal-ref">{meta.watermark}</span>
+          <span className="mono-sm scrit-focal-target-cross">◈ ATTESTED</span>
         </div>
       </div>
 
       {/* Main Copy Content */}
       <div className="scrit-focal-card-body">
-        <span className="scrit-kicker">{item.tag}</span>
-        <h3>{item.title}</h3>
-        <p>{item.body}</p>
+        <div className="scrit-focal-intro">
+          <span className="scrit-kicker">{item.tag}</span>
+          <h3>{item.title}</h3>
+          <p>{item.body}</p>
+        </div>
+
+        {/* 3-Column Metric Matrix Display */}
+        <div className="scrit-focal-metrics-matrix">
+          {meta.metrics.map((m) => (
+            <div key={m.label} className="scrit-focal-metric-cell">
+              <span className="scrit-focal-m-val mono-sm">{m.val}</span>
+              <span className="scrit-focal-m-label">{m.label}</span>
+              <small className="scrit-focal-m-note mono-sm">{m.note}</small>
+            </div>
+          ))}
+        </div>
+
+        {/* Technical Architecture Parameter Ledger */}
+        <div className="scrit-focal-specs-ledger">
+          {meta.specs.map((s) => (
+            <div key={s.key} className="scrit-focal-spec-row">
+              <span className="mono-sm scrit-focal-spec-k">{s.key}</span>
+              <span className="scrit-focal-spec-v">{s.val}</span>
+            </div>
+          ))}
+        </div>
 
         {/* Feature Spec Chips */}
         <div className="scrit-focal-chips">

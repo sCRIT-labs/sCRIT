@@ -1960,10 +1960,10 @@ html.has-reveal-js .scrit-dispatch-scrub:not(.is-static) .scrit-dispatch-contain
 .scrit-dispatch-vault-frame {
   position: relative;
   width: 100%;
-  max-width: 620px;
-  height: 560px;
-  background: rgba(246, 243, 234, 0.5);
-  border: 1px dashed rgba(24, 26, 24, 0.18);
+  max-width: 660px;
+  height: 600px;
+  background: rgba(246, 243, 234, 0.6);
+  border: 1px dashed rgba(24, 26, 24, 0.2);
   border-radius: 6px;
   padding: 12px 14px;
   display: flex;
@@ -2072,7 +2072,7 @@ html.has-reveal-js .scrit-dispatch-scrub:not(.is-static) .scrit-dispatch-contain
 .scrit-focal-card-visual {
   position: relative;
   width: 100%;
-  height: 200px;
+  height: 165px;
   flex-shrink: 0;
   overflow: hidden;
   background: #1a1e1b;
@@ -2090,7 +2090,7 @@ html.has-reveal-js .scrit-dispatch-scrub:not(.is-static) .scrit-dispatch-contain
 .scrit-focal-card-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(14, 18, 15, 0.08) 0%, rgba(14, 18, 15, 0.65) 100%);
+  background: linear-gradient(180deg, rgba(14, 18, 15, 0.15) 0%, rgba(14, 18, 15, 0.72) 100%);
 }
 
 .scrit-focal-scanner-beam {
@@ -2104,11 +2104,55 @@ html.has-reveal-js .scrit-dispatch-scrub:not(.is-static) .scrit-dispatch-contain
   pointer-events: none;
 }
 
+.scrit-focal-image-top-tags {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 5;
+}
+
+.scrit-focal-status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 7.5px;
+  letter-spacing: 0.12em;
+  color: #ffffff;
+  background: rgba(14, 18, 15, 0.72);
+  backdrop-filter: blur(8px);
+  padding: 2px 7px;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.scrit-focal-status-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #2cb67d;
+  box-shadow: 0 0 6px #2cb67d;
+}
+
+.scrit-focal-cert-tag {
+  font-size: 7px;
+  letter-spacing: 0.12em;
+  color: #f2cf77;
+  background: rgba(14, 18, 15, 0.72);
+  backdrop-filter: blur(8px);
+  padding: 2px 7px;
+  border-radius: 2px;
+  border: 1px solid rgba(242, 207, 119, 0.35);
+}
+
 .scrit-focal-optic-hud {
   position: absolute;
   bottom: 8px;
-  left: 12px;
-  right: 12px;
+  left: 10px;
+  right: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -2118,62 +2162,150 @@ html.has-reveal-js .scrit-dispatch-scrub:not(.is-static) .scrit-dispatch-contain
 }
 
 .scrit-focal-ref {
-  font-size: 8px;
-  letter-spacing: 0.14em;
-  opacity: 0.9;
+  font-size: 7.5px;
+  letter-spacing: 0.12em;
+  opacity: 0.95;
 }
 
 .scrit-focal-target-cross {
-  font-size: 8px;
+  font-size: 7.5px;
   font-weight: 600;
   letter-spacing: 0.12em;
   color: #f2cf77;
 }
 
 .scrit-focal-card-body {
-  padding: 14px 18px;
+  padding: 12px 16px;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 0;
+}
+
+.scrit-focal-intro {
   display: flex;
   flex-direction: column;
 }
 
-.scrit-focal-card-body .scrit-kicker {
+.scrit-focal-intro .scrit-kicker {
   font-size: 7.5px;
   font-weight: 600;
   letter-spacing: 0.14em;
   color: var(--moss);
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
-.scrit-focal-card-body h3 {
-  font: 450 clamp(17px, 1.7vw, 23px) / 1.15 var(--font-serif);
+.scrit-focal-intro h3 {
+  font: 450 clamp(18px, 1.9vw, 24px) / 1.12 var(--font-serif);
   letter-spacing: -0.035em;
   color: var(--ink);
-  margin: 0 0 6px;
+  margin: 0 0 4px;
 }
 
-.scrit-focal-card-body p {
-  font-size: 10.5px;
-  line-height: 1.5;
+.scrit-focal-intro p {
+  font-size: 11px;
+  line-height: 1.48;
   color: #4b5247;
-  margin: 0 0 10px;
+  margin: 0;
 }
 
+/* 3-Column Metric Matrix */
+.scrit-focal-metrics-matrix {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  background: rgba(24, 26, 24, 0.03);
+  border: 1px solid rgba(24, 26, 24, 0.09);
+  padding: 7px 10px;
+  border-radius: 3px;
+}
+
+.scrit-focal-metric-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  border-right: 1px solid rgba(24, 26, 24, 0.08);
+  padding-right: 6px;
+}
+
+.scrit-focal-metric-cell:last-child {
+  border-right: none;
+  padding-right: 0;
+}
+
+.scrit-focal-m-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.scrit-focal-m-label {
+  font-size: 8px;
+  font-weight: 600;
+  color: #454d41;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.scrit-focal-m-note {
+  font-size: 7px;
+  color: var(--moss);
+  letter-spacing: 0.04em;
+  opacity: 0.9;
+}
+
+/* Architecture Specs Ledger */
+.scrit-focal-specs-ledger {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: #ffffff;
+  border: 1px solid rgba(24, 26, 24, 0.08);
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+.scrit-focal-spec-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.scrit-focal-spec-k {
+  font-size: 7px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--moss);
+  flex-shrink: 0;
+}
+
+.scrit-focal-spec-v {
+  font-size: 9px;
+  color: #3b4237;
+  text-align: right;
+  line-height: 1.35;
+}
+
+/* Feature Spec Chips */
 .scrit-focal-chips {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
-  margin-top: auto;
 }
 
 .scrit-focal-chip {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: 8px;
-  letter-spacing: 0.08em;
-  background: rgba(24, 26, 24, 0.06);
-  padding: 2.5px 7px;
+  gap: 4px;
+  font-size: 7.5px;
+  letter-spacing: 0.06em;
+  background: rgba(24, 26, 24, 0.05);
+  padding: 2px 6px;
   border-radius: 2px;
   color: #373d34;
   border: 1px solid rgba(24, 26, 24, 0.08);
@@ -2186,11 +2318,12 @@ html.has-reveal-js .scrit-dispatch-scrub:not(.is-static) .scrit-dispatch-contain
   background: var(--moss);
 }
 
+/* Footer Link & Action */
 .scrit-focal-card-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 18px;
+  padding: 9px 16px;
   background: #f3efe6;
   border-top: 1px solid rgba(24, 26, 24, 0.1);
   margin-top: auto;
@@ -2209,7 +2342,7 @@ html.has-reveal-js .scrit-dispatch-scrub:not(.is-static) .scrit-dispatch-contain
 }
 
 .scrit-focal-foot-val {
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 600;
   color: var(--ink);
 }
@@ -2218,7 +2351,7 @@ html.has-reveal-js .scrit-dispatch-scrub:not(.is-static) .scrit-dispatch-contain
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 9.5px;
+  font-size: 9px;
   font-weight: 600;
   color: var(--ink);
   text-decoration: none;
