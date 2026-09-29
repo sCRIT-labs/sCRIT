@@ -52,7 +52,7 @@ export const ReserveSimulator: React.FC = () => {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
             <div>
               <span className="mono-sm" style={{ color: "var(--gold-bright)", textTransform: "uppercase", letterSpacing: "0.12em" }}>
-                SIMULATION CONSOLE · DEV BRIEF §13
+                SIMULATION CONSOLE · ECONOMIC MODEL
               </span>
               <h3 style={{ fontFamily: "var(--font-serif)", fontSize: 24, margin: "4px 0 0" }}>
                 Physical Reserve Cycle
@@ -64,7 +64,7 @@ export const ReserveSimulator: React.FC = () => {
               <button
                 className={`bullion-tab ${accrualMode === "mint" ? "active" : ""}`}
                 onClick={() => setAccrualMode("mint")}
-                title="Supply expands with newly attested metal value (Brief §5.3 recommended)"
+                title="Supply expands with newly attested metal value (Standard protocol flow)"
               >
                 Mint-at-NAV
               </button>

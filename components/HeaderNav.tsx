@@ -81,20 +81,8 @@ export function HeaderNav() {
 
           {/* Desktop Center Links */}
           <div className="nav-center-menu">
-            <Link
-              href="/tokens"
-              className={`nav-menu-link ${pathname === "/tokens" ? "is-active-link" : ""}`}
-            >
-              <span>Tokens</span>
-              {pathname === "/tokens" && <span className="nav-link-dot" />}
-            </Link>
-
             <Link href="/#products" className="nav-menu-link">
-              <span>Products</span>
-            </Link>
-
-            <Link href="/#launch-model" className="nav-menu-link">
-              <span>Launch Model</span>
+              <span>Index</span>
             </Link>
 
             <Link
@@ -102,23 +90,20 @@ export function HeaderNav() {
               className={`nav-menu-link ${pathname === "/proof" ? "is-active-link" : ""}`}
             >
               <span>Evidence</span>
-              {pathname === "/proof" && <span className="nav-link-dot" />}
             </Link>
 
             <Link
-              href="/lots"
-              className={`nav-menu-link ${pathname === "/lots" ? "is-active-link" : ""}`}
+              href="/tokens"
+              className={`nav-menu-link ${pathname === "/tokens" ? "is-active-link" : ""}`}
             >
-              <span>Lots (Rail B)</span>
-              {pathname === "/lots" && <span className="nav-link-dot" />}
+              <span>Tokens</span>
             </Link>
 
             <Link
               href="/issuer"
               className={`nav-menu-link ${pathname === "/issuer" ? "is-active-link" : ""}`}
             >
-              <span>Issuer</span>
-              {pathname === "/issuer" && <span className="nav-link-dot" />}
+              <span>Issuer Desk</span>
             </Link>
 
             <Link
@@ -126,7 +111,6 @@ export function HeaderNav() {
               className={`nav-menu-link ${pathname === "/copilot" ? "is-active-link" : ""}`}
             >
               <span>Copilot AI</span>
-              {pathname === "/copilot" && <span className="nav-link-dot" />}
             </Link>
           </div>
 

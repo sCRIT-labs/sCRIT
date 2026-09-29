@@ -4,22 +4,52 @@ import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
+  ArrowRight,
   ArrowUpRight,
   Bot,
   Check,
   Compass,
   Copy,
+  Layers,
   RotateCcw,
   Send,
+  ShieldAlert,
   ShieldCheck,
   Sparkles,
   User,
+  Zap,
 } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
+import { IssuanceDraft, IssuanceDraftCard } from "@/components/IssuanceDraftCard";
 
 type Message = { role: "user" | "assistant"; content: string; source?: string };
 
-const SUGGESTED_PROMPTS = [
+type CopilotMode = "issuance" | "knowledge";
+
+const ISSUANCE_PROMPTS = [
+  {
+    label: "Lithium Cathode ($LCAT)",
+    query: "Draft Rail A issuance parameters for an EV Lithium Cathode Consortium with 1B supply.",
+  },
+  {
+    label: "Dysprosium Magnet ($DYSP)",
+    query: "Formulate issuance draft for Dysprosium rare earth permanent magnet alloy with ultra-rare tier.",
+  },
+  {
+    label: "Aerospace Scandium ($SCND)",
+    query: "Draft issuance parameters for Aerospace Scandium Alloy Syndicate paired with 2,000 sCRIT.",
+  },
+  {
+    label: "Platinum Clean Hydrogen ($PTCL)",
+    query: "Draft issuance form for Platinum Clean Hydrogen Syndicate with 2.5% hook tax.",
+  },
+  {
+    label: "Heavy Rare Earth Guild ($HREE)",
+    query: "Draft token parameters for Heavy Rare Earth Processing Guild with 500M supply.",
+  },
+];
+
+const KNOWLEDGE_PROMPTS = [
   {
     label: "9 Critical Commodities",
     query: "What are the 9 critical commodities in the sCRIT starter basket and their target allocations?",
@@ -47,18 +77,18 @@ const SUGGESTED_PROMPTS = [
 ];
 
 const THINK_STEPS = [
-  "Analyzing query…",
-  "Checking 9-commodity parameters…",
-  "Verifying EIP-712 attestation rules…",
-  "Inspecting Uniswap V4 hook specs…",
-  "Synthesizing institutional facts…",
+  "Analyzing parameters...",
+  "Checking reserve scarcity tier...",
+  "Verifying pool liquidity ratio...",
+  "Synthesizing institutional draft...",
 ];
 
-const TYPE_STEP = 12;
+const TYPE_STEP = 14;
 const TYPE_MS = 14;
-const THINK_MS = 2200;
+const THINK_MS = 2000;
 
 export default function CopilotPage() {
+  const [mode, setMode] = useState<CopilotMode>("issuance");
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
   const [pending, setPending] = useState(false);
@@ -142,7 +172,7 @@ export default function CopilotPage() {
       // Initiate progressive typewriter reveal
       setReveal({ i: updatedMessages.length - 1, n: TYPE_STEP });
     } catch {
-      setNotice("The pilot explainer is reconnecting. Please try again in a moment.");
+      setNotice("The copilot assistant is reconnecting. Please try again in a moment.");
     } finally {
       pendingRef.current = false;
       setPending(false);
@@ -179,40 +209,154 @@ export default function CopilotPage() {
     );
   }
 
+  // Parse assistant content to separate conversational markdown and issuance draft cards
+  function renderAssistantBody(rawContent: string, index: number) {
+    const text = visibleText({ role: "assistant", content: rawContent }, index);
+    const draftMatch = text.match(/```json:issuance_draft\s*([\s\S]*?)\s*```/);
+    let parsedDraft: IssuanceDraft | null = null;
+    let cleanText = text;
+
+    if (draftMatch && draftMatch[1]) {
+      try {
+        parsedDraft = JSON.parse(draftMatch[1]) as IssuanceDraft;
+        cleanText = text.replace(/```json:issuance_draft[\s\S]*?```/, "").trim();
+      } catch {
+        // partial json while typewriter streaming, render cleanly
+      }
+    }
+
+    return (
+      <div>
+        {cleanText && (
+          <div className="md-body">
+            <Markdown remarkPlugins={[remarkGfm]}>{cleanText}</Markdown>
+          </div>
+        )}
+        {parsedDraft && (
+          <IssuanceDraftCard draft={parsedDraft} />
+        )}
+      </div>
+    );
+  }
+
   return (
     <PageShell>
-      <header className="proof-page-head scrit-reveal" style={{ maxWidth: 880, marginBottom: 32 }}>
+      <header className="proof-page-head scrit-reveal" style={{ maxWidth: 1100, marginBottom: 28 }}>
         <p className="eyebrow" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-          <Sparkles size={13} color="var(--signal)" /> sCRIT PROTOCOL · PILOT RESEARCH COPILOT
+          <Sparkles size={13} color="var(--signal)" /> sCRIT PROTOCOL · INSTITUTIONAL COPILOT
         </p>
         <h1
           style={{
             fontFamily: "var(--font-serif)",
-            fontSize: "clamp(34px, 4.5vw, 56px)",
+            fontSize: "clamp(20px, 3.6vw, 44px)",
             fontWeight: 450,
             letterSpacing: "-0.035em",
             margin: "14px 0 16px",
-            lineHeight: 1.08,
+            lineHeight: 1.15,
             color: "var(--ink)",
+            whiteSpace: "nowrap",
           }}
         >
-          Documented facts,<br /><em>and transparent boundaries.</em>
+          Issuance Form Drafter, <em>and Protocol Intelligence.</em>
         </h1>
-        <p style={{ color: "#5a6158", fontSize: 15, lineHeight: 1.65, margin: 0, maxWidth: 740 }}>
-          This protocol intelligence copilot presents objective architectural and contract facts. Answers are derived from verified tokenomics, 9-commodity reserve targets, EIP-712 custody records, and Uniswap V4 Hook mechanics. Does not provide investment, legal, or tax advice.
+        <p style={{ color: "#5a6158", fontSize: 15, lineHeight: 1.65, margin: 0, maxWidth: 820 }}>
+          This copilot assists issuers in formulating compliant Rail A token parameters into human-reviewed draft state, while providing verified facts on 9-commodity reserves, EIP-712 custody attestations, and Uniswap V4 pool mechanics.
         </p>
       </header>
 
-      {/* Suggested Questions Grid */}
-      <section className="scrit-reveal" aria-label="Suggested Prompt Chips" style={{ maxWidth: 960, marginBottom: 20 }}>
+      {/* Mode Switcher Tabs */}
+      <section
+        className="scrit-reveal"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          marginBottom: 18,
+          flexWrap: "wrap",
+        }}
+      >
+        <div
+          style={{
+            display: "inline-flex",
+            padding: 3,
+            background: "#ebe7dc",
+            borderRadius: 6,
+            border: "1px solid rgba(24, 26, 24, 0.12)",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setMode("issuance")}
+            style={{
+              padding: "6px 14px",
+              fontSize: 12,
+              fontFamily: "var(--font-mono)",
+              fontWeight: mode === "issuance" ? 700 : 500,
+              borderRadius: 4,
+              border: "none",
+              background: mode === "issuance" ? "#ffffff" : "transparent",
+              color: mode === "issuance" ? "var(--ink)" : "#636a60",
+              boxShadow: mode === "issuance" ? "0 2px 8px rgba(0,0,0,0.08)" : "none",
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              transition: "all 0.16s ease",
+            }}
+          >
+            <Sparkles size={13} color={mode === "issuance" ? "#8c6418" : "#636a60"} />
+            <span>Issuance Form Drafter</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode("knowledge")}
+            style={{
+              padding: "6px 14px",
+              fontSize: 12,
+              fontFamily: "var(--font-mono)",
+              fontWeight: mode === "knowledge" ? 700 : 500,
+              borderRadius: 4,
+              border: "none",
+              background: mode === "knowledge" ? "#ffffff" : "transparent",
+              color: mode === "knowledge" ? "var(--ink)" : "#636a60",
+              boxShadow: mode === "knowledge" ? "0 2px 8px rgba(0,0,0,0.08)" : "none",
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              transition: "all 0.16s ease",
+            }}
+          >
+            <Compass size={13} color={mode === "knowledge" ? "#536753" : "#636a60"} />
+            <span>Protocol Knowledge & Proof</span>
+          </button>
+        </div>
+
+        <div
+          className="mono-sm"
+          style={{
+            fontSize: 11,
+            color: "#6b7267",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+          }}
+        >
+          <ShieldAlert size={13} color="#8c6418" />
+          <span>Output lands strictly in draft state · Never auto-submits</span>
+        </div>
+      </section>
+
+      {/* Suggested Questions Grid based on Mode */}
+      <section className="scrit-reveal" aria-label="Suggested Prompt Chips" style={{ width: "100%", marginBottom: 20 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-          <Compass size={14} color="var(--moss)" />
+          <Layers size={14} color="var(--moss)" />
           <span className="mono-sm" style={{ fontWeight: 600, color: "#6c7368", letterSpacing: "0.05em", textTransform: "uppercase" }}>
-            Popular Research Topics:
+            {mode === "issuance" ? "Suggested Issuance Proposals:" : "Popular Protocol Inquiries:"}
           </span>
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-          {SUGGESTED_PROMPTS.map((p, idx) => (
+          {(mode === "issuance" ? ISSUANCE_PROMPTS : KNOWLEDGE_PROMPTS).map((p, idx) => (
             <button
               key={idx}
               type="button"
@@ -251,9 +395,9 @@ export default function CopilotPage() {
       {/* Main Chat Panel */}
       <section
         className="panel scrit-reveal"
-        aria-label="sCRIT pilot explainer console"
+        aria-label="sCRIT institutional copilot console"
         style={{
-          maxWidth: 960,
+          width: "100%",
           padding: 0,
           overflow: "hidden",
           background: "#ffffff",
@@ -276,21 +420,14 @@ export default function CopilotPage() {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: "50%",
-                background: "#2e7d32",
-                boxShadow: "0 0 8px rgba(46, 125, 50, 0.5)",
-              }}
-            />
             <div>
               <b style={{ display: "block", fontSize: 13.5, color: "var(--ink)", fontWeight: 650 }}>
-                Pilot Knowledge Engine Active
+                {mode === "issuance" ? "Issuance Parameter Formulator Active" : "Protocol Knowledge Engine Active"}
               </b>
               <span className="mono-sm" style={{ fontSize: 11, color: "#6e756b" }}>
-                9 Critical Commodities · EIP-712 Proof · Uniswap V4 Hook
+                {mode === "issuance"
+                  ? "Token Parameter Assistant · Scarcity Tiers · 2.5% V4 Tax Hook"
+                  : "9 Critical Commodities · EIP-712 Custody Proof · Uniswap V4 Hook"}
               </span>
             </div>
           </div>
@@ -322,7 +459,7 @@ export default function CopilotPage() {
           aria-live="polite"
           style={{
             minHeight: 340,
-            maxHeight: "min(62vh, 640px)",
+            maxHeight: "min(64vh, 660px)",
             overflowY: "auto",
             padding: "24px 28px",
             display: "flex",
@@ -366,10 +503,12 @@ export default function CopilotPage() {
                   color: "var(--ink)",
                 }}
               >
-                Explore sCRIT Protocol Parameters
+                {mode === "issuance" ? "Draft Your Rail A Token Parameters" : "Explore sCRIT Protocol Parameters"}
               </h3>
               <p style={{ fontSize: 13, color: "#61685e", lineHeight: 1.6, margin: "0 0 20px" }}>
-                Select a topic above or ask specific questions regarding the 9-commodity allocation, NAV pricing formulas, vault proofs, or Uniswap V4 swap fee distribution.
+                {mode === "issuance"
+                  ? "Describe your commodity thesis, mineral syndicate, or supply targets. Copilot formulates verified parameters into an interactive draft card ready to populate your Launchpad form."
+                  : "Select a topic above or ask specific questions regarding the 9-commodity allocation, NAV pricing formulas, vault proofs, or Uniswap V4 swap fee distribution."}
               </p>
               <div
                 style={{
@@ -381,7 +520,15 @@ export default function CopilotPage() {
                   fontFamily: "var(--font-mono)",
                 }}
               >
-                <ShieldCheck size={14} color="#536753" /> Answers verified against official smart contract specifications
+                {mode === "issuance" ? (
+                  <>
+                    <Zap size={14} color="#8c6418" /> Human review mandatory before signing on-chain
+                  </>
+                ) : (
+                  <>
+                    <ShieldCheck size={14} color="#536753" /> Answers verified against official smart contract specifications
+                  </>
+                )}
               </div>
             </div>
           )}
@@ -391,7 +538,7 @@ export default function CopilotPage() {
               key={`${index}-${message.role}`}
               style={{
                 alignSelf: message.role === "user" ? "flex-end" : "flex-start",
-                maxWidth: message.role === "user" ? "min(82%, 620px)" : "min(92%, 760px)",
+                maxWidth: message.role === "user" ? "min(82%, 620px)" : "min(92%, 780px)",
                 padding: message.role === "user" ? "14px 18px" : "18px 22px",
                 borderRadius: 4,
                 background: message.role === "user" ? "#fbf3de" : "#ffffff",
@@ -432,9 +579,9 @@ export default function CopilotPage() {
                     </>
                   ) : (
                     <>
-                      <Bot size={13} color="var(--moss)" />
+                      <Sparkles size={13} color="var(--signal)" />
                       <span className="mono-sm" style={{ fontWeight: 700, color: "var(--moss)", fontSize: 10 }}>
-                        sCRIT RESEARCH COPILOT
+                        sCRIT INSTITUTIONAL COPILOT
                       </span>
                     </>
                   )}
@@ -460,7 +607,7 @@ export default function CopilotPage() {
                           display: "inline-flex",
                           alignItems: "center",
                           gap: 4,
-                          color: copiedIdx === index ? "#2e7d32" : "#6c7368",
+                          color: copiedIdx === index ? "#b8962e" : "#6c7368",
                         }}
                       >
                         {copiedIdx === index ? <Check size={11} /> : <Copy size={11} />}
@@ -472,11 +619,7 @@ export default function CopilotPage() {
               </div>
 
               {message.role === "assistant" ? (
-                <div className="md-body">
-                  <Markdown remarkPlugins={[remarkGfm]}>
-                    {visibleText(message, index)}
-                  </Markdown>
-                </div>
+                renderAssistantBody(message.content, index)
               ) : (
                 <p style={{ margin: 0, lineHeight: 1.65, whiteSpace: "pre-wrap" }}>
                   {message.content}
@@ -485,7 +628,7 @@ export default function CopilotPage() {
             </article>
           ))}
 
-          {/* Thinking animation state with bouncing gold dots */}
+          {/* Thinking animation state */}
           {pending && (
             <div
               style={{
@@ -540,7 +683,7 @@ export default function CopilotPage() {
           )}
         </div>
 
-        {/* Input Bar Form with Auto-grow Textarea */}
+        {/* Input Bar Form */}
         <form
           onSubmit={handleFormSubmit}
           style={{
@@ -556,98 +699,79 @@ export default function CopilotPage() {
             style={{
               flex: 1,
               display: "flex",
-              alignItems: "center",
-              background: "#ffffff",
-              border: "1.5px solid rgba(24, 26, 24, 0.2)",
-              borderRadius: 3,
-              padding: "4px 12px",
-              minHeight: 46,
-              transition: "border-color 0.18s ease",
+              flexDirection: "column",
+              border: "1px solid rgba(24, 26, 24, 0.2)",
+              borderRadius: 4,
+              background: "#faf9f5",
+              padding: "8px 12px",
+              boxShadow: "inset 0 1px 3px rgba(0, 0, 0, 0.03)",
             }}
           >
             <textarea
               ref={areaRef}
               rows={1}
-              maxLength={1200}
               value={draft}
-              placeholder="Ask about 9-commodity parameters, peg, V4 fee, or EIP-712… (Enter to send, Shift+Enter for newline)"
-              aria-label="Ask about the sCRIT pilot"
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={handleKeyDown}
-              disabled={pending}
+              placeholder={
+                mode === "issuance"
+                  ? "Describe your commodity venture or request parameter drafting (e.g. 'Help me draft an EV lithium cathode token with 1B supply')..."
+                  : "Ask about 9 commodities, EIP-712 signatures, 2.5% hook tax, or reserve limits..."
+              }
+              aria-label="Ask Copilot"
               style={{
                 width: "100%",
-                resize: "none",
-                border: "none",
                 background: "transparent",
+                border: "none",
                 outline: "none",
-                padding: "8px 0",
+                resize: "none",
                 fontSize: 13.5,
-                color: "var(--ink)",
                 lineHeight: 1.5,
+                color: "var(--ink)",
                 fontFamily: "inherit",
               }}
             />
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginTop: 6,
+                paddingTop: 4,
+                borderTop: "1px dashed rgba(24, 26, 24, 0.1)",
+              }}
+            >
+              <span className="mono-sm" style={{ fontSize: 10, color: "#8a9185" }}>
+                Shift+Enter for newline · Enter to send
+              </span>
+              <span className="mono-sm" style={{ fontSize: 10, color: "#8a9185" }}>
+                {draft.length}/1200
+              </span>
+            </div>
           </div>
+
           <button
-            className="btn btn-gold"
             type="submit"
-            disabled={pending || !draft.trim()}
-            aria-label="Send question"
+            disabled={!draft.trim() || pending}
+            className="btn btn-gold"
             style={{
-              height: 46,
-              padding: "0 22px",
+              height: 48,
+              padding: "0 20px",
+              fontSize: 13,
+              fontWeight: 650,
               display: "inline-flex",
               alignItems: "center",
               gap: 8,
-              borderRadius: 3,
-              fontWeight: 650,
-              cursor: pending || !draft.trim() ? "not-allowed" : "pointer",
+              borderRadius: 4,
+              boxShadow: "0 2px 10px rgba(184, 134, 11, 0.25)",
+              flexShrink: 0,
             }}
           >
             <span>Send</span>
-            <Send size={14} />
+            <Send size={13} />
           </button>
         </form>
       </section>
-
-      {/* Navigation Footnotes */}
-      <footer
-        style={{
-          maxWidth: 960,
-          marginTop: 18,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: 12,
-        }}
-      >
-        <p className="mono-sm" style={{ margin: 0, color: "#6b7267", fontSize: 11.5 }}>
-          <a
-            href="/proof"
-            style={{
-              display: "inline-flex",
-              gap: 5,
-              alignItems: "center",
-              color: "var(--ink)",
-              fontWeight: 600,
-              textDecoration: "underline",
-            }}
-          >
-            Open Pilot Evidence Ledger <ArrowUpRight size={13} />
-          </a>{" "}
-          · Check underlying on-chain records and custodian signatures directly.
-        </p>
-        <div style={{ display: "inline-flex", gap: 14, fontSize: 11.5 }}>
-          <a href="/launch" style={{ color: "#785208", fontWeight: 600, textDecoration: "none" }}>
-            Launchpad Rail A →
-          </a>
-          <a href="/lots" style={{ color: "var(--moss)", fontWeight: 600, textDecoration: "none" }}>
-            Orderbook Rail B →
-          </a>
-        </div>
-      </footer>
     </PageShell>
   );
 }

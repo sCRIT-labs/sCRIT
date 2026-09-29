@@ -41,11 +41,11 @@ export function PinnedDispatch({ items }: { items: Dispatch[] }) {
         <div className="scrit-dispatch-header-bar">
           <div className="scrit-dispatch-title-block">
             <span className="scrit-kicker">THE PILOT, CLEARLY STATED</span>
-            <h2>Designed around evidence.<br /><em>Honest about the limits.</em></h2>
+            <h2>Designed around evidence. <em>Honest about the limits.</em></h2>
           </div>
           <div className="scrit-dispatch-meta-block">
             <p>Scroll through the basket, evidence model, and market limits.</p>
-            <span className="scrit-dispatch-hud-status"><i className="scrit-hud-dot" /><span className="scrit-hud-label">{activeLabel}</span></span>
+            <span className="scrit-dispatch-hud-status"><span className="scrit-hud-label">{activeLabel}</span></span>
           </div>
         </div>
         <div className="scrit-dispatch-deck">
@@ -68,7 +68,7 @@ function DispatchLayer({ item, index, progress, disabled }: { item: Dispatch; in
     <div className="scrit-dispatch-scrub-image">
       <motion.img src={item.image} alt="" loading="lazy" decoding="async" style={disabled ? undefined : { scale: imageScale }} />
       <motion.span className="scrit-dispatch-scanner-line" style={disabled ? undefined : { top: scanTop }} aria-hidden="true" />
-      <div className="scrit-dispatch-image-hud"><span className="scrit-dispatch-image-index"><i className="scrit-hud-ping" />{item.tag}</span><span className="scrit-dispatch-optic-reticle">⌖</span></div>
+      <div className="scrit-dispatch-image-hud"><span className="scrit-dispatch-image-index">{item.tag}</span><span className="scrit-dispatch-optic-reticle">⌖</span></div>
     </div>
     <div className="scrit-dispatch-scrub-copy"><span className="scrit-dispatch-card-badge mono-sm">0{index + 1}</span><span className="scrit-kicker">{item.tag}</span><h3>{item.title}</h3><p>{item.body}</p><a className="scrit-text-link" href={item.href}>{item.link}<ArrowUpRight size={15} /></a></div>
   </motion.article>;
@@ -83,11 +83,11 @@ export function PinnedIndexStory({ metrics }: { metrics: { label: string; value:
   const details = useTransform(scrollYProgress, [0, .28, .7, 1], [0, 0, 1, 1]);
   return <section ref={section} className={`scrit-scrub scrit-index-scrub${staticMotion ? " is-static" : ""}`} id="products" aria-label="From reserve records to indicative NAV">
     <div className="scrit-scrub-stage scrit-index-scrub-stage">
-      <div className="scrit-index-scrub-copy"><span className="scrit-kicker">THE sCRIT INDEX</span><h2>From evidence<br /><em>to an estimate.</em></h2><p>sCRIT is a pilot index token with a stated relationship to attested precious-metals reserve records. It is not pegged, and holders cannot redeem for metal in the pilot.</p><a className="scrit-button scrit-button-dark" href="/proof">Open reserve ledger <ArrowUpRight size={16} /></a>
+      <div className="scrit-index-scrub-copy"><span className="scrit-kicker">THE sCRIT INDEX · RAIL A</span><h2>From evidence <em>to an estimate.</em></h2><p>sCRIT is an index token anchored to attested critical commodities (battery metals, rare earths, platinum group). Every ecosystem token launched on Rail A pairs directly against sCRIT in Uniswap V4 pools.</p><a className="scrit-button scrit-button-dark" href="/proof">Open reserve ledger <ArrowUpRight size={16} /></a>
         <motion.div className="scrit-index-scrub-metrics" style={staticMotion ? undefined : { opacity: details }}>{metrics.map((metric) => <div key={metric.label}><span className="scrit-kicker">{metric.label}</span><b>{metric.value}</b><small>{metric.detail}</small></div>)}</motion.div>
       </div>
       <div className="scrit-index-scrub-visual">
-        <img className="scrit-index-scrub-base" src="/images/scrit_hero_vault.jpg" alt="Architectural view of the sCRIT reserve vault" loading="lazy" decoding="async" />
+        <img className="scrit-index-scrub-base" src="/images/scrit_critical_vault.jpg" alt="Architectural view of the sCRIT critical commodities reserve vault" loading="lazy" decoding="async" />
         <motion.img className="scrit-index-scrub-reveal" src="/images/scrit_nav_telemetry.jpg" alt="Cryptographic NAV valuation telemetry and reserve feeds" loading="lazy" decoding="async" style={staticMotion ? undefined : { opacity: revealOpacity }} />
         <motion.span className="scrit-index-scrub-caliper" style={staticMotion ? undefined : { left: divider }} />
         <span className="scrit-index-scrub-tag tag-input">RECORDED INPUTS</span><span className="scrit-index-scrub-tag tag-output">INDICATIVE NAV</span>
@@ -114,36 +114,72 @@ export function PinnedLedgerStory({ copy, lines, session }: { copy: { title: str
   const staticMotion = useStaticMotion();
   const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end end"] });
   const beamTop = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
-  return <section ref={section} className={`scrit-scrub scrit-ledger-scrub${staticMotion ? " is-static" : ""}`} id="ledger" aria-label="Pilot record status">
-    <div className="scrit-scrub-stage scrit-ledger-scrub-stage"><div className="scrit-ledger-copy"><span className="scrit-kicker">PILOT RECORD STATUS</span><h2>{copy.title}</h2><p>{copy.text}</p><a className="scrit-text-link" href="/proof">View all proof data <ArrowUpRight size={15} /></a></div>
-      <div>
-        <div className="scrit-terminal-telemetry-hud">
-          <div className="scrit-hud-telemetry-bar"><Activity size={13} className="scrit-telemetry-pulse-icon" /><span>TERMINAL TELEMETRY</span></div>
-          <div className="scrit-hud-telemetry-metrics">
-            <div className="scrit-telemetry-item"><span>SESSION</span><b>sCRIT-PILOT</b></div>
-            <div className="scrit-telemetry-item"><span>STATUS</span><b className="scrit-status-pass">READ ONLY</b></div>
-          </div>
-          <div className="scrit-hud-scroll-cue"><i className="scrit-scan-indicator-light" /><span>FOLLOW SCROLL TO VERIFY LINES</span></div>
+  return (
+    <section ref={section} className={`scrit-scrub scrit-ledger-scrub${staticMotion ? " is-static" : ""}`} id="ledger" aria-label="Pilot record status">
+      <div className="scrit-scrub-stage scrit-ledger-scrub-stage">
+        {/* Left Column: Editorial Summary */}
+        <div className="scrit-ledger-copy">
+          <span className="scrit-kicker">PILOT RECORD STATUS</span>
+          <h2>{copy.title}</h2>
+          <p>{copy.text}</p>
+          <a className="scrit-text-link" href="/proof">View all proof data <ArrowUpRight size={15} /></a>
         </div>
-        <div className="scrit-terminal-enhanced"><div className="scrit-terminal-crt-scanlines" aria-hidden="true" />
-          <div className="scrit-terminal-bar"><span className="scrit-terminal-window-buttons"><i className="scrit-btn-dot dot-red" /><i className="scrit-btn-dot dot-yellow" /><i className="scrit-btn-dot dot-green" /></span><span className="scrit-terminal-title"><TerminalIcon size={13} /> SYSTEM OBSERVER</span><span className="scrit-terminal-ping">LIVE</span></div>
-          <div className="scrit-terminal-body">
-            <div className="scrit-terminal-intro"><span className="scrit-intro-tag"><span className="scrit-intro-label">SESSION / sCRIT-PILOT</span><b>{session}</b></span><span className="scrit-intro-status">SYNCED</span></div>
-            <motion.span className="scrit-terminal-laser-beam" style={staticMotion ? undefined : { top: beamTop }} aria-hidden="true" />
-            <div className="scrit-terminal-lines-stack">
-              {lines.map((line, i) => <LedgerLine key={line.key} line={line} index={i} progress={scrollYProgress} disabled={staticMotion} />)}
+
+        {/* Right Column: Unified Telemetry Terminal */}
+        <div className="scrit-ledger-terminal-wrap">
+          <div className="scrit-terminal-enhanced">
+            <div className="scrit-terminal-crt-scanlines" aria-hidden="true" />
+            <div className="scrit-terminal-bar">
+              <div className="scrit-terminal-bar-left">
+                <TerminalIcon size={13} />
+                <span className="scrit-terminal-title">SYSTEM OBSERVER</span>
+                <span className="scrit-terminal-session-badge">sCRIT-PILOT</span>
+              </div>
+              <div className="scrit-terminal-bar-right">
+                <Activity size={12} className="scrit-telemetry-pulse-icon" />
+                <span className="scrit-status-pass">READ ONLY</span>
+                <span className="scrit-intro-status">SYNCED</span>
+              </div>
             </div>
-            <div className="scrit-terminal-rule" /><div className="scrit-terminal-cursor"><span>pilot.reserve.observe</span><i aria-hidden="true">_</i></div>
-            <div className="scrit-terminal-bottom-console">
-              <div className="scrit-terminal-cmd-stream"><span className="scrit-prompt-symbol">$</span><span className="scrit-prompt-cmd">pilot.reserve.observe --chain 4663</span><span className="scrit-prompt-tag">READ-ONLY</span><i className="scrit-terminal-blinker">▌</i></div>
-              <div className="scrit-terminal-status-footer"><span>INDEXER · 5 CONFIRMATIONS</span><span>NO WRITE ACCESS</span></div>
+
+            <div className="scrit-terminal-body">
+              <div className="scrit-terminal-intro">
+                <span className="scrit-intro-tag">
+                  <span className="scrit-intro-label">FEED STATUS:</span>
+                  <b>{session}</b>
+                </span>
+                <span className="scrit-terminal-scroll-hint">FOLLOW SCROLL TO VERIFY</span>
+              </div>
+
+              <motion.span className="scrit-terminal-laser-beam" style={staticMotion ? undefined : { top: beamTop }} aria-hidden="true" />
+
+              <div className="scrit-terminal-lines-stack">
+                {lines.map((line, i) => (
+                  <LedgerLine key={line.key} line={line} index={i} progress={scrollYProgress} disabled={staticMotion} />
+                ))}
+              </div>
+
+              <div className="scrit-terminal-bottom-console">
+                <div className="scrit-terminal-cmd-stream">
+                  <span className="scrit-prompt-symbol">$</span>
+                  <span className="scrit-prompt-cmd">pilot.reserve.observe --chain 4663</span>
+                  <span className="scrit-prompt-tag">AUDITED</span>
+                  <i className="scrit-terminal-blinker">▌</i>
+                </div>
+                <div className="scrit-terminal-status-footer">
+                  <span>INDEXER · 5 CONFIRMATIONS</span>
+                  <span>NO WRITE ACCESS</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <ScrubMeter progress={scrollYProgress} disabled={staticMotion} labels={["PRICE", "SUPPLY", "ATTESTATION", "STATUS"]} />
+
+        {/* Spanning Bottom Row */}
+        <ScrubMeter progress={scrollYProgress} disabled={staticMotion} labels={["CONFIG", "POOL FEE", "FEE ROUTING", "REDEMPTION", "ATTESTATION"]} />
       </div>
-    </div>
-  </section>;
+    </section>
+  );
 }
 
 function isRecordLive(value: string): boolean {
@@ -167,7 +203,7 @@ export function PinnedAssuranceStory({ items }: { items: { title: string; body: 
   const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end end"] });
   return <section ref={section} className={`scrit-scrub scrit-assurance-scrub${staticMotion ? " is-static" : ""}`} id="trust" aria-label="Pilot assurances and limitations">
       <div className="scrit-scrub-stage"><header className="scrit-assurance-header-bar">
-        <div className="scrit-assurance-title-block"><span className="scrit-kicker">TRUST, WITHOUT THE GLOSS</span><h2>What the pilot can show.<br /><em>And what it cannot promise.</em></h2></div>
+        <div className="scrit-assurance-title-block"><span className="scrit-kicker">TRUST, WITHOUT THE GLOSS</span><h2>What the pilot can show. <em>And what it cannot promise.</em></h2></div>
         <div className="scrit-assurance-meta-block"><p>Three principles, scrubbed into view. Nothing here claims custody, audit, or redemption.</p><span className="scrit-assurance-pill"><ShieldCheck size={13} className="scrit-assurance-shield-icon" /><span>{items.length} PILOT PRINCIPLES</span></span></div>
       </header>
       <div className="scrit-assurance-deck">{items.map((item, index) => <AssuranceLayer key={item.title} item={item} index={index} progress={scrollYProgress} disabled={staticMotion} />)}</div>
@@ -265,7 +301,7 @@ export function PinnedBasketStory({ items, excluded }: { items: { symbol: string
   const staticMotion = useStaticMotion();
   const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end end"] });
   return <section ref={section} className={`scrit-scrub scrit-basket-scrub${staticMotion ? " is-static" : ""}`} id="basket" aria-label="Pilot basket target weights">
-    <div className="scrit-scrub-stage scrit-basket-scrub-stage"><header className="scrit-basket-heading"><span className="scrit-kicker">A DEFINED STARTING BASKET</span><h2>Precious metals, with<br /><em>clear boundaries.</em></h2><p>Target allocation, not a claim that the reserve is fully funded.</p></header>
+    <div className="scrit-scrub-stage scrit-basket-scrub-stage"><header className="scrit-basket-heading"><span className="scrit-kicker">A DEFINED STARTING BASKET</span><h2>Precious metals, with <em>clear boundaries.</em></h2><p>Target allocation, not a claim that the reserve is fully funded.</p></header>
       <div className="scrit-basket-rows">{items.map((item, index) => <BasketLine key={item.symbol} item={item} index={index} progress={scrollYProgress} disabled={staticMotion} />)}<div className="scrit-basket-excluded"><span>Li</span><p><b>Lithium excluded</b><small>{excluded}</small></p><strong>0%</strong></div></div>
       <div className="scrit-basket-total"><span>ALLOCATION SHOWN</span><strong>100%</strong><small>Au · Ag · Pt target weights</small></div>
       <ScrubMeter progress={scrollYProgress} disabled={staticMotion} labels={["Au / GOLD", "Ag / SILVER", "Pt / PLATINUM"]} />

@@ -18,7 +18,7 @@ const ARTICLES = [
   },
   {
     image: "/images/scrit_depository_monolith.jpg",
-    meta: "Regulatory Analysis • DevBrief §11 Compliance",
+    meta: "Regulatory Analysis • Regulatory & Vault Compliance",
     title: "Navigating Strategic Asset Classes: Precious Metals, Rare Earth Scoping, and Vault Law",
     link: "/proof"
   }

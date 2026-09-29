@@ -25,12 +25,21 @@ export default function CropModal({ src, fileName, onCancel, onDone }: Props) {
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [size, setSize] = useState({ w: 0, h: 0 });
   const [busy, setBusy] = useState(false);
+  const [closing, setClosing] = useState(false);
   const [error, setError] = useState("");
   const dragRef = useRef<{ sx: number; sy: number; ox: number; oy: number } | null>(null);
 
+  function handleCancel() {
+    if (busy || closing) return;
+    setClosing(true);
+    setTimeout(() => {
+      onCancel();
+    }, 220);
+  }
+
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape" && !busy) onCancel();
+      if (e.key === "Escape" && !busy) handleCancel();
     }
     document.addEventListener("keydown", onKey);
     const prev = document.body.style.overflow;
@@ -39,7 +48,7 @@ export default function CropModal({ src, fileName, onCancel, onDone }: Props) {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prev;
     };
-  }, [busy, onCancel]);
+  }, [busy]);
 
   function onZoom(z: number) {
     const nz = clampZoom(z);
@@ -89,9 +98,9 @@ export default function CropModal({ src, fileName, onCancel, onDone }: Props) {
       role="dialog"
       aria-modal="true"
       aria-label="Crop token logo 1:1"
-      className="crop-modal-backdrop"
+      className={`crop-modal-backdrop ${closing ? "is-closing" : "is-opening"}`}
       onMouseDown={(e) => {
-        if (e.target === e.currentTarget && !busy) onCancel();
+        if (e.target === e.currentTarget && !busy) handleCancel();
       }}
     >
       <div className="crop-modal-container">
@@ -108,7 +117,7 @@ export default function CropModal({ src, fileName, onCancel, onDone }: Props) {
           <button
             type="button"
             className="crop-close-btn"
-            onClick={onCancel}
+            onClick={handleCancel}
             disabled={busy}
             aria-label="Close"
           >

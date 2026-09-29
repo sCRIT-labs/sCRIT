@@ -2889,9 +2889,9 @@ body {
 }
 
 .scrit-nav-pill-active {
-  background: rgba(46, 213, 115, 0.12);
-  border: 1px solid rgba(46, 213, 115, 0.35);
-  color: #2ed573;
+  background: rgba(208, 170, 91, 0.12);
+  border: 1px solid rgba(208, 170, 91, 0.35);
+  color: #d0aa5b;
   font-size: 11px;
   font-weight: 700;
   padding: 3px 10px;
@@ -2907,8 +2907,8 @@ body {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #2ed573;
-  box-shadow: 0 0 8px #2ed573;
+  background: #d0aa5b;
+  box-shadow: 0 0 8px #d0aa5b;
 }
 
 .scrit-nav-pill-chain {
@@ -3124,17 +3124,10 @@ body {
 
 .launch-step-dot.active {
   background: var(--gold);
-  box-shadow: 0 0 10px var(--gold);
-  animation: pulseDot 1.5s infinite;
 }
 
 .launch-step-dot.completed {
-  background: #2ed573;
-}
-
-@keyframes pulseDot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(1.3); }
+  background: var(--gold);
 }
 
 

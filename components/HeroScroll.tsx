@@ -322,7 +322,7 @@ export function HeroScroll() {
               margin: 0,
             }}
           >
-            sCRIT is a proposed commodity-index token and launchpad. Rail A pairs project tokens with sCRIT; the pilot basket weights are targets, and service-checked attestations remain off-chain. There is no peg or redemption.
+            sCRIT is a strategic commodity-index token and Uniswap V4 liquidity engine. Rail A pairs project tokens with sCRIT; trading taxes continually build physical reserves across nine technology metals (Lithium, Neodymium, Platinum).
           </p>
         </div>
 

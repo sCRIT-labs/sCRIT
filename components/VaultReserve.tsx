@@ -41,7 +41,7 @@ export const VaultReserve: React.FC = () => {
         <div className="vault rv" style={{ ["--d" as string]: "200ms" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
             <span className="mono-sm" style={{ color: "var(--gold-bright)", letterSpacing: "0.1em" }}>
-              LIVE ALLOCATED HOLDINGS
+              REPORTED ALLOCATED HOLDINGS
             </span>
             <span className="mono-sm" style={{ color: "var(--muted)", fontSize: 11 }}>
               AUDITED VAULT SPECS

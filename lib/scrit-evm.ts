@@ -4,6 +4,7 @@ import {
   custom,
   decodeAbiParameters,
   defineChain,
+  fallback,
   http,
   parseAbiParameters,
   parseEther,
@@ -91,9 +92,14 @@ function ethProvider() {
 
 export function publicClientFor(chainId: 4663 | 46630): PublicClient {
   const id = chainId;
+  const isBrowser = typeof window !== "undefined";
+  const rpcUrl = isBrowser ? `/api/rpc?chainId=${id}` : (id === 4663 ? HOOD_MAINNET.rpc : HOOD_TESTNET.rpc);
   return createPublicClient({
     chain: hoodChain(id),
-    transport: http(id === 4663 ? HOOD_MAINNET.rpc : HOOD_TESTNET.rpc),
+    transport: fallback([
+      http(rpcUrl),
+      http(id === 4663 ? HOOD_MAINNET.rpc : HOOD_TESTNET.rpc),
+    ]),
   });
 }
 
@@ -147,12 +153,29 @@ export async function scritAllowance(chainId: 4663 | 46630, owner: Address, spen
 }
 
 export async function launcherIssuerApproved(chainId: 4663 | 46630, issuer: Address, launcher: Address = scritDeploymentFor(chainId).launcher): Promise<boolean> {
-  return await publicClientFor(chainId).readContract({
-    address: launcher,
-    abi: chainId === 4663 ? SCRIT_LAUNCHER_V4_ABI : SCRIT_LAUNCHER_ABI,
-    functionName: "issuerApproved",
-    args: [issuer],
-  }) as boolean;
+  try {
+    const onchain = await publicClientFor(chainId).readContract({
+      address: launcher,
+      abi: chainId === 4663 ? SCRIT_LAUNCHER_V4_ABI : SCRIT_LAUNCHER_ABI,
+      functionName: "issuerApproved",
+      args: [issuer],
+    }) as boolean;
+    if (onchain) return true;
+  } catch {
+    // contract call could revert if RPC is unreachable or mock
+  }
+
+  // Fallback to compliance database registry
+  try {
+    if (typeof window !== "undefined") {
+      const res = await fetch(`/api/issuers?wallet=${issuer}`).then((r) => r.json()).catch(() => null);
+      if (res?.approved) return true;
+    }
+  } catch {
+    // ignore
+  }
+
+  return false;
 }
 
 export function decodeLaunchedToken(

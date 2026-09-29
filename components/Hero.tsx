@@ -64,7 +64,7 @@ export const Hero: React.FC = () => {
           {band === "alert" ? (
             <div className="notice-bad" style={{ marginTop: 14, textAlign: "left" }}>
               Significant deviation (±25%+) with no arbitrageur of record. No AP counterparties are signed;
-              price discovery is pure pool flow. See docs/decisions.md §1.
+              price discovery is governed purely by liquidity pool flow.
             </div>
           ) : band === "watch" ? (
             <div className="notice-gold" style={{ marginTop: 14, textAlign: "left" }}>

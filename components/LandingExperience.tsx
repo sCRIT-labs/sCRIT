@@ -12,55 +12,55 @@ import { PinnedAssuranceStory, PinnedBasketStory, PinnedDispatch, PinnedEditoria
 
 const DISPATCHES = [
   {
-    tag: "THE INDEX / STARTER BASKET",
-    title: "Nine target weights. One index design.",
-    body: "The starter basket spans precious metals, rare earths, and lithium. The weights are design inputs, not proof of inventory or contracted custody.",
-    image: "/images/scrit_basket_trio.jpg",
-    href: "/proof",
-    link: "Explore the reserve",
+    tag: "RAIL A · LIQUIDITY ENGINE",
+    title: "Every token anchored to physical critical reserves.",
+    body: "Rail A pairs project tokens directly against sCRIT in Uniswap V4 pools. A 2.5% trading tax feeds the reserve treasury to acquire physical tech commodities.",
+    image: "/images/scrit_uniswap_v4_rail_a.jpg",
+    href: "/launch",
+    link: "Explore Rail A Launchpad",
   },
   {
-    tag: "THE GATE / CUSTODIAN ATTESTATION",
-    title: "Evidence enters the ledger through a signed record.",
-    body: "Reserve reporting uses EIP-712 signed custodian attestations. In this pilot, signatures are verified by the service and the reserve view is derived from its recorded batches.",
+    tag: "THE INDEX · THREE ASSET CLASSES",
+    title: "Nine strategic minerals. One industrial index.",
+    body: "The starter basket spans battery metals (Lithium), permanent-magnet rare earths (Nd, Dy, Tb, Sc), and catalyst tech metals (Pt, Pd, Au, Ag).",
+    image: "/images/scrit_critical_trio.jpg",
+    href: "/proof",
+    link: "Inspect commodity targets",
+  },
+  {
+    tag: "THE GATE · CUSTODIAN ATTESTATIONS",
+    title: "Evidence enters the ledger through signed records.",
+    body: "Reserve reporting uses EIP-712 signed custodian attestations. In this pilot, signatures are verified before any physical mass is recognized on-chain.",
     image: "/images/scrit_attestation_network.jpg",
     href: "/proof",
     link: "Read the evidence model",
-  },
-  {
-    tag: "THE MARKET / NO PEG OR REDEMPTION",
-    title: "Market price can move away from reserve value.",
-    body: "sCRIT is not pegged and has no redemption in the pilot. The interface keeps that distinction visible while price discovery develops.",
-    image: "/images/scrit_kinetic_scale.jpg",
-    href: "/legal/risk",
-    link: "Review the risks",
   },
 ];
 
 const STORY = [
   {
     index: "COMPOSITION",
-    title: "Start with a defined basket.",
-    copy: "Target weights span Au, Ag, Pt, Pd, Nd, Dy, Tb, Sc, and Li. They describe a starter design, not current physical holdings.",
-    image: "/images/scrit_gold_vault.jpg",
+    title: "Strategic & critical technology commodities.",
+    copy: "Target weights span Lithium, Neodymium, Dysprosium, Terbium, Scandium, Platinum, Palladium, Gold, and Silver. Engineering a verifiable physical floor.",
+    image: "/images/scrit_rare_earths.jpg",
     metric: "9 ASSETS",
-    metricLabel: "STARTER INDEX BASKET",
+    metricLabel: "CRITICAL RESERVE BASKET",
   },
   {
-    index: "EVIDENCE",
-    title: "Count only signed records.",
-    copy: "A custodian key signs a typed batch record. The pilot service checks the signature and configured scope before the batch appears in the reserve ledger.",
-    image: "/images/scrit_custody_sign.jpg",
+    index: "LIQUIDITY ENGINE",
+    title: "Rail A Uniswap V4 paired pools.",
+    copy: "Every ecosystem launch seeds against sCRIT. The on-chain trading tax continually flows into physical commodity procurement from certified suppliers.",
+    image: "/images/scrit_uniswap_v4_rail_a.jpg",
+    metric: "UNISWAP V4",
+    metricLabel: "RAIL A RESERVE ENGINE",
+  },
+  {
+    index: "ASSAY EVIDENCE",
+    title: "Count only signed custodian records.",
+    copy: "Physical warehouse intake requires cryptographic EIP-712 attestations with assay certificates. No unbacked minting or hypothetical claims.",
+    image: "/images/scrit_battery_assay.jpg",
     metric: "EIP-712",
     metricLabel: "OFF-CHAIN SIGNATURE CHECK",
-  },
-  {
-    index: "MARKET",
-    title: "Keep NAV and market price distinct.",
-    copy: "NAV is estimated from attested mass and manual commodity prices. The market can trade above or below that estimate; there is no pilot redemption arbitrage.",
-    image: "/images/scrit_market_scale.jpg",
-    metric: "NO PEG",
-    metricLabel: "NO PILOT REDEMPTION",
   },
 ];
 
@@ -90,7 +90,7 @@ export function LandingExperience() {
         <div className="scrit-market-tape-track">
           {Array.from({ length: 8 }, (_, copy) => (
             <div className="scrit-market-tape-run" key={copy} aria-hidden={copy !== 0}>
-              <span><i /> STARTER INDEX</span><b>9 COMMODITIES</b><b>DIAMONDS · RAIL B</b><b>URANIUM · UNAVAILABLE</b><b>{TAX_ACTIVE ? "PROJECT FEE 2.5%" : SCRIT_CHAIN_ID === 4663 ? "V4 HOOK PENDING" : "TESTNET FEE 0%"}</b><b>NO PEG</b>
+              <span>STARTER INDEX</span><b>9 COMMODITIES</b><b>DIAMONDS · RAIL B</b><b>URANIUM · UNAVAILABLE</b><b>{TAX_ACTIVE ? "PROJECT FEE 2.5%" : SCRIT_CHAIN_ID === 4663 ? "V4 HOOK PENDING" : "TESTNET FEE 0%"}</b><b>NO PEG</b>
             </div>
           ))}
         </div>
@@ -130,17 +130,26 @@ export function LandingExperience() {
       <div data-nav-theme="dark">
         <PinnedAssuranceStory items={[
           { mark: "EIP", title: "Signatures tied to a custodian", body: "Attestation signatures are checked against the configured custodian key and its pilot commodity scope.", href: "/proof", link: "See the attestation ledger", image: "/images/scrit_hardware_key.jpg" },
-          { mark: "9×", title: "Three commodity classes", body: "The index design targets precious metals, rare earths, and battery-grade lithium. Uranium remains outside the MVP; diamonds use individually certified Rail B lots only.", href: "/proof", link: "Review basket targets", image: "/images/scrit_platinum_assay.jpg" },
+          { mark: "9×", title: "Three commodity classes", body: "The index design targets precious metals, rare earths, and battery-grade lithium. Uranium remains outside the MVP; diamonds use individually certified Rail B lots only.", href: "/proof", link: "Review basket targets", image: "/images/scrit_critical_vault.jpg" },
           { mark: "NAV", title: "No redemption path", body: "sCRIT is not pegged. No authorised participant is active and physical redemption is unavailable in this pilot.", href: "/legal/risk", link: "Read the risk disclosure", image: "/images/scrit_vault_barrier.jpg" },
         ]} />
       </div>
 
       <div data-nav-theme="light">
-        <PinnedLaunchStory image="/images/scrit_silver_vault.jpg">
-          <h2>Project tokens<br /><em>pair against<br />sCRIT.</em></h2>
-          <p>Approved issuers can create a project token and seed a TOKEN/sCRIT pool. Mainnet project pools use the V4 hook for a 2.5% swap fee split 75/25; testnet V3 rehearsal pools do not collect that fee.</p>
+        <PinnedLaunchStory image="/images/scrit_uniswap_v4_rail_a.jpg">
+          <h2 style={{ whiteSpace: "nowrap" }}>Project tokens <em>pair against sCRIT.</em></h2>
+          <p>Approved issuers create tokens backed by Uniswap V4 pools paired directly with sCRIT. On mainnet, a 2.5% swap tax feeds physical critical commodity procurement; Rail B manages certified individual warehouse lots.</p>
           <div className="scrit-launch-facts"><div><b>0%</b><span>Rail A issuance fee</span></div><div><b>2.5%</b><span>mainnet project-pool fee · 75/25</span></div></div>
-          <a className="scrit-button scrit-button-dark" href="/launch">Explore token launch <ArrowRight size={16} /></a>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 24 }}>
+            <a className="scrit-button" href="/issuer" style={{ background: "#d9a92e", color: "#121411", borderColor: "#c29323", display: "inline-flex", alignItems: "center", gap: 8, padding: "0 22px" }}>
+              <span>Step 1 · Issuer Clearance</span>
+              <ArrowRight size={15} />
+            </a>
+            <a className="scrit-button scrit-button-dark" href="/launch" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "0 22px" }}>
+              <span>Step 2 · Strike Pair</span>
+              <ArrowRight size={15} />
+            </a>
+          </div>
         </PinnedLaunchStory>
       </div>
 

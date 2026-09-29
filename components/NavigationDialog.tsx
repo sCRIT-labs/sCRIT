@@ -35,16 +35,26 @@ export interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   {
     num: "01",
+    label: "Institutional Issuer Desk",
+    badge: "STEP 1",
+    description: "Guided onboarding and dual-gate compliance clearance pipeline required before token launch.",
+    href: "/issuer",
+    image: "/images/scrit_depository_facade.jpg",
+    tag: "QUALIFIED ISSUERS · DUAL-GATE CLEARANCE",
+    specs: ["Service Review Desk", "Launcher Whitelist", "Audit Log Pipeline"],
+  },
+  {
+    num: "02",
     label: "Liquidity Engine & Launchpad",
-    badge: "RAIL A",
-    description: "Deploy community tokens and strike concentrated Uniswap V4 liquidity pools anchored to sCRIT.",
+    badge: "STEP 2",
+    description: "Deploy ecosystem tokens and strike concentrated Uniswap V4 liquidity pools anchored to sCRIT.",
     href: "/launch",
-    image: "/images/scrit_kinetic_scale.jpg",
+    image: "/images/scrit_uniswap_v4_rail_a.jpg",
     tag: "UNISWAP V4 HOOK · CONCENTRATED LP",
     specs: ["2.5% Hook Fee (75% Reserve / 25% Ops)", "0.30% Pool Fee", "Robinhood Chain"],
   },
   {
-    num: "02",
+    num: "03",
     label: "Reserve Tokens Directory",
     badge: "ECOSYSTEM",
     description: "Verified registry of all tokens launched and anchored to the physical commodity index.",
@@ -54,7 +64,7 @@ const NAV_ITEMS: NavItem[] = [
     specs: ["Canonical Mainnet & Testnet", "Real-Time LP Depth", "Contract Links"],
   },
   {
-    num: "03",
+    num: "04",
     label: "Reserve Evidence & Proof of Reserve",
     badge: "PROOF",
     description: "Inspect on-chain NAV estimates, attested custody batch records, and audited cryptographic signatures.",
@@ -64,7 +74,7 @@ const NAV_ITEMS: NavItem[] = [
     specs: ["9 Commodity Feeds", "Audited Vault Batches", "Zero Peg Disclaimers"],
   },
   {
-    num: "04",
+    num: "05",
     label: "Certified Commodity Lots",
     badge: "RAIL B",
     description: "Fractionalized 100-unit physical precious metal and certified gem lots settled on-chain.",
@@ -74,34 +84,24 @@ const NAV_ITEMS: NavItem[] = [
     specs: ["Automated Order Escrow", "On-Chain Settle", "Direct sCRIT Pairs"],
   },
   {
-    num: "05",
-    label: "Institutional Issuer Desk",
-    badge: "PARTNERS",
-    description: "Onboarding and attestation submission pipeline for qualified commodity depository partners.",
-    href: "/issuer",
-    image: "/images/scrit_depository_facade.jpg",
-    tag: "QUALIFIED CUSTODIANS · ATTESTATIONS",
-    specs: ["Service Review Desk", "Launcher Whitelist", "Audit Log Pipeline"],
-  },
-  {
     num: "06",
     label: "Pilot Intelligence Copilot",
     badge: "AI GUIDE",
     description: "Real-time conversational agent explaining basket composition, risk models, and mechanics.",
     href: "/copilot",
-    image: "/images/scrit_assay_lab.jpg",
+    image: "/images/scrit_battery_assay.jpg",
     tag: "NEURAL FINTECH AGENT · CONTEXT AWARE",
     specs: ["Upstream LLM Streaming", "Knowledge Base RAG", "Protocol Disclosures"],
   },
   {
     num: "07",
-    label: "Nine Physical Commodity Index",
+    label: "Nine Strategic Commodity Index",
     badge: "OVERVIEW",
-    description: "Target basket architecture spanning Gold, Silver, Platinum, Palladium, and critical tech metals.",
+    description: "Target basket architecture spanning battery metals (Lithium), permanent magnets (Nd, Dy), and tech metals.",
     href: "/#products",
-    image: "/images/scrit_vault_core.jpg",
+    image: "/images/scrit_critical_vault.jpg",
     tag: "9 PHYSICAL TARGET COMMODITIES",
-    specs: ["Au · Ag · Pt · Pd", "Nd · Dy · Tb · Sc · Li", "Strictly Non-Pegged"],
+    specs: ["Li · Nd · Dy · Tb · Sc", "Pt · Pd · Au · Ag", "Strictly Non-Pegged"],
   },
   {
     num: "08",
@@ -131,17 +131,40 @@ interface NavigationDialogProps {
 }
 
 export function NavigationDialog({ isOpen, onClose }: NavigationDialogProps) {
+  const [isRendered, setIsRendered] = useState(isOpen);
+  const [isClosing, setIsClosing] = useState(false);
   const [activeItem, setActiveItem] = useState<NavItem>(NAV_ITEMS[0]);
   const router = useRouter();
   const dialogRef = useRef<HTMLDivElement>(null);
   const activeNetwork = SCRIT_CHAIN_ID === 4663 ? HOOD_MAINNET : HOOD_TESTNET;
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (isOpen) {
+      setIsRendered(true);
+      setIsClosing(false);
+    } else if (isRendered) {
+      setIsClosing(true);
+      const timer = setTimeout(() => {
+        setIsRendered(false);
+        setIsClosing(false);
+      }, 240);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, isRendered]);
+
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+    }, 220);
+  };
+
+  useEffect(() => {
+    if (!isRendered) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        onClose();
+        handleClose();
       }
     };
 
@@ -154,12 +177,12 @@ export function NavigationDialog({ isOpen, onClose }: NavigationDialogProps) {
       document.body.style.overflow = originalOverflow;
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen, onClose]);
+  }, [isRendered]);
 
-  if (!isOpen) return null;
+  if (!isRendered) return null;
 
   const handleNavigate = (href: string) => {
-    onClose();
+    handleClose();
     if (href.startsWith("#")) {
       const el = document.querySelector(href);
       if (el) {
@@ -172,9 +195,9 @@ export function NavigationDialog({ isOpen, onClose }: NavigationDialogProps) {
 
   return (
     <div
-      className="nav-dialog-backdrop"
+      className={`nav-dialog-backdrop ${isClosing ? "is-closing" : "is-opening"}`}
       onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (e.target === e.currentTarget) handleClose();
       }}
       role="dialog"
       aria-modal="true"
@@ -201,7 +224,7 @@ export function NavigationDialog({ isOpen, onClose }: NavigationDialogProps) {
           <button
               type="button"
               className="nav-dialog-close-btn"
-              onClick={onClose}
+              onClick={handleClose}
               aria-label="Close menu"
             >
               <span>CLOSE</span>

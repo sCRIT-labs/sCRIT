@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Address } from "viem";
 import { ensureChain, scritBalanceOf } from "@/lib/scrit-evm";
 import { scritDeploymentFor } from "@/lib/scrit";
@@ -28,12 +28,33 @@ export default function WalletButton({
   onConnect: (account: Address, scritBal: bigint) => void;
   onDisconnect?: () => void;
 }) {
-  const [stored, setStored] = useState(() => loadWallet());
+  const [mounted, setMounted] = useState(false);
+  const [stored, setStored] = useState<{ id: EvmWalletId; address: string } | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
-  const walletMeta = stored ? EVM_WALLETS.find((w) => w.id === stored.id) : undefined;
+  const onConnectRef = useRef(onConnect);
+  useEffect(() => {
+    onConnectRef.current = onConnect;
+  });
+
+  useEffect(() => {
+    setMounted(true);
+    const saved = loadWallet();
+    setStored(saved);
+    if (saved?.address && /^0x[0-9a-fA-F]{40}$/.test(saved.address)) {
+      const addr = saved.address as Address;
+      onConnectRef.current(addr, 0n);
+      void scritBalanceOf(chainId, addr, scritDeploymentFor(chainId).token)
+        .then((bal) => {
+          onConnectRef.current(addr, bal);
+        })
+        .catch(() => {});
+    }
+  }, [chainId]);
+
+  const walletMeta = mounted && stored ? EVM_WALLETS.find((w) => w.id === stored.id) : undefined;
 
   async function finish(id: EvmWalletId, account: string) {
     setErr("");

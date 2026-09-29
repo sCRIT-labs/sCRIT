@@ -46,7 +46,7 @@ export const MempoolFeed: React.FC<{ atts: AttRow[]; treasury: TreasuryRow[] }> 
         id: -1,
         tag: "LIVE",
         text: `attest > ${a.batch_id} | ${a.commodity} ${a.mass_kg}kg | vault ${short(a.vault_id, 12)} | ${fmtTime(a.created_at)}`,
-        tone: "green",
+        tone: "gold",
       });
     }
     for (const t of treasury.slice(-6)) {
@@ -98,7 +98,6 @@ export const MempoolFeed: React.FC<{ atts: AttRow[]; treasury: TreasuryRow[] }> 
           <i className="lg-live">LIVE on-chain record</i>
           <i className="lg-sim">SIM ambience</i>
         </span>
-        <span className="feed-blink" aria-hidden="true" style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: "#2ed573" }} />
       </div>
       <div className="feed-body" ref={boxRef}>
         {lines.map((l) => (

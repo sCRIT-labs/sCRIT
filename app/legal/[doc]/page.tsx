@@ -37,7 +37,7 @@ const DOCS: Record<string, LegalDoc> = {
   },
   risk: {
     title: "Risk Disclosures & Market Realities",
-    badge: "Radical Transparency · DevBrief §11",
+    badge: "Radical Transparency · Protocol Disclosures",
     sections: [
       {
         heading: "1. No Physical Retail Redemption in Pilot",
@@ -123,6 +123,7 @@ export default async function Legal({ params }: { params: Promise<{ doc: string 
             letterSpacing: "-0.02em",
             margin: "12px 0 16px",
             lineHeight: 1.1,
+            whiteSpace: "nowrap",
           }}
         >
           {d.title}

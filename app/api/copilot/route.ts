@@ -3,20 +3,43 @@ import { createHmac } from "node:crypto";
 import { consumeApRateLimit } from "@/lib/db";
 
 const MAX_BODY = 16 * 1024;
-const SYSTEM = `You are the sCRIT pilot explainer. Answer strictly in professional English from the facts below; if something is not established, say so plainly. Never invent reserve holdings, prices, partners, audits, approvals, or contract capabilities. Do not recommend buying, selling, or trading any asset. Do not give legal, tax, or investment advice. Keep answers concise, factual, and strictly in English.
+const SYSTEM = `You are the sCRIT Institutional Copilot: Pilot Explainer and Issuance Form Drafting Assistant for Rail A Launchpad.
+
+Your capabilities:
+1. PROTOCOL KNOWLEDGE: Answer architectural facts about the 9-commodity starter basket, EIP-712 custody proofs, Uniswap V4 hook mechanics (2.5% tax, 75% reserve / 25% ops), and transparency limits.
+2. ISSUANCE FORM ASSISTANT: Guide issuers in formulating token draft parameters for Rail A Launchpad (Token Name, Symbol, Total Supply, Initial Pooled Tokens, Initial sCRIT deposit, and Thesis).
+
+CRITICAL RULE:
+All issuance parameter proposals must land in a human-reviewed draft state, never auto-submit.
+
+When drafting or suggesting token parameters, you MUST include a JSON draft block formatted exactly like this:
+\`\`\`json:issuance_draft
+{
+  "name": "Token Name",
+  "ticker": "SYMBOL",
+  "supply": "1000000000",
+  "pooled": "200000000",
+  "scritAmt": "1000",
+  "description": "Project thesis description",
+  "commodityTier": "Rare",
+  "scarcityThreshold": "1,000 - 10,000 t/yr",
+  "rationale": "Architectural rationale"
+}
+\`\`\`
+
+Scarcity Tiers:
+- Standard: >= 10,000 t annual world production
+- Rare: 1,000 - 10,000 t annual world production (e.g. Gold, Lithium battery minerals)
+- Ultra Rare: < 1,000 t annual world production (e.g. Platinum, Palladium, Dysprosium, Scandium)
+
+Tax Disclosure:
+Every project pool on Robinhood mainnet charges a 2.5% swap tax (75% reserve treasury, 25% protocol operations).
 
 Established software facts:
 - This is experimental pilot software. sCRIT has no peg and no physical redemption in the pilot.
-- Starter basket target is Au 30%, Ag 5%, Pt 12%, Pd 8%, Nd 8%, Dy 12%, Tb 8%, Sc 7%, and Li 10%. Targets do not mean inventory exists. Diamonds are Rail B only. Uranium is unavailable and outside MVP.
-- Commodity price inputs are manual. They are not a live oracle; values older than 24 hours are stale.
-- The service ledger checks off-chain EIP-712 records against demo custodian keys; the deployed reserve contracts separately enforce on-chain scopes and replay checks. Neither signature path independently proves physical delivery.
-- The current testnet V2 sCRIT token supports reserve-manager-gated minting at NAV; this code does not establish physical inventory or a price floor.
-- Rail A creates a fixed-supply project token and TOKEN/sCRIT pool. The launcher checks its on-chain issuer allowlist. There is no Rail A issuance fee. Robinhood mainnet project pools use the V4 hook; the existing testnet V3 rehearsal has no swap tax.
-- Project-pool fee target is 2.5%, split 75% reserve treasury / 25% operations; the sCRIT/ETH base pool is untaxed. The fee is not a purchase and reserve value changes only on signed custody attestation.
-- Rail B, the on-chain reserve manager, V4 fee hook, and event indexer have source implementations. Mainnet deployment status depends on configured addresses; demo custody, real price-source contracts, physical audit, and independent contract audit are not evidenced here.
-- OJK/regulatory status for this specific product has not been determined. Direct questions to qualified counsel and never imply approval.
-
-If asked for a figure, distinguish a service-reported estimate from market price or redemption value. If current data is needed, say the live proof page is the source of records and that its manual inputs may be missing or stale. Always answer in English.`;
+- Starter basket target is Au 30%, Ag 5%, Pt 12%, Pd 8%, Nd 8%, Dy 12%, Tb 8%, Sc 7%, and Li 10%.
+- Diamonds are Rail B only. Uranium is excluded from MVP scope.
+- Do not give legal, tax, or investment advice. Do not use any emojis in your response.`;
 
 type Message = { role: "user" | "assistant"; content: string };
 
@@ -63,7 +86,12 @@ export async function POST(req: Request) {
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { authorization: `Bearer ${key}`, "content-type": "application/json" },
-        body: JSON.stringify({ model: process.env.LLM_MODEL || "mimo-v2.5", messages: [{ role: "system", content: SYSTEM }, ...messages], temperature: 0.2, max_tokens: 700 }),
+        body: JSON.stringify({
+          model: process.env.LLM_MODEL || "mimo-v2.5",
+          messages: [{ role: "system", content: SYSTEM }, ...messages],
+          temperature: 0.2,
+          max_tokens: 1200,
+        }),
         signal: AbortSignal.timeout(15_000),
         cache: "no-store",
       });
@@ -73,7 +101,7 @@ export async function POST(req: Request) {
           ? (result as { choices: { message?: { content?: unknown } }[] }).choices[0]?.message?.content
           : null;
         if (typeof content === "string" && content.trim().length > 0) {
-          return NextResponse.json({ reply: content.slice(0, 5000), source: "remote" });
+          return NextResponse.json({ reply: content.slice(0, 8000), source: "remote" });
         }
       }
     } catch {
@@ -81,7 +109,7 @@ export async function POST(req: Request) {
     }
   }
 
-  // Authoritative Institutional Knowledge Engine Fallback (Strictly English)
+  // Authoritative Institutional Knowledge Engine Fallback
   const reply = generateInstitutionalKnowledge(lastUserMsg.content);
   return NextResponse.json({ reply, source: "institutional_engine" });
 }
@@ -89,6 +117,171 @@ export async function POST(req: Request) {
 function generateInstitutionalKnowledge(query: string): string {
   const q = query.toLowerCase();
 
+  // 1. ISSUANCE DRAFTING INTENTS
+  const isDraftingIntent =
+    q.includes("draft") ||
+    q.includes("issuan") ||
+    q.includes("launch") ||
+    q.includes("create") ||
+    q.includes("token") ||
+    q.includes("form") ||
+    q.includes("bikin") ||
+    q.includes("buat") ||
+    q.includes("parameter") ||
+    q.includes("proposal") ||
+    q.includes("baterai") ||
+    q.includes("battery") ||
+    q.includes("cathode") ||
+    q.includes("lithium") ||
+    q.includes("nikel") ||
+    q.includes("nickel") ||
+    q.includes("dysprosium") ||
+    q.includes("scandium") ||
+    q.includes("platinum") ||
+    q.includes("rare earth") ||
+    q.includes("syndicate");
+
+  if (isDraftingIntent) {
+    if (q.includes("lithium") || q.includes("baterai") || q.includes("battery") || q.includes("cathode") || q.includes("lcat") || q.includes("nikel") || q.includes("nickel")) {
+      return `Issuance Parameter Formulation for Battery Cathode Mineral Syndicate:
+
+Based on the protocol tier specification and issuance parameters, this proposal targets high-purity lithium and nickel refining reserves supporting electric vehicle energy storage.
+
+Architecture Parameters:
+- **Scarcity Tier:** Rare (Annual global production 1,000 - 10,000 t for battery-grade refined precursor salts).
+- **Liquidity Ratio:** 20% initial pool reserve paired against sCRIT base reserve.
+- **Hook Fee:** 2.5% swap tax routed 75% to sCRIT Reserve Treasury and 25% to protocol operations.
+- **Human Review Notice:** This draft is ready for review. Output will populate the Launchpad form in draft state without executing on-chain.
+
+\`\`\`json:issuance_draft
+{
+  "name": "Lithium Cathode Consortium",
+  "ticker": "LCAT",
+  "supply": "1000000000",
+  "pooled": "200000000",
+  "scritAmt": "1000",
+  "description": "Reserve-paired mineral syndicate tokenizing battery-grade lithium and cathode precursors. Paired continuously with sCRIT liquidity pool.",
+  "commodityTier": "Rare",
+  "scarcityThreshold": "1,000 - 10,000 t/yr",
+  "rationale": "High-demand EV transition metal with verifiable processing assay certificates."
+}
+\`\`\`
+
+Click "Apply to Launch Form" below to populate these parameters into your launchpad workspace. All values remain fully editable.`;
+    }
+
+    if (q.includes("dysprosium") || q.includes("magnet") || q.includes("rare earth") || q.includes("dysp") || q.includes("neodymium")) {
+      return `Issuance Parameter Formulation for Heavy Rare Earth Magnet Alloy:
+
+Dysprosium (Dy) is one of the most critical elements in the sCRIT starter basket (12% target weight), vital for thermal resilience in EV traction motor permanent magnets.
+
+Architecture Parameters:
+- **Scarcity Tier:** Ultra Rare (< 1,000 t annual world production; extremely tight global refining supply).
+- **Liquidity Ratio:** 15% initial pool allocation paired against 1,500 sCRIT.
+- **Hook Fee:** 2.5% swap tax with 75% reinvestment into critical mineral treasury.
+- **Review Requirement:** Parameters are prepared in compliant draft format.
+
+\`\`\`json:issuance_draft
+{
+  "name": "Dysprosium Magnet Alloy",
+  "ticker": "DYSP",
+  "supply": "500000000",
+  "pooled": "75000000",
+  "scritAmt": "1500",
+  "description": "Heavy rare earth syndicate backing high-temperature dysprosium-neodymium permanent magnet alloys.",
+  "commodityTier": "Ultra Rare",
+  "scarcityThreshold": "< 1,000 t/yr",
+  "rationale": "Critical component for EV traction motors and wind turbine direct-drive generators."
+}
+\`\`\`
+
+Review the parameters in the draft card below. You can apply them directly to the Launchpad form.`;
+    }
+
+    if (q.includes("scandium") || q.includes("aerospace") || q.includes("scnd") || q.includes("alloy")) {
+      return `Issuance Parameter Formulation for Aerospace Scandium Syndicate:
+
+Scandium (Sc) represents 7% of the sCRIT reserve index, prized for lightweight high-strength scandium-aluminium weldable alloys in aerospace engineering.
+
+Architecture Parameters:
+- **Scarcity Tier:** Ultra Rare (Global supply under 20 tonnes per year).
+- **Liquidity Ratio:** 25% initial pool reserve paired against 2,000 sCRIT.
+- **Hook Fee:** 2.5% Uniswap V4 swap tax ensuring perpetual commodity treasury accumulation.
+
+\`\`\`json:issuance_draft
+{
+  "name": "Scandium Aerospace Alloy",
+  "ticker": "SCND",
+  "supply": "250000000",
+  "pooled": "62500000",
+  "scritAmt": "2000",
+  "description": "Ultra-lightweight aerospace alloy syndicate holding certified scandium oxide reserves.",
+  "commodityTier": "Ultra Rare",
+  "scarcityThreshold": "< 1,000 t/yr",
+  "rationale": "High-performance aluminium-scandium alloy token with verified assay documentation."
+}
+\`\`\`
+
+The draft card is ready below. Select "Apply to Launch Form" to pre-fill your Rail A issuance draft.`;
+    }
+
+    if (q.includes("platinum") || q.includes("catalyst") || q.includes("hydrogen") || q.includes("ptcl") || q.includes("palladium")) {
+      return `Issuance Parameter Formulation for Platinum Clean Hydrogen Syndicate:
+
+Platinum (Pt, 12% basket weight) and Palladium (Pd, 8% basket weight) are key PGMs critical for green hydrogen electrolyzers and industrial emission catalysts.
+
+Architecture Parameters:
+- **Scarcity Tier:** Ultra Rare (< 200 t annual world production).
+- **Liquidity Allocation:** 20% pool paired against 1,000 sCRIT.
+- **Hook Distribution:** 2.5% swap fee (75% reserve treasury / 25% operations).
+
+\`\`\`json:issuance_draft
+{
+  "name": "Platinum Hydrogen Syndicate",
+  "ticker": "PTCL",
+  "supply": "1000000000",
+  "pooled": "200000000",
+  "scritAmt": "1000",
+  "description": "Green hydrogen and PGM catalyst reserve syndicate paired continuously with sCRIT liquidity.",
+  "commodityTier": "Ultra Rare",
+  "scarcityThreshold": "< 1,000 t/yr",
+  "rationale": "Essential catalytic element for hydrogen fuel cells and clean energy infrastructure."
+}
+\`\`\`
+
+Click "Apply to Launch Form" to load this draft into the Launchpad wizard.`;
+    }
+
+    // Generic Commodity Token Drafting Formulator
+    return `Issuance Parameter Formulation for Custom Commodity Reserve Token:
+
+This assistant helps draft structured issuance parameters for Rail A Launchpad. All outputs are strictly generated in a human-reviewed draft state and never auto-submit.
+
+Recommended Baseline Parameters:
+- **Total Supply:** 1,000,000,000 units (Standard institutional fixed supply).
+- **Initial Pooled:** 200,000,000 units (20% liquidity allocation).
+- **Initial Deposit:** 1,000 sCRIT.
+- **Implied Price:** 0.000005 sCRIT per project token.
+- **Pool Tax:** 2.5% Uniswap V4 hook fee (75% reserve treasury, 25% protocol operations).
+
+\`\`\`json:issuance_draft
+{
+  "name": "Critical Mineral Reserve",
+  "ticker": "CMIN",
+  "supply": "1000000000",
+  "pooled": "200000000",
+  "scritAmt": "1000",
+  "description": "Tokenized industrial commodity syndicate backing physical processing reserves with continuous sCRIT liquidity pairing.",
+  "commodityTier": "Rare",
+  "scarcityThreshold": "1,000 - 10,000 t/yr",
+  "rationale": "Physical commodity asset token paired with sCRIT critical reserve basket."
+}
+\`\`\`
+
+You can customize any parameter or click "Apply to Launch Form" to load this directly into your Rail A Launchpad workspace.`;
+  }
+
+  // 2. KNOWLEDGE BASE & PROTOCOL EXPLORATIONS
   if (q.includes("9") || q.includes("commodit") || q.includes("basket") || q.includes("asset") || q.includes("au") || q.includes("lithium")) {
     return `The sCRIT starter basket target comprises 9 critical commodities:
 
@@ -102,7 +295,7 @@ function generateInstitutionalKnowledge(query: string): string {
 8. **Scandium (Sc)**: 7% - Aerospace-grade lightweight alloy
 9. **Lithium (Li)**: 10% - Battery cathode essential mineral
 
-*Architecture Disclosures:*
+Architecture Disclosures:
 - Basket weights are design targets, not proof of immediate contracted vault inventory.
 - **Diamonds** are segregated strictly to Rail B (Certified Lots).
 - **Uranium** is unavailable and explicitly excluded from MVP scope.`;
@@ -155,14 +348,13 @@ function generateInstitutionalKnowledge(query: string): string {
 - Consult qualified legal counsel for commercial deployment and compliance obligations.`;
   }
 
-  return `sCRIT is an experimental protocol architecture for critical commodity reserve tokens.
+  return `sCRIT Copilot: Protocol Architecture & Issuance Assistant.
 
-Core Software Principles:
-1. **9 Starter Commodities:** Au (30%), Ag (5%), Pt (12%), Pd (8%), Nd (8%), Dy (12%), Tb (8%), Sc (7%), Li (10%).
-2. **No Peg / No Redemption:** sCRIT has no peg and does not provide physical redemption in the pilot.
-3. **Uniswap V4 Hook:** 2.5% swap tax on project pools (75% reserve treasury / 25% operations); base pool untaxed.
-4. **Proof of Reserve:** Off-chain EIP-712 signatures verified against on-chain scoped reserve contracts.
+Core Software Capabilities:
+1. **Issuance Form Assistant:** Propose token parameters (Name, Ticker, Supply, Paired sCRIT) in human-reviewed draft state for Rail A Launchpad.
+2. **9 Starter Commodities:** Au (30%), Ag (5%), Pt (12%), Pd (8%), Nd (8%), Dy (12%), Tb (8%), Sc (7%), Li (10%).
+3. **Uniswap V4 Hook:** 2.5% swap tax on project pools (75% reserve treasury / 25% operations).
+4. **Reserve Ledger:** EIP-712 signed attestations with anti-replay protection.
 
-Ask any specific question regarding contract architecture, valuation formulas, or pilot workflows.`;
+You can ask to draft token parameters for your commodity syndicate, or query specific protocol mechanisms.`;
 }
-

@@ -65,7 +65,7 @@ export default function Proof() {
     <PageShell>
       <header className="proof-page-head scrit-reveal">
         <p className="eyebrow">Pilot Reserve Ledger · Service-Verified Records</p>
-        <h1>Evidence, estimates,<br /><em>and the status between them.</em></h1>
+        <h1>Evidence, estimates, <em>and the status between them.</em></h1>
         <p>This page estimates reserve value from records accepted by the pilot service and manual commodity prices. Basket weights are targets; this page does not establish contracted vault custody or on-chain reserve balances.</p>
       </header>
 

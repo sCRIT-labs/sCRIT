@@ -73,7 +73,7 @@ export default function TokensPage() {
 
   return (
     <PageShell>
-      <div style={{ maxWidth: 1160, margin: "0 auto", paddingBottom: 60 }}>
+      <div style={{ width: "100%", paddingBottom: 60 }}>
         {/* Page Hero Header */}
         <div style={{ marginBottom: 32 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
@@ -112,6 +112,7 @@ export default function TokensPage() {
                   letterSpacing: "-0.02em",
                   color: "var(--ink)",
                   margin: "0 0 10px",
+                  whiteSpace: "nowrap",
                 }}
               >
                 Launched Reserve-Backed Tokens
@@ -368,7 +369,7 @@ export default function TokensPage() {
                       gap: 6,
                       fontSize: 11,
                       fontFamily: "var(--font-mono)",
-                      color: token.poolType === "v4_hook" ? "#2e7d32" : "#636b60",
+                      color: token.poolType === "v4_hook" ? "#b8962e" : "#636b60",
                     }}
                   >
                     <ShieldCheck size={13} />
@@ -379,54 +380,89 @@ export default function TokensPage() {
                     </span>
                   </div>
 
-                  {/* Contract Address & Explorer Bar */}
+                  {/* CA & Explorer Bar */}
                   <div
                     style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
                       paddingTop: 10,
                       borderTop: "1px solid var(--line-ink)",
                       fontSize: 11,
                       fontFamily: "var(--font-mono)",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 6,
                     }}
                   >
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <span style={{ color: "#7d8479" }}>Contract:</span>
-                      <a
-                        href={`${explorer}/address/${token.address}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={{ color: "#8c6418", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 3 }}
-                      >
-                        {token.address.slice(0, 6)}...{token.address.slice(-4)}
-                        <ExternalLink size={11} />
-                      </a>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <span style={{ color: "#7d8479", fontWeight: 700, fontSize: 11, letterSpacing: "0.06em" }}>
+                        CA :
+                      </span>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <button
+                          type="button"
+                          className="launch-chip-btn"
+                          onClick={() => copyText(token.address, `token-${token.id}`)}
+                          style={{ padding: "3px 8px", fontSize: 11, display: "inline-flex", alignItems: "center", gap: 4 }}
+                          title="Copy CA"
+                        >
+                          {copiedKey === `token-${token.id}` ? (
+                            <>
+                              <Check size={12} color="#b8962e" />
+                              <span style={{ color: "#b8962e", fontWeight: 600 }}>Copied</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy size={12} />
+                              <span>Copy</span>
+                            </>
+                          )}
+                        </button>
+
+                        <a
+                          href={`${explorer}/tx/${token.txHash}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="launch-chip-btn"
+                          style={{ textDecoration: "none", padding: "3px 8px", fontSize: 11, display: "inline-flex", alignItems: "center", gap: 4 }}
+                          title="View deploy transaction"
+                        >
+                          <span>Tx</span>
+                          <ExternalLink size={11} />
+                        </a>
+                      </div>
                     </div>
 
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <button
-                        type="button"
-                        className="launch-chip-btn"
-                        onClick={() => copyText(token.address, `token-${token.id}`)}
-                        style={{ padding: "3px 6px" }}
-                        title="Copy contract address"
-                      >
-                        {copiedKey === `token-${token.id}` ? <Check size={12} color="#2e7d32" /> : <Copy size={12} />}
-                      </button>
-
-                      <a
-                        href={`${explorer}/tx/${token.txHash}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="launch-chip-btn"
-                        style={{ textDecoration: "none", padding: "3px 7px", display: "inline-flex", alignItems: "center", gap: 4 }}
-                        title="View deploy transaction"
-                      >
-                        <span>Tx</span>
-                        <ExternalLink size={11} />
-                      </a>
-                    </div>
+                    <a
+                      href={`${explorer}/address/${token.address}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "6px 10px",
+                        background: "#faf8f2",
+                        border: "1px solid rgba(24, 26, 24, 0.12)",
+                        borderRadius: 4,
+                        color: "#8c6418",
+                        textDecoration: "none",
+                        fontSize: 11,
+                        lineHeight: 1.4,
+                        wordBreak: "break-all",
+                        transition: "all 0.15s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = "var(--signal)";
+                        e.currentTarget.style.background = "#ffffff";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = "rgba(24, 26, 24, 0.12)";
+                        e.currentTarget.style.background = "#faf8f2";
+                      }}
+                      title="Open in Robinhood Chain Explorer"
+                    >
+                      <span style={{ fontFamily: "var(--font-mono)", fontWeight: 550 }}>{token.address}</span>
+                      <ExternalLink size={11} style={{ flexShrink: 0, marginLeft: 6 }} />
+                    </a>
                   </div>
                 </div>
               );

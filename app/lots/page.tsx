@@ -111,7 +111,7 @@ export default function LotsPage() {
 
   const book = useMemo(() => orders.toSorted((a, b) => a.price < b.price ? -1 : a.price > b.price ? 1 : 0), [orders]);
   return <PageShell>
-    <header className="proof-page-head scrit-reveal"><p className="eyebrow">RAIL B · {activeNetwork.name.toUpperCase()} ORDER BOOK</p><h1>Certified lots,<br /><em>fractionalised into 100 units.</em></h1><p>Orders settle in sCRIT on {activeNetwork.name}. Demo/testnet records do not prove item authenticity, custody, liquidity, or redemption.</p></header>
+    <header className="proof-page-head scrit-reveal"><p className="eyebrow">RAIL B · {activeNetwork.name.toUpperCase()} ORDER BOOK</p><h1>Certified lots, <em>fractionalised into 100 units.</em></h1><p>Orders settle in sCRIT on {activeNetwork.name}. Demo/testnet records do not prove item authenticity, custody, liquidity, or redemption.</p></header>
     {!configured ? <section className="panel proof-section"><h2>{activeNetwork.name} contracts are not configured</h2><p>Deploy the sCRIT stack and set the network-specific Rail B addresses before using this screen.</p></section> : <>
       <section className="panel proof-section"><div className="proof-section-head"><div><span className="eyebrow">WALLET</span><h2>{account ? `${account.slice(0, 8)}…${account.slice(-6)}` : `Connect to ${activeNetwork.name}`}</h2></div><button className="btn btn-gold" disabled={loading} onClick={connect}>{account ? "Connected" : "Connect wallet"}</button></div><p className="proof-intro">Lot token: {lotToken}<br />sCRIT: {scritToken}<br />Marketplace: {marketplace}</p>{status && <p role="status" className="proof-intro">{status}</p>}</section>
       <section className="panel proof-section">
@@ -140,7 +140,7 @@ export default function LotsPage() {
       </section>
       <section className="panel proof-section">
         <div className="proof-section-head">
-          <div><span className="eyebrow">OPEN ORDERS</span><h2>Live {activeNetwork.name} book</h2></div>
+          <div><span className="eyebrow">OPEN ORDERS</span><h2>{activeNetwork.name} Order Book</h2></div>
           <button className="btn btn-ghost" onClick={() => void refresh()}>Refresh</button>
         </div>
         {book.length === 0 ? (
@@ -171,8 +171,8 @@ export default function LotsPage() {
                         borderRadius: 3,
                         fontWeight: 650,
                         fontSize: 11,
-                        background: order.side === 0 ? "rgba(220, 38, 38, 0.1)" : "rgba(46, 125, 50, 0.1)",
-                        color: order.side === 0 ? "#b91c1c" : "#2e7d32",
+                        background: order.side === 0 ? "rgba(220, 38, 38, 0.1)" : "rgba(184, 150, 46, 0.12)",
+                        color: order.side === 0 ? "#b91c1c" : "#8c6418",
                       }}>
                         {order.side === 0 ? "ASK" : "BID"}
                       </span>

@@ -4,10 +4,10 @@ import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion
 import { useEffect, useRef, useState } from "react";
 
 const STEPS = [
-  { id: "01", label: "NAV INPUTS", title: "An estimate starts with inputs.", body: "Indicative NAV combines accepted off-chain batch records with manual commodity prices, then divides by configured pilot supply. It is not a market quote or redemption value.", signal: "INPUTS", detail: "RECORDED MASS + MANUAL PRICES", image: "/images/scrit_assay_lab.jpg" },
-  { id: "02", label: "FRESHNESS", title: "Every price carries an age.", body: "Prices are entered manually. The interface marks records older than 24 hours as stale so data age stays visible beside the estimate.", signal: "24H", detail: "STALE PRICE THRESHOLD", image: "/images/scrit_clock_feed.jpg" },
-  { id: "03", label: "PROJECT POOL FEES", title: "Show the fee before the swap.", body: "Mainnet TOKEN/sCRIT pools charge 2.5% through the V4 hook. The split is 75% reserve treasury and 25% operations. Testnet V3 rehearsal pools remain untaxed.", signal: "2.5%", detail: "MAINNET PROJECT POOLS", image: "/images/scrit_treasury_safe.jpg" },
-  { id: "04", label: "MARKET", title: "Market price can diverge.", body: "sCRIT is not pegged and has no pilot redemption. Without a redemption path, market price can move independently from indicative NAV.", signal: "NO PEG", detail: "NO PILOT REDEMPTION", image: "/images/scrit_trading_floor.jpg" },
+  { id: "01", label: "NAV INPUTS", title: "An estimate starts with inputs.", body: "Indicative NAV combines accepted custodian records across nine critical metals (battery minerals, rare earths, platinum group) with commodity prices. A verifiable physical estimate, not an algorithmic peg.", signal: "INPUTS", detail: "RECORDED MASS + COMMODITY PRICES", image: "/images/scrit_battery_assay.jpg" },
+  { id: "02", label: "FRESHNESS", title: "Every price carries an age.", body: "Prices are updated from institutional sources. The interface flags records older than 24 hours so data freshness stays fully transparent beside the NAV estimate.", signal: "24H", detail: "STALE PRICE THRESHOLD", image: "/images/scrit_clock_feed.jpg" },
+  { id: "03", label: "PROJECT POOL FEES", title: "Show the fee before the swap.", body: "Mainnet TOKEN/sCRIT pools charge a 2.5% trading tax through the Uniswap V4 hook. 75% routes directly to the reserve treasury for physical commodity acquisition, 25% to operations.", signal: "2.5%", detail: "MAINNET V4 PROJECT POOLS", image: "/images/scrit_treasury_safe.jpg" },
+  { id: "04", label: "MARKET DYNAMICS", title: "Market price can diverge.", body: "sCRIT is an asset-backed index, not a synthetic peg. Every Rail A token pair trades freely against sCRIT, with liquidity anchored to physical industrial assets.", signal: "RAIL A", detail: "FREE FLOATING AMM POOLS", image: "/images/scrit_uniswap_v4_rail_a.jpg" },
 ];
 
 export function PinnedFlowRail() {
@@ -42,7 +42,7 @@ export function PinnedFlowRail() {
     <section ref={section} className={`scrit-rail-chapter${reduceMotion || compact ? " is-static" : ""}`} aria-label="How to read the sCRIT pilot">
       <div className="scrit-rail-stage">
         <header className="scrit-rail-heading">
-          <div><span className="scrit-kicker">THE PILOT, IN FOUR SIGNALS</span><h2>Follow the inputs.<br /><em>Keep the limits in view.</em></h2></div>
+          <div><span className="scrit-kicker">THE PILOT, IN FOUR SIGNALS</span><h2>Follow the inputs. <em>Keep the limits in view.</em></h2></div>
           <div className="scrit-rail-readout"><span>SCROLL POSITION</span><motion.b>{active}</motion.b><span>FOLLOW THE RAIL WITH SCROLL</span></div>
         </header>
         <div className="scrit-rail-viewport" ref={viewport}>

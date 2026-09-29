@@ -100,11 +100,12 @@ export function InstitutionalFooter({ theme = "light" }: { theme?: "light" | "da
             <div>
               <h4 className="ondo-footer-col-heading">Protocol</h4>
               <ul className="ondo-footer-links-list">
+                <li><Link href="/issuer">Issuer Clearance Desk</Link></li>
                 <li><Link href="/launch">Strike a Pair (Rail A)</Link></li>
+                <li><Link href="/tokens">Tokens Directory</Link></li>
                 <li><Link href="/proof">Proof of Reserve</Link></li>
-                <li><Link href="/#launch-model">Launch model</Link></li>
+                <li><Link href="/lots">Certified Lots (Rail B)</Link></li>
                 <li><Link href="/#products">Nine-Asset Basket Targets</Link></li>
-                <li><Link href="/#ledger">Pilot telemetry</Link></li>
               </ul>
             </div>
 

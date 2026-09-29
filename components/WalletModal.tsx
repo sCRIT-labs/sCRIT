@@ -3,7 +3,15 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
-import { EVM_WALLETS, connectEvm, detectEvm, walletLabel, type EvmWalletId } from "@/lib/wallets";
+import {
+  EVM_WALLETS,
+  connectEvm,
+  detectEvm,
+  walletLabel,
+  onWalletsChanged,
+  requestEip6963Providers,
+  type EvmWalletId,
+} from "@/lib/wallets";
 
 export default function WalletModal({
   open,
@@ -25,23 +33,66 @@ export default function WalletModal({
   }, []);
 
   useEffect(() => {
-    if (open) {
-      setErr("");
-      setPending(null);
+    if (!open) return;
+    setErr("");
+    setPending(null);
+
+    const refresh = () => {
       setDetected((EVM_WALLETS.map((w) => w.id) as EvmWalletId[]).filter((id) => detectEvm(id) !== null));
-    }
-  }, [open ]);
+    };
+
+    // Immediate check + announce request
+    refresh();
+    requestEip6963Providers();
+
+    // Listen to EIP-6963 announcements that arrive asynchronously
+    const unsub = onWalletsChanged(refresh);
+
+    // Staggered fallbacks for extensions that initialize slightly after injection
+    const t1 = setTimeout(refresh, 60);
+    const t2 = setTimeout(refresh, 250);
+
+    return () => {
+      unsub();
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [open]);
+
+  const [isRendered, setIsRendered] = useState(open);
+  const [isClosing, setIsClosing] = useState(false);
 
   useEffect(() => {
-    if (!open) return;
+    if (open) {
+      setIsRendered(true);
+      setIsClosing(false);
+    } else if (isRendered) {
+      setIsClosing(true);
+      const timer = setTimeout(() => {
+        setIsRendered(false);
+        setIsClosing(false);
+      }, 240);
+      return () => clearTimeout(timer);
+    }
+  }, [open, isRendered]);
+
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+    }, 220);
+  };
+
+  useEffect(() => {
+    if (!isRendered) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") handleClose();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+  }, [isRendered]);
 
-  if (!open || !mounted) return null;
+  if (!isRendered || !mounted) return null;
 
   async function pick(id: EvmWalletId) {
     if (!detectEvm(id)) return;
@@ -50,7 +101,7 @@ export default function WalletModal({
     try {
       const { address } = await connectEvm(id);
       onPick(id, address);
-      onClose();
+      handleClose();
     } catch (e: unknown) {
       setErr(walletLabel(e));
     } finally {
@@ -65,16 +116,16 @@ export default function WalletModal({
       role="dialog"
       aria-modal="true"
       aria-label="Connect a wallet"
-      onClick={onClose}
-      style={{ position: "fixed", inset: 0, zIndex: 90, display: "flex", alignItems: "center", justifyContent: "center", padding: 18, background: "rgba(9,9,12,.62)", backdropFilter: "blur(6px)" }}
+      onClick={handleClose}
+      className={`wallet-modal-backdrop ${isClosing ? "is-closing" : "is-opening"}`}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        style={{ width: "min(430px, 100%)", borderRadius: 16, border: "1px solid rgba(255,255,255,.12)", background: "#141417", padding: 22, boxShadow: "0 30px 80px rgba(0,0,0,.5)", color: "#f2f0ea" }}
+        className="wallet-modal-surface"
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
           <h3 style={{ margin: 0, fontSize: 19, fontWeight: 700, color: "#ffffff" }}>Connect wallet</h3>
-          <button type="button" onClick={onClose} aria-label="Close" style={{ display: "inline-flex", padding: 8, borderRadius: 8, border: "1px solid rgba(255,255,255,.16)", background: "transparent", color: "#ffffff", cursor: "pointer" }}>
+          <button type="button" onClick={handleClose} aria-label="Close" className="wallet-modal-close-btn">
             <X size={16} />
           </button>
         </div>
@@ -88,7 +139,7 @@ export default function WalletModal({
                 {/* eslint-disable-next-line @next/next/no-img-element -- wallet brand marks served from /public */}
                 <img src={w.icon} alt="" width={26} height={26} style={{ borderRadius: 6 }} />
                 <span style={{ flex: 1, textAlign: "left", fontWeight: 600, fontSize: 14, color: "#ffffff" }}>{w.name}</span>
-                <span className="mono-sm" style={{ color: installed ? "#2ed573" : "#8b9187" }}>
+                <span className="mono-sm" style={{ color: installed ? "#d0aa5b" : "#8b9187" }}>
                   {busy ? "Waiting…" : installed ? "Detected" : "Install"}
                 </span>
               </>

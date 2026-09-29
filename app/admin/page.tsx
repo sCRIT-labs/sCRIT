@@ -162,7 +162,7 @@ export default function Admin() {
   return (
     <PageShell>
       {/* Header section */}
-      <div className="scrit-reveal" style={{ maxWidth: 840, marginBottom: 28 }}>
+      <div className="scrit-reveal" style={{ maxWidth: 1100, marginBottom: 28 }}>
         <p className="eyebrow">Manual Operations · Pilot Console</p>
         <h1
           style={{
@@ -172,6 +172,7 @@ export default function Admin() {
             letterSpacing: "-0.02em",
             margin: "12px 0 16px",
             lineHeight: 1.1,
+            whiteSpace: "nowrap",
           }}
         >
           Protocol ops console.
@@ -391,7 +392,7 @@ export default function Admin() {
                       <td><b>{c.name}</b></td>
                       <td className="gold">{c.scope.join(", ")}</td>
                       <td>
-                        <span style={{ fontSize: 11, background: "rgba(46,213,115,0.12)", color: "#2ed573", padding: "2px 8px", borderRadius: 999 }}>
+                        <span style={{ fontSize: 11, background: "rgba(208,170,91,0.12)", color: "#d0aa5b", padding: "2px 8px", borderRadius: 999 }}>
                           {c.status}
                         </span>
                       </td>

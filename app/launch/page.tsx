@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Address } from "viem";
 import { formatEther } from "viem";
 import Image from "next/image";
@@ -36,12 +36,16 @@ import {
   SLIPPAGE_PRESETS,
   launcherIssuerApproved,
   launchTokenScrit,
+  scritBalanceOf,
   toTokenUnits,
   validateLaunchParams,
 } from "@/lib/scrit-evm";
 import { HOOD_MAINNET, HOOD_TESTNET, PROJECT_POOL_LP_FEE_BPS, SCRIT_CHAIN_ID, scritDeploymentFor } from "@/lib/scrit";
 import { BASKET } from "@/lib/scrit-basket";
 import { TAX_ACTIVE } from "@/lib/scrit";
+import { loadWallet } from "@/lib/wallets";
+import { CopilotDrawerWidget } from "@/components/CopilotDrawerWidget";
+import type { IssuanceDraft } from "@/components/IssuanceDraftCard";
 
 type Step = "idle" | "checking" | "ready" | "approve" | "launch" | "done" | "error";
 
@@ -69,9 +73,111 @@ export default function Launch() {
     positionId: bigint;
     launchHash: string;
   } | null>(null);
+  const [issuerApproved, setIssuerApproved] = useState<boolean | null>(null);
+  const [faucetLoading, setFaucetLoading] = useState(false);
 
   const explorer = chainId === 4663 ? HOOD_MAINNET.explorer : HOOD_TESTNET.explorer;
   const deployment = scritDeploymentFor(chainId);
+
+  const [copilotOpen, setCopilotOpen] = useState(false);
+  const [draftNotice, setDraftNotice] = useState<string | null>(null);
+  const [highlightDraft, setHighlightDraft] = useState(false);
+
+  // Load draft from localStorage on mount & check URL search params
+  useEffect(() => {
+    try {
+      const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+      const isFromCopilot = params?.get("fromCopilot") === "true";
+
+      const raw = localStorage.getItem("scrit.launch.draft");
+      if (raw) {
+        const parsed = JSON.parse(raw) as { name?: string; ticker?: string; supply?: string; pooled?: string; scritAmt?: string };
+        if (parsed.name) setName(parsed.name);
+        if (parsed.ticker) setTicker(parsed.ticker);
+        if (parsed.supply) setSupply(parsed.supply);
+        if (parsed.pooled) setPooled(parsed.pooled);
+        if (parsed.scritAmt) setScritAmt(parsed.scritAmt);
+
+        if (isFromCopilot && parsed.name) {
+          setDraftNotice(`Draft loaded from Copilot AI: $${parsed.ticker || "TOKEN"} (${parsed.name}). Human review mandatory before signing.`);
+          setHighlightDraft(true);
+          setTimeout(() => setHighlightDraft(false), 2400);
+        }
+      }
+      const saved = loadWallet();
+      if (saved?.address && /^0x[0-9a-fA-F]{40}$/.test(saved.address)) {
+        setAccount(saved.address as Address);
+      }
+    } catch {
+      // ignore storage access errors
+    }
+  }, []);
+
+  function handleApplyDraftFromCopilot(d: IssuanceDraft) {
+    if (d.name) setName(d.name);
+    if (d.ticker) setTicker(d.ticker);
+    if (d.supply) setSupply(d.supply);
+    if (d.pooled) setPooled(d.pooled);
+    if (d.scritAmt) setScritAmt(d.scritAmt);
+    setDraftNotice(`Draft loaded from Copilot AI: $${d.ticker} (${d.name}). All fields remain fully editable.`);
+    setHighlightDraft(true);
+    setTimeout(() => setHighlightDraft(false), 2500);
+    setCopilotOpen(false);
+
+    // Scroll to Step 3 container smoothly
+    setTimeout(() => {
+      const el = document.getElementById("launch-step-3-container");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+  }
+
+  // Save draft on changes
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        "scrit.launch.draft",
+        JSON.stringify({ name, ticker, supply, pooled, scritAmt })
+      );
+    } catch {
+      // ignore
+    }
+  }, [name, ticker, supply, pooled, scritAmt]);
+
+  // Reactive verification of issuer clearance status
+  useEffect(() => {
+    if (!account) {
+      setIssuerApproved(null);
+      return;
+    }
+    fetch(`/api/issuers?wallet=${account}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setIssuerApproved(Boolean(data?.approved));
+      })
+      .catch(() => setIssuerApproved(null));
+  }, [account]);
+
+  async function requestTestnetFaucet() {
+    if (!account) return;
+    setFaucetLoading(true);
+    setMsg("");
+    try {
+      const res = await fetch("/api/faucet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ recipient: account, chainId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Faucet transfer failed");
+      const newBal = await scritBalanceOf(chainId, account, deployment.token);
+      setScritBal(newBal);
+      setMsg("Received 1,000 pilot testnet sCRIT! Liquidity pool can now be seeded.");
+    } catch (e) {
+      setMsg(e instanceof Error ? e.message : "Faucet request failed");
+    } finally {
+      setFaucetLoading(false);
+    }
+  }
 
   // Computed Economics
   const parsedSupply = parseFloat(supply) || 0;
@@ -243,7 +349,7 @@ export default function Launch() {
   return (
     <PageShell>
       {/* Editorial Header */}
-      <div style={{ maxWidth: 860, marginBottom: 36 }}>
+      <div style={{ maxWidth: 1100, marginBottom: 36 }}>
         <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "4px 12px", borderRadius: 2, background: "rgba(83, 103, 83, 0.08)", border: "1px solid rgba(83, 103, 83, 0.2)", marginBottom: 14 }}>
           <Sparkles size={13} color="var(--moss)" />
           <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--moss)", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>
@@ -253,12 +359,13 @@ export default function Launch() {
         <h1
           style={{
             fontFamily: "var(--font-serif)",
-            fontSize: "clamp(34px, 4.5vw, 56px)",
+            fontSize: "clamp(20px, 3.8vw, 46px)",
             fontWeight: 450,
-            letterSpacing: "-0.04em",
+            letterSpacing: "-0.035em",
             margin: "0 0 16px",
-            lineHeight: 1.08,
+            lineHeight: 1.15,
             color: "var(--ink)",
+            whiteSpace: "nowrap",
           }}
         >
           Strike your liquidity engine.
@@ -269,11 +376,90 @@ export default function Launch() {
             fontSize: "clamp(15px, 1.8vw, 17px)",
             lineHeight: 1.6,
             margin: 0,
+            maxWidth: 780,
           }}
         >
           Every ecosystem launch is anchored to <b style={{ color: "var(--ink)" }}>TOKEN / sCRIT</b>.
           Project pools pair with <b style={{ color: "#8c6418" }}>sCRIT</b>, establishing exposure to nine physical critical commodities without misleading 1:1 claims.
         </p>
+      </div>
+
+      {/* Guided 3-Step Wizard Progress Bar */}
+      <div className="issuer-wizard-stepper" style={{ marginBottom: 32 }}>
+        {/* Step 1 */}
+        <div
+          className={`issuer-step-card ${
+            !account ? "active" : "completed"
+          }`}
+        >
+          <div className="issuer-step-number-circle">
+            {account ? <Check size={16} /> : "1"}
+          </div>
+          <div className="issuer-step-info">
+            <span className="issuer-step-title">1. Connect Wallet</span>
+            <span className="issuer-step-status-tag" style={{ whiteSpace: "nowrap" }}>
+              {account ? `AUTHENTICATED (${account.slice(0, 6)}…)` : "ACTION REQUIRED"}
+            </span>
+          </div>
+        </div>
+
+        {/* Step 2 */}
+        <div
+          className={`issuer-step-card ${
+            !account
+              ? "locked"
+              : issuerApproved
+              ? "completed"
+              : "active"
+          }`}
+        >
+          <div className="issuer-step-number-circle">
+            {issuerApproved ? <Check size={16} /> : "2"}
+          </div>
+          <div className="issuer-step-info">
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span className="issuer-step-title">2. Dual-Gate Clearance</span>
+              {!issuerApproved && account && (
+                <Link
+                  href="/issuer"
+                  style={{
+                    fontSize: 10.5,
+                    fontFamily: "var(--font-mono)",
+                    color: "#8c6418",
+                    textDecoration: "underline",
+                    fontWeight: 700,
+                  }}
+                >
+                  Clearance Desk ↗
+                </Link>
+              )}
+            </div>
+            <span className="issuer-step-status-tag" style={{ whiteSpace: "nowrap" }}>
+              {!account
+                ? "LOCKED"
+                : issuerApproved
+                ? "CLEARED"
+                : "CLEARANCE REQUIRED"}
+            </span>
+          </div>
+        </div>
+
+        {/* Step 3 */}
+        <div
+          className={`issuer-step-card ${
+            account && issuerApproved ? "active" : "locked"
+          }`}
+        >
+          <div className="issuer-step-number-circle">
+            <Zap size={15} />
+          </div>
+          <div className="issuer-step-info">
+            <span className="issuer-step-title">3. Strike Token Launch</span>
+            <span className="issuer-step-status-tag" style={{ whiteSpace: "nowrap" }}>
+              {account && issuerApproved ? "READY TO DEPLOY" : "AWAITING CLEARANCE"}
+            </span>
+          </div>
+        </div>
       </div>
 
       <div className="launch-grid-layout">
@@ -331,7 +517,7 @@ export default function Launch() {
             </div>
             <div className="launch-metric-line">
               <span className="launch-metric-lbl">Trading Hook Fee</span>
-              <span className="launch-metric-val" style={{ color: TAX_ACTIVE ? "#2e7d32" : "#8c6418" }}>
+              <span className="launch-metric-val" style={{ color: TAX_ACTIVE ? "#b8962e" : "#8c6418" }}>
                 {TAX_ACTIVE ? "2.5% · 75/25 split" : chainId === 46630 ? "0% testnet rehearsal" : "V4 Hook Pending"}
               </span>
             </div>
@@ -405,6 +591,42 @@ export default function Launch() {
             </div>
           </div>
 
+          {/* Interactive V4 Dynamic Hook Revenue Simulator */}
+          <div
+            style={{
+              background: "linear-gradient(135deg, #fdfaf3 0%, #f6f0e2 100%)",
+              border: "1.5px solid rgba(201, 146, 46, 0.45)",
+              borderRadius: 6,
+              padding: "16px 18px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 10,
+              boxShadow: "0 6px 20px rgba(201, 146, 46, 0.08)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", fontWeight: 700, color: "#8c6418", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                V4 Hook Perpetual Revenue
+              </span>
+              <span style={{ fontSize: 10, background: "#8c6418", color: "#ffffff", padding: "2px 7px", borderRadius: 3, fontWeight: 700, fontFamily: "var(--font-mono)" }}>
+                75% TO ISSUER
+              </span>
+            </div>
+            <p style={{ fontSize: 12, color: "#555d54", margin: 0, lineHeight: 1.45 }}>
+              On Rail A, your project treasury earns <b>1.875% perpetual volume fee</b> from every swap through the Uniswap V4 Tax Hook.
+            </p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, paddingTop: 6, borderTop: "1px dashed rgba(140, 100, 24, 0.2)" }}>
+              <div>
+                <span style={{ fontSize: 10.5, color: "#7a8277", fontFamily: "var(--font-mono)" }}>AT $100K DAILY VOL</span>
+                <div style={{ fontSize: 13.5, fontWeight: 700, color: "#8c6418" }}>$1,875 / day</div>
+              </div>
+              <div>
+                <span style={{ fontSize: 10.5, color: "#7a8277", fontFamily: "var(--font-mono)" }}>EST. MONTHLY</span>
+                <div style={{ fontSize: 13.5, fontWeight: 700, color: "#1b5e20" }}>~$56,250 / mo</div>
+              </div>
+            </div>
+          </div>
+
           {/* Visual Vault Card */}
           <div
             style={{
@@ -453,6 +675,65 @@ export default function Launch() {
             </p>
           </div>
 
+          {/* Early Compliance Gate Status Alert Bar */}
+          {account ? (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "10px 14px",
+                borderRadius: 4,
+                marginBottom: 16,
+                background: issuerApproved ? "#f0f7f1" : "#fdf6e8",
+                border: issuerApproved ? "1px solid rgba(46, 125, 50, 0.3)" : "1px solid rgba(184, 134, 11, 0.35)",
+                color: issuerApproved ? "#1b5e20" : "#8a5d00",
+                fontSize: 12.5,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                {issuerApproved ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+                <span>
+                  {issuerApproved
+                    ? "Institutional Clearance Active · Dual-Gate Verified for Rail A Deployment."
+                    : "Intake Clearance Required: Complete 1-click verification at Issuer Desk before launching."}
+                </span>
+              </div>
+              {!issuerApproved && (
+                <Link
+                  href="/issuer"
+                  style={{
+                    color: "#8a5d00",
+                    fontWeight: 700,
+                    textDecoration: "underline",
+                    fontSize: 11.5,
+                    fontFamily: "var(--font-mono)",
+                  }}
+                >
+                  Clearance Desk ↗
+                </Link>
+              )}
+            </div>
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "10px 14px",
+                borderRadius: 4,
+                marginBottom: 16,
+                background: "#f4f3ee",
+                border: "1px solid rgba(24, 26, 24, 0.12)",
+                color: "#555d54",
+                fontSize: 12.5,
+              }}
+            >
+              <Info size={16} />
+              <span>Connect deployment wallet below to inspect live allowlist permissions &amp; balance.</span>
+            </div>
+          )}
+
           {/* SECTION 01: Network & Issuer Wallet */}
           <div style={{ paddingBottom: 16, borderBottom: "1px solid var(--line-ink)" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
@@ -481,7 +762,7 @@ export default function Launch() {
               <div className="launch-field-group">
                 <label className="launch-field-label">
                   Issuer Wallet
-                  {account ? <span style={{ color: "#2ed573" }}>● Connected</span> : null}
+                  {account ? <span style={{ color: "#d0aa5b" }}>● Connected</span> : null}
                 </label>
                 <WalletButton
                   chainId={chainId}
@@ -522,12 +803,75 @@ export default function Launch() {
             ) : null}
           </div>
 
-          {/* SECTION 02: Token Identity */}
+          {/* Step 3 Notice Banner if imported from Copilot AI */}
+          {draftNotice && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "10px 14px",
+                background: "#fcf8ee",
+                border: "1px solid rgba(184, 134, 11, 0.4)",
+                borderRadius: 4,
+                marginBottom: 16,
+                gap: 10,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#6e4e0c" }}>
+                <Sparkles size={14} color="#8c6418" style={{ flexShrink: 0 }} />
+                <span>{draftNotice}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDraftNotice(null)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: 11,
+                  fontFamily: "var(--font-mono)",
+                  color: "#8c6418",
+                  textDecoration: "underline",
+                }}
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
+
+          {/* SECTION 01: Token Identity */}
           <div style={{ paddingBottom: 18, borderBottom: "1px solid var(--line-ink)" }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "2px 8px", background: "#edf2ed", border: "1px solid rgba(83, 103, 83, 0.22)", borderRadius: 3, marginBottom: 14 }}>
-              <span style={{ fontSize: 10.5, fontFamily: "var(--font-mono)", color: "#2e4a2e", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em" }}>
-                01 · Token Identity
-              </span>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 8 }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "2px 8px", background: "#edf2ed", border: "1px solid rgba(83, 103, 83, 0.22)", borderRadius: 3 }}>
+                <span style={{ fontSize: 10.5, fontFamily: "var(--font-mono)", color: "#2e4a2e", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em" }}>
+                  01 · Token Identity
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setCopilotOpen(true)}
+                className="btn btn-ghost"
+                style={{
+                  minHeight: 28,
+                  padding: "3px 10px",
+                  fontSize: 11,
+                  fontFamily: "var(--font-mono)",
+                  fontWeight: 650,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  borderRadius: 3,
+                  borderColor: "rgba(184, 134, 11, 0.35)",
+                  background: "#fdfbf5",
+                  color: "#785208",
+                  cursor: "pointer",
+                }}
+              >
+                <Sparkles size={12} color="#8c6418" />
+                <span>Draft with Copilot AI</span>
+              </button>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 14 }}>
               <div className="launch-field-group">
@@ -535,7 +879,7 @@ export default function Launch() {
                   Token Name <span>{name.length}/32</span>
                 </label>
                 <input
-                  className="field"
+                  className={`field ${highlightDraft ? "draft-highlight" : ""}`}
                   placeholder="e.g. Sovereign Bullion"
                   maxLength={32}
                   value={name}
@@ -547,7 +891,7 @@ export default function Launch() {
                   Symbol / Ticker <span>A-Z0-9</span>
                 </label>
                 <input
-                  className="field"
+                  className={`field ${highlightDraft ? "draft-highlight" : ""}`}
                   placeholder="e.g. SOV"
                   maxLength={12}
                   value={ticker}
@@ -667,7 +1011,7 @@ export default function Launch() {
                   Total Supply <span>18 decimals</span>
                 </label>
                 <input
-                  className="field"
+                  className={`field ${highlightDraft ? "draft-highlight" : ""}`}
                   placeholder="1000000000"
                   value={supply}
                   onChange={(e) => setSupply(e.target.value.replace(/[^0-9]/g, ""))}
@@ -684,7 +1028,7 @@ export default function Launch() {
                   Pooled to Liquidity <span>{pooledPercent.toFixed(0)}% of supply</span>
                 </label>
                 <input
-                  className="field"
+                  className={`field ${highlightDraft ? "draft-highlight" : ""}`}
                   placeholder="200000000"
                   value={pooled}
                   onChange={(e) => setPooled(e.target.value.replace(/[^0-9]/g, ""))}
@@ -733,11 +1077,18 @@ export default function Launch() {
 
             <div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 14 }}>
               <div className="launch-field-group">
-                <label className="launch-field-label">
-                  sCRIT to Pair <span>Initial pool depth</span>
-                </label>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
+                  <label className="launch-field-label" style={{ margin: 0 }}>
+                    sCRIT to Pair <span>Initial pool depth</span>
+                  </label>
+                  {account && (
+                    <span className="mono-sm" style={{ fontSize: 11, color: scritBal > 0n ? "#1b5e20" : "#8a5d00", fontWeight: 600 }}>
+                      Bal: {parseFloat(formatEther(scritBal)).toLocaleString("en-US", { maximumFractionDigits: 4 })} sCRIT
+                    </span>
+                  )}
+                </div>
                 <input
-                  className="field"
+                  className={`field ${highlightDraft ? "draft-highlight" : ""}`}
                   placeholder="1000"
                   value={scritAmt}
                   onChange={(e) => setScritAmt(e.target.value.replace(/[^0-9.]/g, ""))}
@@ -757,6 +1108,60 @@ export default function Launch() {
                     </button>
                   ) : null}
                 </div>
+
+                {/* Helpful Zero/Low Balance Recovery Box */}
+                {account && scritBal === 0n && (
+                  <div
+                    style={{
+                      marginTop: 8,
+                      padding: "8px 12px",
+                      borderRadius: 4,
+                      background: "#fdf8ee",
+                      border: "1px solid rgba(184, 134, 11, 0.3)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 8,
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <span style={{ fontSize: 11.5, color: "#8a5d00" }}>
+                      Notice: 0 sCRIT in wallet. Required to seed pool liquidity.
+                    </span>
+                    {chainId === 46630 ? (
+                      <button
+                        type="button"
+                        onClick={requestTestnetFaucet}
+                        disabled={faucetLoading}
+                        style={{
+                          background: "#8c6418",
+                          color: "#ffffff",
+                          border: "none",
+                          borderRadius: 3,
+                          padding: "4px 10px",
+                          fontSize: 11,
+                          fontWeight: 700,
+                          cursor: "pointer",
+                        }}
+                      >
+                        {faucetLoading ? "Transferring..." : "Request 1,000 Pilot sCRIT"}
+                      </button>
+                    ) : (
+                      <Link
+                        href="/proof#reserve"
+                        style={{
+                          color: "#8c6418",
+                          fontSize: 11,
+                          fontWeight: 700,
+                          textDecoration: "underline",
+                          fontFamily: "var(--font-mono)",
+                        }}
+                      >
+                        Acquire Reserve Tokens ↗
+                      </Link>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="launch-field-group">
@@ -870,12 +1275,12 @@ export default function Launch() {
               <div style={{ flex: 1 }}>
                 <span className="mono-sm" style={{ color: "#636b60", textTransform: "uppercase", fontSize: 11, letterSpacing: "0.06em" }}>
                   ENGINE STATUS:{" "}
-                  <b style={{ color: step === "error" ? "#dc2626" : step === "done" ? "#2e7d32" : "var(--ink)" }}>
+                  <b style={{ color: step === "error" ? "#dc2626" : step === "done" ? "#b8962e" : "var(--ink)" }}>
                     {step.toUpperCase()}
                   </b>
                 </span>
                 {msg ? (
-                  <p style={{ margin: "3px 0 0", fontSize: 13, color: step === "error" ? "#b91c1c" : "#2e7d32" }}>
+                  <p style={{ margin: "3px 0 0", fontSize: 13, color: step === "error" ? "#b91c1c" : "#b8962e" }}>
                     {msg}
                   </p>
                 ) : (
@@ -891,11 +1296,11 @@ export default function Launch() {
               <div className="launch-success-trophy">
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(46, 125, 50, 0.12)", border: "1px solid rgba(46, 125, 50, 0.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <CheckCircle2 size={20} color="#2e7d32" />
+                    <div style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(184, 150, 46, 0.12)", border: "1px solid rgba(184, 150, 46, 0.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <CheckCircle2 size={20} color="#b8962e" />
                     </div>
                     <div>
-                      <h4 style={{ margin: 0, color: "#2e7d32", fontSize: 17, fontWeight: 700 }}>
+                      <h4 style={{ margin: 0, color: "#b8962e", fontSize: 17, fontWeight: 700 }}>
                         Liquidity Pair Successfully Struck!
                       </h4>
                       <span style={{ fontSize: 12, color: "#636b60" }}>
@@ -916,7 +1321,7 @@ export default function Launch() {
                       </a>
                     </div>
                     <button type="button" className="launch-chip-btn" onClick={() => copyToClipboard(result.token, "token")}>
-                      {copiedKey === "token" ? <Check size={13} color="#2e7d32" /> : <Copy size={13} />}
+                      {copiedKey === "token" ? <Check size={13} color="#b8962e" /> : <Copy size={13} />}
                     </button>
                   </div>
 
@@ -931,7 +1336,7 @@ export default function Launch() {
                       </span>
                     </div>
                     <button type="button" className="launch-chip-btn" onClick={() => copyToClipboard(result.pool, "pool")}>
-                      {copiedKey === "pool" ? <Check size={13} color="#2e7d32" /> : <Copy size={13} />}
+                      {copiedKey === "pool" ? <Check size={13} color="#b8962e" /> : <Copy size={13} />}
                     </button>
                   </div>
 
@@ -965,7 +1370,7 @@ export default function Launch() {
                       </a>
                     </div>
                     <button type="button" className="launch-chip-btn" onClick={() => copyToClipboard(result.launchHash, "tx")}>
-                      {copiedKey === "tx" ? <Check size={13} color="#2e7d32" /> : <Copy size={13} />}
+                      {copiedKey === "tx" ? <Check size={13} color="#b8962e" /> : <Copy size={13} />}
                     </button>
                   </div>
 
@@ -1005,6 +1410,14 @@ export default function Launch() {
           }}
         />
       ) : null}
+
+      {/* Floating Copilot Chat Widget (Reference: aoksokqwosow.jpg) */}
+      <CopilotDrawerWidget
+        isOpen={copilotOpen}
+        onClose={() => setCopilotOpen(false)}
+        onToggle={() => setCopilotOpen((prev) => !prev)}
+        onApplyDraft={handleApplyDraftFromCopilot}
+      />
     </PageShell>
   );
 }

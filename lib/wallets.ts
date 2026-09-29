@@ -28,10 +28,57 @@ export const EVM_WALLETS: WalletOption[] = [
 type Win = typeof window & {
   ethereum?: Record<string, unknown> & { providers?: Record<string, unknown>[] };
   phantom?: { ethereum?: unknown };
+  rabby?: unknown;
   coinbaseWalletExtension?: unknown;
   okxwallet?: unknown;
   trustwallet?: unknown;
 };
+
+// EIP-6963 announced providers registry
+type EIP6963ProviderDetail = {
+  info: { uuid: string; name: string; icon: string; rdns: string };
+  provider: EvmProvider;
+};
+
+const announcedList: EIP6963ProviderDetail[] = [];
+const subscribers = new Set<() => void>();
+
+export function onWalletsChanged(cb: () => void): () => void {
+  subscribers.add(cb);
+  return () => {
+    subscribers.delete(cb);
+  };
+}
+
+export function requestEip6963Providers(): void {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("eip6963:requestProvider"));
+  }
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("eip6963:announceProvider", (event: unknown) => {
+    const detail = (event as { detail?: EIP6963ProviderDetail }).detail;
+    if (detail?.info && detail.provider) {
+      const idx = announcedList.findIndex(
+        (x) => x.info.uuid === detail.info.uuid || (x.info.rdns && x.info.rdns === detail.info.rdns)
+      );
+      if (idx >= 0) {
+        announcedList[idx] = detail;
+      } else {
+        announcedList.push(detail);
+      }
+      for (const sub of subscribers) {
+        try {
+          sub();
+        } catch {
+          // ignore subscriber errors
+        }
+      }
+    }
+  });
+  requestEip6963Providers();
+}
 
 function win(): Win | null {
   return typeof window === "undefined" ? null : (window as unknown as Win);
@@ -50,37 +97,92 @@ function flag(p: unknown, key: string): boolean {
 function evmCandidates(): unknown[] {
   const w = win();
   if (!w) return [];
-  const multi = Array.isArray(w.ethereum?.providers) ? (w.ethereum.providers as unknown[]) : [];
+  const eth = w.ethereum as (Record<string, unknown> & {
+    providers?: unknown[];
+    providerMap?: Map<string, unknown>;
+    detected?: unknown[];
+  }) | undefined;
+
+  const multi = Array.isArray(eth?.providers) ? eth.providers : [];
+  const detected = Array.isArray(eth?.detected) ? eth.detected : [];
+  const mapValues = eth?.providerMap instanceof Map ? Array.from(eth.providerMap.values()) : [];
+
   return [
     ...multi,
-    w.ethereum,
+    ...detected,
+    ...mapValues,
+    w.rabby,
     w.phantom?.ethereum,
     w.coinbaseWalletExtension,
     w.okxwallet,
     w.trustwallet,
+    w.ethereum,
   ].filter((p) => p !== undefined && p !== null);
 }
 
 /** Pure: does this injected object look like the given wallet? Exported for tests. */
 export function matchEvm(p: unknown, id: EvmWalletId): boolean {
+  if (typeof p !== "object" || p === null) return false;
+  const o = p as Record<string, unknown>;
   switch (id) {
     case "rabby":
-      return flag(p, "isRabby");
-    case "metamask":
-      return flag(p, "isMetaMask") && !flag(p, "isRabby");
-    case "coinbase":
-      return flag(p, "isCoinbaseWallet") || flag(p, "isCoinbaseBrowser");
-    case "okx":
-      return flag(p, "isOkxWallet");
-    case "trust":
-      return flag(p, "isTrust") || flag(p, "isTrustWallet");
+      return o.isRabby === true;
     case "phantom":
-      return flag(p, "isPhantom");
+      return o.isPhantom === true;
+    case "metamask":
+      // Strict MetaMask check: Phantom, Rabby, Coinbase, OKX, Trust all spoof isMetaMask=true
+      return (
+        o.isMetaMask === true &&
+        !o.isPhantom &&
+        !o.isRabby &&
+        !o.isCoinbaseWallet &&
+        !o.isCoinbaseBrowser &&
+        !o.isOkxWallet &&
+        !o.isTrust &&
+        !o.isTrustWallet &&
+        !o.isBraveWallet &&
+        !o.isBitKeep &&
+        !o.isBlockWallet
+      );
+    case "coinbase":
+      return o.isCoinbaseWallet === true || o.isCoinbaseBrowser === true;
+    case "okx":
+      return o.isOkxWallet === true;
+    case "trust":
+      return o.isTrust === true || o.isTrustWallet === true;
   }
 }
 
 /** Resolve the injected EVM provider for a wallet id, or null when missing. */
 export function detectEvm(id: EvmWalletId): EvmProvider | null {
+  // 1. Check EIP-6963 announced providers first (standard modern isolation)
+  for (const item of announcedList) {
+    const rdns = (item.info.rdns || "").toLowerCase();
+    const name = (item.info.name || "").toLowerCase();
+    const p = asEvm(item.provider);
+    if (!p) continue;
+
+    if (id === "metamask" && (rdns.includes("metamask") || name.includes("metamask"))) {
+      return p;
+    }
+    if (id === "rabby" && (rdns.includes("rabby") || name.includes("rabby"))) {
+      return p;
+    }
+    if (id === "phantom" && (rdns.includes("phantom") || name.includes("phantom"))) {
+      return p;
+    }
+    if (id === "coinbase" && (rdns.includes("coinbase") || name.includes("coinbase"))) {
+      return p;
+    }
+    if (id === "okx" && (rdns.includes("okx") || name.includes("okx"))) {
+      return p;
+    }
+    if (id === "trust" && (rdns.includes("trust") || name.includes("trust"))) {
+      return p;
+    }
+  }
+
+  // 2. Injected candidates fallback with strict multi-wallet filtering
   for (const p of evmCandidates()) {
     if (matchEvm(p, id)) {
       const evm = asEvm(p);

@@ -36,7 +36,7 @@ export const FlowLedger: React.FC = () => {
         ? `Reported reserve ${formatUsd(reserveUsd)} is service data. Live on-chain sCRIT supply is not configured, so NAV per token is unavailable.`
         : `Reported reserve ${formatUsd(reserveUsd)} is divided by the live configured supply to calculate NAV per sCRIT. This pilot has no redemption path.`,
       stat: navUsd === null ? "NAV unavailable" : formatUsd(navUsd, 4),
-      sub: "NAV LIVE",
+      sub: "INDICATIVE NAV",
     },
   ];
 
