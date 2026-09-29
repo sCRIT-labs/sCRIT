@@ -49,7 +49,9 @@ export function PinnedDispatch({ items }: { items: Dispatch[] }) {
           </div>
         </div>
         <div className="scrit-dispatch-deck">
-          {items.map((item, index) => <DispatchLayer key={item.tag} item={item} index={index} progress={scrollYProgress} disabled={staticMotion} />)}
+          {items.map((item, index) => (
+            <DispatchLayer key={item.tag} item={item} index={index} progress={scrollYProgress} disabled={staticMotion} sectionRef={section} />
+          ))}
         </div>
         <ScrubMeter progress={scrollYProgress} disabled={staticMotion} labels={["BASKET", "EVIDENCE", "MARKET"]} />
       </div>
@@ -57,21 +59,87 @@ export function PinnedDispatch({ items }: { items: Dispatch[] }) {
   );
 }
 
-function DispatchLayer({ item, index, progress, disabled }: { item: Dispatch; index: number; progress: MotionValue<number>; disabled: boolean }) {
-  const start = .04 + index * .16;
-  const y = useTransform(progress, [start, Math.min(.98, start + .28)], [44, 0]);
-  const opacity = useTransform(progress, [start, Math.min(.98, start + .12)], [0, 1]);
-  const imageScale = useTransform(progress, [start, Math.min(.98, start + .38)], [1.14, 1]);
-  const scanTop = useTransform(progress, [start, Math.min(.98, start + .38)], ["0%", "100%"]);
-  const pointerEvents = useTransform(progress, (value) => value >= start + .1 ? "auto" : "none");
-  return <motion.article className="scrit-dispatch-scrub-card" style={disabled ? undefined : { y, opacity, pointerEvents }}>
-    <div className="scrit-dispatch-scrub-image">
-      <motion.img src={item.image} alt="" loading="lazy" decoding="async" style={disabled ? undefined : { scale: imageScale }} />
-      <motion.span className="scrit-dispatch-scanner-line" style={disabled ? undefined : { top: scanTop }} aria-hidden="true" />
-      <div className="scrit-dispatch-image-hud"><span className="scrit-dispatch-image-index">{item.tag}</span><span className="scrit-dispatch-optic-reticle">⌖</span></div>
-    </div>
-    <div className="scrit-dispatch-scrub-copy"><span className="scrit-dispatch-card-badge mono-sm">0{index + 1}</span><span className="scrit-kicker">{item.tag}</span><h3>{item.title}</h3><p>{item.body}</p><a className="scrit-text-link" href={item.href}>{item.link}<ArrowUpRight size={15} /></a></div>
-  </motion.article>;
+function DispatchLayer({
+  item,
+  index,
+  progress,
+  disabled,
+  sectionRef,
+}: {
+  item: Dispatch;
+  index: number;
+  progress: MotionValue<number>;
+  disabled: boolean;
+  sectionRef: React.RefObject<HTMLElement | null>;
+}) {
+  const entryStart = 0.04 + index * 0.16;
+  const entryEnd = entryStart + 0.14;
+
+  const [held, setHeld] = useState(false);
+
+  useEffect(() => {
+    if (disabled) return;
+    if (sectionRef.current) {
+      const rect = sectionRef.current.getBoundingClientRect();
+      if (rect.bottom <= window.innerHeight || progress.get() >= entryEnd) {
+        setHeld(true);
+      }
+    }
+  }, [disabled, progress, entryEnd, sectionRef]);
+
+  useMotionValueEvent(progress, "change", (value) => {
+    if (disabled) return;
+    if (!held && value >= entryEnd) {
+      setHeld(true);
+    } else if (held && sectionRef.current) {
+      const rect = sectionRef.current.getBoundingClientRect();
+      if (rect.top > 50 && value <= 0.01) {
+        setHeld(false);
+      }
+    }
+  });
+
+  const y = useTransform(progress, [entryStart, Math.min(0.98, entryStart + 0.28)], [44, 0]);
+  const opacity = useTransform(progress, [entryStart, Math.min(0.98, entryStart + 0.12)], [0, 1]);
+  const imageScale = useTransform(progress, [entryStart, Math.min(0.98, entryStart + 0.38)], [1.14, 1]);
+  const scanTop = useTransform(progress, [entryStart, Math.min(0.98, entryStart + 0.38)], ["0%", "100%"]);
+  const pointerEvents = useTransform(progress, (value) => (value >= entryStart + 0.1 ? "auto" : "none"));
+
+  return (
+    <motion.article
+      className="scrit-dispatch-scrub-card"
+      style={disabled ? undefined : held ? { y: 0, opacity: 1, pointerEvents: "auto" } : { y, opacity, pointerEvents }}
+    >
+      <div className="scrit-dispatch-scrub-image">
+        <motion.img
+          src={item.image}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          style={disabled ? undefined : held ? { scale: 1 } : { scale: imageScale }}
+        />
+        <motion.span
+          className="scrit-dispatch-scanner-line"
+          style={disabled ? undefined : held ? { top: "100%" } : { top: scanTop }}
+          aria-hidden="true"
+        />
+        <div className="scrit-dispatch-image-hud">
+          <span className="scrit-dispatch-image-index">{item.tag}</span>
+          <span className="scrit-dispatch-optic-reticle">⌖</span>
+        </div>
+      </div>
+      <div className="scrit-dispatch-scrub-copy">
+        <span className="scrit-dispatch-card-badge mono-sm">0{index + 1}</span>
+        <span className="scrit-kicker">{item.tag}</span>
+        <h3>{item.title}</h3>
+        <p>{item.body}</p>
+        <a className="scrit-text-link" href={item.href}>
+          {item.link}
+          <ArrowUpRight size={15} />
+        </a>
+      </div>
+    </motion.article>
+  );
 }
 
 export function PinnedIndexStory({ metrics }: { metrics: { label: string; value: string; detail: string }[] }) {
@@ -155,7 +223,7 @@ export function PinnedLedgerStory({ copy, lines, session }: { copy: { title: str
 
               <div className="scrit-terminal-lines-stack">
                 {lines.map((line, i) => (
-                  <LedgerLine key={line.key} line={line} index={i} progress={scrollYProgress} disabled={staticMotion} />
+                  <LedgerLine key={line.key} line={line} index={i} progress={scrollYProgress} disabled={staticMotion} sectionRef={section} />
                 ))}
               </div>
 
@@ -186,12 +254,49 @@ function isRecordLive(value: string): boolean {
   return !/AWAITING|UNAVAILABLE|NOT AVAILABLE|WAITING|MISSING/i.test(value);
 }
 
-function LedgerLine({ line, index, progress, disabled }: { line: { key: string; value: string }; index: number; progress: MotionValue<number>; disabled: boolean }) {
+function LedgerLine({
+  line,
+  index,
+  progress,
+  disabled,
+  sectionRef,
+}: {
+  line: { key: string; value: string };
+  index: number;
+  progress: MotionValue<number>;
+  disabled: boolean;
+  sectionRef: React.RefObject<HTMLElement | null>;
+}) {
   const start = .08 + index * .19;
-  const opacity = useTransform(progress, [start, Math.min(.99, start + .13)], [0, 1]);
-  const x = useTransform(progress, [start, Math.min(.99, start + .13)], [24, 0]);
+  const end = Math.min(.99, start + .13);
+  const [held, setHeld] = useState(false);
+
+  useEffect(() => {
+    if (disabled) return;
+    if (sectionRef.current) {
+      const rect = sectionRef.current.getBoundingClientRect();
+      if (rect.bottom <= window.innerHeight || progress.get() >= end) {
+        setHeld(true);
+      }
+    }
+  }, [disabled, progress, end, sectionRef]);
+
+  useMotionValueEvent(progress, "change", (val) => {
+    if (disabled) return;
+    if (!held && val >= end) {
+      setHeld(true);
+    } else if (held && sectionRef.current) {
+      const rect = sectionRef.current.getBoundingClientRect();
+      if (rect.top > 50 && val <= 0.01) {
+        setHeld(false);
+      }
+    }
+  });
+
+  const opacity = useTransform(progress, [start, end], [0, 1]);
+  const x = useTransform(progress, [start, end], [24, 0]);
   const live = isRecordLive(line.value);
-  return <motion.div className={`scrit-terminal-line${live ? " is-verified" : " is-pending"}`} style={disabled ? undefined : { opacity, x }}>
+  return <motion.div className={`scrit-terminal-line${live ? " is-verified" : " is-pending"}`} style={disabled ? undefined : held ? { opacity: 1, x: 0 } : { opacity, x }}>
     <span className="scrit-terminal-line-head"><span className="scrit-terminal-line-num">0{index + 1}</span><span className="scrit-terminal-key">{line.key}</span></span>
     <span className="scrit-terminal-line-val-group"><span className="scrit-terminal-value">{line.value}</span><span className="scrit-terminal-ack-tag">{live ? "ACK" : "PENDING"}</span></span>
   </motion.div>;
