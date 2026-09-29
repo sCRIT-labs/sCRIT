@@ -1456,7 +1456,16 @@ html.has-reveal-js .scrit-subpage-root.scrit-redesign .scrit-reveal {
 .scrit-subpage-root.scrit-redesign .launch-grid-layout { gap: 20px; }
 .scrit-subpage-root.scrit-redesign .launch-preview-panel,
 .scrit-subpage-root.scrit-redesign .launch-form-panel { background: #f9f7f1; border: 1px solid var(--line-ink); border-radius: 2px; box-shadow: 0 14px 40px rgba(34,37,33,.05); }
-.scrit-subpage-root.scrit-redesign .launch-preview-panel { position: sticky; top: 90px; align-self: start; }
+.scrit-subpage-root.scrit-redesign .launch-preview-panel {
+  position: sticky;
+  top: 80px;
+  align-self: start;
+  max-height: calc(100vh - 96px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(24, 26, 24, 0.2) transparent;
+}
 .scrit-subpage-root.scrit-redesign .launch-token-avatar-badge { color: #f8f5ec; background: var(--moss); border: 0; border-radius: 50%; }
 .scrit-subpage-root.scrit-redesign .metal-seg-gold { background: var(--signal); }
 .scrit-subpage-root.scrit-redesign .metal-seg-silver { background: #aaa99f; }
@@ -2722,6 +2731,12 @@ html.has-reveal-js .scrit-dispatch-scrub:not(.is-static) .scrit-dispatch-contain
     grid-template-columns: 1fr;
     gap: 24px;
   }
+  .launch-preview-panel,
+  .scrit-subpage-root.scrit-redesign .launch-preview-panel {
+    position: relative;
+    top: auto;
+    max-height: none;
+  }
 }
 
 /* Left & Right Editorial Panels */
@@ -2729,13 +2744,31 @@ html.has-reveal-js .scrit-dispatch-scrub:not(.is-static) .scrit-dispatch-contain
   background: #ffffff;
   border: 1px solid var(--line-ink);
   border-radius: 4px;
-  padding: 28px;
+  padding: 16px 18px;
   position: sticky;
-  top: 96px;
+  top: 80px;
+  max-height: calc(100vh - 96px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(24, 26, 24, 0.2) transparent;
   box-shadow: 0 12px 36px rgba(24, 26, 24, 0.04);
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 12px;
+}
+
+.launch-preview-panel::-webkit-scrollbar {
+  width: 4px;
+}
+
+.launch-preview-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.launch-preview-panel::-webkit-scrollbar-thumb {
+  background: rgba(24, 26, 24, 0.2);
+  border-radius: 4px;
 }
 
 .launch-form-panel {
@@ -2751,9 +2784,9 @@ html.has-reveal-js .scrit-dispatch-scrub:not(.is-static) .scrit-dispatch-contain
 
 /* Token Avatar Badge - Physical Minted Coin Look */
 .launch-token-avatar-badge {
-  width: 58px;
-  height: 58px;
-  border-radius: 12px;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
   background: linear-gradient(135deg, #fcf9f2 0%, #eee6d0 100%);
   border: 1.5px solid #c9922e;
   display: flex;
@@ -2761,7 +2794,7 @@ html.has-reveal-js .scrit-dispatch-scrub:not(.is-static) .scrit-dispatch-contain
   justify-content: center;
   font-family: var(--font-mono);
   font-weight: 800;
-  font-size: 19px;
+  font-size: 15px;
   color: #735017;
   box-shadow: 0 4px 14px rgba(201, 146, 46, 0.16);
   flex-shrink: 0;
@@ -2772,19 +2805,19 @@ html.has-reveal-js .scrit-dispatch-scrub:not(.is-static) .scrit-dispatch-contain
   background: #f9f7f1;
   border: 1px solid var(--line-ink);
   border-radius: 4px;
-  padding: 18px 20px;
+  padding: 10px 14px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 6px;
 }
 
 .launch-metric-line {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 13px;
+  font-size: 12px;
   border-bottom: 1px solid rgba(24, 26, 24, 0.07);
-  padding-bottom: 10px;
+  padding-bottom: 5px;
 }
 
 .launch-metric-line:last-child {
@@ -2794,14 +2827,14 @@ html.has-reveal-js .scrit-dispatch-scrub:not(.is-static) .scrit-dispatch-contain
 
 .launch-metric-lbl {
   color: #636b60;
-  font-size: 12.5px;
+  font-size: 11.5px;
 }
 
 .launch-metric-val {
   color: var(--ink);
   font-weight: 600;
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 12px;
 }
 
 /* Field Group & Labels */

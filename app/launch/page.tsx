@@ -466,8 +466,8 @@ export default function Launch() {
         {/* Left Column: Live Economics & Metal Anchor Console */}
         <div className="launch-preview-panel">
           {/* Token Card Live Header */}
-          <div className="launch-header-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 18, borderBottom: "1px solid var(--line-ink)" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div className="launch-header-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 10, borderBottom: "1px solid var(--line-ink)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <div className="launch-token-avatar-badge" style={{ overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 {logoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -477,19 +477,19 @@ export default function Launch() {
                 )}
               </div>
               <div>
-                <span className="mono-sm" style={{ letterSpacing: "0.08em", color: "#6b7268", textTransform: "uppercase", fontSize: 11 }}>
+                <span className="mono-sm" style={{ letterSpacing: "0.08em", color: "#6b7268", textTransform: "uppercase", fontSize: 10 }}>
                   PAIR ANCHOR
                 </span>
-                <h3 style={{ fontSize: 20, fontWeight: 700, margin: "2px 0 0", color: "var(--ink)", fontFamily: "var(--font-mono)" }}>
+                <h3 style={{ fontSize: 17, fontWeight: 700, margin: "1px 0 0", color: "var(--ink)", fontFamily: "var(--font-mono)" }}>
                   {ticker ? ticker.toUpperCase() : "TOKEN"} <span style={{ color: "#a5aba1" }}>/</span> <span style={{ color: "#8c6418" }}>sCRIT</span>
                 </h3>
-                <span style={{ fontSize: 12, color: "#6b7268" }}>
+                <span style={{ fontSize: 11, color: "#6b7268" }}>
                   {name ? name : "Unnamed Token"}
                 </span>
               </div>
             </div>
             <div style={{ textAlign: "right" }}>
-              <span className="scrit-nav-pill-active" style={{ fontSize: 10, padding: "3px 9px" }}>
+              <span className="scrit-nav-pill-active" style={{ fontSize: 9.5, padding: "2px 8px" }}>
                 {chainId === 4663 ? "Mainnet" : "Testnet"}
               </span>
             </div>
@@ -531,13 +531,13 @@ export default function Launch() {
 
           {/* Allocation Ratio Bar */}
           <div>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 8, color: "#636b60" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5, marginBottom: 5, color: "#636b60" }}>
               <span>Liquidity Allocation</span>
               <span className="mono-sm" style={{ color: "var(--ink)" }}>
                 <b>{pooledPercent.toFixed(1)}%</b> in LP ({parsedSupply > 0 ? (100 - pooledPercent).toFixed(1) : 0}% retained)
               </span>
             </div>
-            <div style={{ height: 8, background: "#edeae0", borderRadius: 999, overflow: "hidden", display: "flex" }}>
+            <div style={{ height: 6, background: "#edeae0", borderRadius: 999, overflow: "hidden", display: "flex" }}>
               <div
                 style={{
                   width: `${pooledPercent}%`,
@@ -551,16 +551,16 @@ export default function Launch() {
 
           {/* Nine-Commodity Basket Anchor */}
           <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
-              <span style={{ fontSize: 12.5, fontWeight: 600, color: "var(--ink)", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                <ShieldCheck size={14} color="#8c6418" strokeWidth={2} />
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 5 }}>
+              <span style={{ fontSize: 11.5, fontWeight: 600, color: "var(--ink)", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                <ShieldCheck size={13} color="#8c6418" strokeWidth={2} />
                 Physical Commodity Index Target
               </span>
-              <span className="mono-sm" style={{ color: "#8c6418", fontSize: 11 }}>
+              <span className="mono-sm" style={{ color: "#8c6418", fontSize: 10.5 }}>
                 9 target commodities
               </span>
             </div>
-            <div className="metal-composition-bar" aria-label="Nine-commodity target basket" style={{ display: "flex", height: 7, borderRadius: 999, overflow: "hidden" }}>
+            <div className="metal-composition-bar" aria-label="Nine-commodity target basket" style={{ display: "flex", height: 5, borderRadius: 999, overflow: "hidden" }}>
               {BASKET.map((row, index) => (
                 <div
                   key={row.symbol}
@@ -573,14 +573,14 @@ export default function Launch() {
                 />
               ))}
             </div>
-            <div className="metal-legend-row" style={{ display: "flex", flexWrap: "wrap", gap: "6px 12px", marginTop: 10 }}>
+            <div className="metal-legend-row" style={{ display: "flex", flexWrap: "wrap", gap: "2px 8px", marginTop: 6 }}>
               {BASKET.map((row, index) => (
-                <span className="metal-legend-item" key={row.symbol} style={{ fontSize: 11, color: "#636b60", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                <span className="metal-legend-item" key={row.symbol} style={{ fontSize: 10, color: "#636b60", display: "inline-flex", alignItems: "center", gap: 4 }}>
                   <span
                     className="metal-dot"
                     style={{
-                      width: 6,
-                      height: 6,
+                      width: 5,
+                      height: 5,
                       borderRadius: "50%",
                       background: ["#d9a92e", "#b8b8c0", "#50e3c2", "#c27a50", "#8db4d8", "#7b93cd", "#9b7bc4", "#719875", "#b8a15f"][index],
                     }}
@@ -597,32 +597,32 @@ export default function Launch() {
               background: "linear-gradient(135deg, #fdfaf3 0%, #f6f0e2 100%)",
               border: "1.5px solid rgba(201, 146, 46, 0.45)",
               borderRadius: 6,
-              padding: "16px 18px",
+              padding: "10px 14px",
               display: "flex",
               flexDirection: "column",
-              gap: 10,
+              gap: 6,
               boxShadow: "0 6px 20px rgba(201, 146, 46, 0.08)",
             }}
           >
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", fontWeight: 700, color: "#8c6418", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+              <span style={{ fontSize: 10.5, fontFamily: "var(--font-mono)", fontWeight: 700, color: "#8c6418", textTransform: "uppercase", letterSpacing: "0.07em" }}>
                 V4 Hook Perpetual Revenue
               </span>
-              <span style={{ fontSize: 10, background: "#8c6418", color: "#ffffff", padding: "2px 7px", borderRadius: 3, fontWeight: 700, fontFamily: "var(--font-mono)" }}>
+              <span style={{ fontSize: 9.5, background: "#8c6418", color: "#ffffff", padding: "1px 6px", borderRadius: 3, fontWeight: 700, fontFamily: "var(--font-mono)" }}>
                 75% TO ISSUER
               </span>
             </div>
-            <p style={{ fontSize: 12, color: "#555d54", margin: 0, lineHeight: 1.45 }}>
+            <p style={{ fontSize: 11, color: "#555d54", margin: 0, lineHeight: 1.35 }}>
               On Rail A, your project treasury earns <b>1.875% perpetual volume fee</b> from every swap through the Uniswap V4 Tax Hook.
             </p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, paddingTop: 6, borderTop: "1px dashed rgba(140, 100, 24, 0.2)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, paddingTop: 5, borderTop: "1px dashed rgba(140, 100, 24, 0.2)" }}>
               <div>
-                <span style={{ fontSize: 10.5, color: "#7a8277", fontFamily: "var(--font-mono)" }}>AT $100K DAILY VOL</span>
-                <div style={{ fontSize: 13.5, fontWeight: 700, color: "#8c6418" }}>$1,875 / day</div>
+                <span style={{ fontSize: 9.5, color: "#7a8277", fontFamily: "var(--font-mono)" }}>AT $100K DAILY VOL</span>
+                <div style={{ fontSize: 12.5, fontWeight: 700, color: "#8c6418" }}>$1,875 / day</div>
               </div>
               <div>
-                <span style={{ fontSize: 10.5, color: "#7a8277", fontFamily: "var(--font-mono)" }}>EST. MONTHLY</span>
-                <div style={{ fontSize: 13.5, fontWeight: 700, color: "#1b5e20" }}>~$56,250 / mo</div>
+                <span style={{ fontSize: 9.5, color: "#7a8277", fontFamily: "var(--font-mono)" }}>EST. MONTHLY</span>
+                <div style={{ fontSize: 12.5, fontWeight: 700, color: "#1b5e20" }}>~$56,250 / mo</div>
               </div>
             </div>
           </div>
@@ -631,7 +631,7 @@ export default function Launch() {
           <div
             style={{
               position: "relative",
-              height: 120,
+              height: 54,
               borderRadius: 4,
               overflow: "hidden",
               border: "1px solid var(--line-ink)",
@@ -647,20 +647,20 @@ export default function Launch() {
               style={{
                 position: "absolute",
                 inset: 0,
-                background: "linear-gradient(180deg, rgba(24,26,24,0.15) 0%, rgba(24,26,24,0.85) 100%)",
+                background: "linear-gradient(180deg, rgba(24,26,24,0.3) 0%, rgba(24,26,24,0.88) 100%)",
                 display: "flex",
                 flexDirection: "column",
-                justifyContent: "flex-end",
-                padding: 14,
+                justifyContent: "center",
+                padding: "6px 12px",
               }}
             >
-              <span style={{ fontSize: 10, fontFamily: "var(--font-mono)", color: "#f2c94c", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 700 }}>
+              <span style={{ fontSize: 9.5, fontFamily: "var(--font-mono)", color: "#f2c94c", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 700 }}>
                 {TAX_ACTIVE ? "V4 PROJECT POOL FEE STRUCTURE" : "ROBINHOOD NETWORK STATUS"}
               </span>
-              <span style={{ fontSize: 12, color: "#ffffff", fontWeight: 500, lineHeight: 1.4 }}>
+              <span style={{ fontSize: 10.5, color: "#ffffff", fontWeight: 500, lineHeight: 1.3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                 {TAX_ACTIVE
-                  ? "2.5% hook tax split 75% reserve treasury / 25% operations. Reserve figure updates only on custodian attestation."
-                  : "Mainnet applies 2.5% V4 hook fee. Testnet rehearsal runs V3 zero-tax pools for developer testing."}
+                  ? "2.5% hook tax split 75% reserve treasury / 25% operations."
+                  : "Mainnet applies 2.5% V4 hook fee. Testnet rehearsal runs V3 zero-tax pools."}
               </span>
             </div>
           </div>
