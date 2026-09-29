@@ -1693,7 +1693,6 @@ html.has-reveal-js .scrit-dispatch-scrub:not(.is-static) .scrit-dispatch-contain
 .scrit-dispatch-live-beacon {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
   padding: 3px 8px;
   background: rgba(58, 77, 57, 0.08);
   border: 1px solid rgba(58, 77, 57, 0.2);
@@ -1701,20 +1700,6 @@ html.has-reveal-js .scrit-dispatch-scrub:not(.is-static) .scrit-dispatch-contain
   font: 600 7.5px var(--font-mono);
   letter-spacing: 0.12em;
   color: var(--moss);
-}
-
-.scrit-beacon-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #2cb67d;
-  box-shadow: 0 0 6px rgba(44, 182, 125, 0.6);
-  animation: pulse-beacon 2s infinite ease-in-out;
-}
-
-@keyframes pulse-beacon {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.45; transform: scale(0.85); }
 }
 
 .scrit-dispatch-header-block h2 {
@@ -1770,21 +1755,15 @@ html.has-reveal-js .scrit-dispatch-scrub:not(.is-static) .scrit-dispatch-contain
 
 .scrit-dispatch-tab.is-active {
   background: #ffffff;
-  border-color: var(--moss);
-  box-shadow: 0 8px 24px rgba(24, 26, 24, 0.08);
+  border-color: rgba(24, 26, 24, 0.22);
+  border-left: 3px solid var(--moss);
+  box-shadow: 0 4px 16px rgba(24, 26, 24, 0.06);
 }
 
 .scrit-dispatch-tab-left {
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-.scrit-dispatch-tab-index {
-  font-weight: 700;
-  font-size: 10px;
-  color: var(--moss);
-  opacity: 0.8;
 }
 
 .scrit-dispatch-tab-titles {
@@ -1820,26 +1799,13 @@ html.has-reveal-js .scrit-dispatch-scrub:not(.is-static) .scrit-dispatch-contain
   border-radius: 2px;
 }
 
-.scrit-dispatch-tab-pip {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(24, 26, 24, 0.18);
-  transition: all 0.2s ease;
-}
-
-.scrit-dispatch-tab-pip.is-lit {
-  background: var(--signal);
-  box-shadow: 0 0 8px var(--signal);
-}
-
 .scrit-tab-progress-bar {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--signal);
+  background: var(--moss);
   pointer-events: none;
 }
 
@@ -2585,9 +2551,7 @@ html.has-reveal-js .scrit-dispatch-scrub:not(.is-static) .scrit-dispatch-contain
 .scrit-reticle-ring-outer { position: absolute; inset: 0; border: 1px dashed rgba(224,180,76,.42); border-radius: 50%; }
 .scrit-reticle-ring-inner { position: absolute; inset: 14px; border: 1px solid rgba(255,255,255,.3); border-radius: 50%; }
 .scrit-assurance-glyph { position: relative; z-index: 2; color: rgba(250,248,242,.96); font: 450 clamp(48px,6vw,78px)/.9 var(--font-serif); letter-spacing: -.07em; text-shadow: 0 6px 30px rgba(0,0,0,.6); }
-.scrit-assurance-art-footer { position: absolute; z-index: 3; left: 16px; right: 16px; bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
 .scrit-assurance-status-chip { display: inline-flex; align-items: center; gap: 6px; font: 600 7px var(--font-mono); letter-spacing: .14em; color: rgba(250,248,242,.88); text-shadow: 0 1px 4px rgba(0,0,0,.8); }
-.scrit-assurance-beacon { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--signal-bright); box-shadow: 0 0 6px var(--signal-bright); }
 .scrit-assurance-art-footer small { color: rgba(250,248,242,.65); font: 600 7px var(--font-mono); letter-spacing: .12em; }
 
 .scrit-assurance-copy { flex: 1; min-height: 0; padding: clamp(16px,1.8vw,24px); display: flex; flex-direction: column; align-items: flex-start; }
@@ -2636,10 +2600,10 @@ html.has-reveal-js .scrit-dispatch-scrub:not(.is-static) .scrit-dispatch-contain
   html.has-reveal-js .scrit-index-scrub:not(.is-static) { min-height: 200vh; }
   html.has-reveal-js .scrit-index-scrub:not(.is-static) > .scrit-index-scrub-stage { grid-template-rows: 1fr auto; }
   html.has-reveal-js .scrit-index-scrub:not(.is-static) .scrit-scrub-meter { grid-column: 1/-1; }
-  html.has-reveal-js .scrit-ledger-scrub:not(.is-static) { min-height: 200vh; }
+  html.has-reveal-js .scrit-ledger-scrub:not(.is-static) { min-height: 250vh; }
   html.has-reveal-js .scrit-ledger-scrub:not(.is-static) > .scrit-ledger-scrub-stage { grid-template-rows: 1fr auto; }
   html.has-reveal-js .scrit-ledger-scrub:not(.is-static) .scrit-scrub-meter { grid-column: 1/-1; }
-  html.has-reveal-js .scrit-assurance-scrub:not(.is-static) { min-height: 220vh; }
+  html.has-reveal-js .scrit-assurance-scrub:not(.is-static) { min-height: 260vh; }
   html.has-reveal-js .scrit-assurance-scrub:not(.is-static) .scrit-assurance-header-bar,
   html.has-reveal-js .scrit-assurance-scrub:not(.is-static) .scrit-assurance-head { position: relative; z-index: 5; margin: 0 0 24px; }
   html.has-reveal-js .scrit-assurance-scrub:not(.is-static) .scrit-assurance-deck { position: relative; inset: auto; display: grid; align-self: stretch; }

@@ -24,7 +24,7 @@ function useStaticMotion() {
 
 const DISPATCH_METADATA = [
   {
-    pillarCode: "PILLAR 01",
+    pillarCode: "RAIL A ENGINE",
     shortTitle: "Rail A Liquidity",
     shortDesc: "Uniswap V4 Hooks & Reserve Tax",
     pillBadge: "LIQUIDITY RAIL",
@@ -47,7 +47,7 @@ const DISPATCH_METADATA = [
     ],
   },
   {
-    pillarCode: "PILLAR 02",
+    pillarCode: "STRATEGIC BASKET",
     shortTitle: "Strategic Basket",
     shortDesc: "9 Minerals Across 3 Sectors",
     pillBadge: "CRITICAL BASKET",
@@ -70,7 +70,7 @@ const DISPATCH_METADATA = [
     ],
   },
   {
-    pillarCode: "PILLAR 03",
+    pillarCode: "CUSTODIAN GATE",
     shortTitle: "Custodian Gate",
     shortDesc: "EIP-712 Attestation Proofs",
     pillBadge: "CRYPTOGRAPHIC GATE",
@@ -146,7 +146,6 @@ export function PinnedDispatch({ items }: { items: Dispatch[] }) {
             <div className="scrit-dispatch-kicker-row">
               <span className="scrit-kicker">THE PILOT, CLEARLY STATED</span>
               <span className="scrit-dispatch-live-beacon">
-                <span className="scrit-beacon-dot" />
                 PILOT ARCHITECTURE
               </span>
             </div>
@@ -174,7 +173,6 @@ export function PinnedDispatch({ items }: { items: Dispatch[] }) {
                   onClick={() => handleTabClick(index)}
                 >
                   <div className="scrit-dispatch-tab-left">
-                    <span className="scrit-dispatch-tab-index mono-sm">0{index + 1}</span>
                     <div className="scrit-dispatch-tab-titles">
                       <span className="scrit-dispatch-tab-heading">{meta.shortTitle}</span>
                       <span className="scrit-dispatch-tab-sub">{meta.shortDesc}</span>
@@ -182,7 +180,6 @@ export function PinnedDispatch({ items }: { items: Dispatch[] }) {
                   </div>
                   <div className="scrit-dispatch-tab-right">
                     <span className="scrit-dispatch-tab-badge mono-sm">{meta.pillBadge}</span>
-                    <span className={`scrit-dispatch-tab-pip${isActive ? " is-lit" : ""}`} />
                   </div>
                   {/* Micro Progress Bar inside Tab */}
                   <TabProgressBar
@@ -219,7 +216,7 @@ export function PinnedDispatch({ items }: { items: Dispatch[] }) {
           <ScrubMeter
             progress={scrollYProgress}
             disabled={staticMotion}
-            labels={["01 · RAIL A", "02 · THE BASKET", "03 · THE GATE"]}
+            labels={["RAIL A", "CRITICAL BASKET", "CUSTODIAN GATE"]}
           />
         </div>
 
@@ -232,7 +229,7 @@ export function PinnedDispatch({ items }: { items: Dispatch[] }) {
                 <span className="mono-sm scrit-vault-label">EVIDENCE CHAMBER // 3D FOCAL STACK</span>
               </div>
               <div className="mono-sm scrit-vault-hud-right">
-                ACTIVE PHASE: 0{activeIndex + 1} / 03
+                {activeMeta.pillBadge}
               </div>
             </div>
 
@@ -357,7 +354,6 @@ function DispatchKineticCard({
       {/* Top Header Strip */}
       <div className="scrit-focal-card-topbar">
         <div className="scrit-focal-card-topbar-left">
-          <span className="mono-sm scrit-focal-card-num">0{index + 1}</span>
           <span className="mono-sm scrit-focal-card-cat">{meta.pillarCode}</span>
         </div>
         <div className="scrit-focal-card-topbar-right">
@@ -383,7 +379,6 @@ function DispatchKineticCard({
         {/* Holographic Top Status & Certificate Pills */}
         <div className="scrit-focal-image-top-tags">
           <span className="mono-sm scrit-focal-status-tag">
-            <span className="scrit-focal-status-dot" />
             {meta.hudStatus}
           </span>
           <span className="mono-sm scrit-focal-cert-tag">{meta.hudCert}</span>
@@ -428,7 +423,6 @@ function DispatchKineticCard({
         <div className="scrit-focal-chips">
           {meta.chips.map((chip) => (
             <span key={chip} className="scrit-focal-chip mono-sm">
-              <span className="scrit-chip-dot" />
               {chip}
             </span>
           ))}
@@ -488,7 +482,7 @@ export function PinnedReserveStory({ scenes }: { scenes: Narrative[] }) {
 export function PinnedLedgerStory({ copy, lines, session }: { copy: { title: string; text: string }; lines: { key: string; value: string }[]; session: string }) {
   const section = useRef<HTMLElement>(null);
   const staticMotion = useStaticMotion();
-  const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end start"] });
+  const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end end"] });
   const beamTop = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
   return (
     <section ref={section} className={`scrit-scrub scrit-ledger-scrub${staticMotion ? " is-static" : ""}`} id="ledger" aria-label="Pilot record status">
@@ -573,7 +567,7 @@ function LedgerLine({
   progress: MotionValue<number>;
   disabled: boolean;
 }) {
-  const start = 0.05 + index * 0.10;
+  const start = 0.04 + index * 0.10;
   const end = start + 0.10;
 
   const opacity = useTransform(progress, [start, end], [0, 1]);
@@ -585,7 +579,6 @@ function LedgerLine({
       style={disabled ? undefined : { opacity, x }}
     >
       <span className="scrit-terminal-line-head">
-        <span className="scrit-terminal-line-num">0{index + 1}</span>
         <span className="scrit-terminal-key">{line.key}</span>
       </span>
       <span className="scrit-terminal-line-val-group">
@@ -599,7 +592,7 @@ function LedgerLine({
 export function PinnedAssuranceStory({ items }: { items: { title: string; body: string; href: string; link: string; mark: string; image: string }[] }) {
   const section = useRef<HTMLElement>(null);
   const staticMotion = useStaticMotion();
-  const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end start"] });
+  const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end end"] });
   return <section ref={section} className={`scrit-scrub scrit-assurance-scrub${staticMotion ? " is-static" : ""}`} id="trust" aria-label="Pilot assurances and limitations">
       <div className="scrit-scrub-stage"><header className="scrit-assurance-header-bar">
         <div className="scrit-assurance-title-block"><span className="scrit-kicker">TRUST, WITHOUT THE GLOSS</span><h2>What the pilot can show. <em>And what it cannot promise.</em></h2></div>
@@ -612,20 +605,20 @@ export function PinnedAssuranceStory({ items }: { items: { title: string; body: 
 }
 
 function AssuranceLayer({ item, index, progress, disabled }: { item: { title: string; body: string; href: string; link: string; mark: string; image: string }; index: number; progress: MotionValue<number>; disabled: boolean }) {
-  const entryStart = 0.03 + index * 0.12;
-  const entryEnd = entryStart + 0.11;
+  const entryStart = 0.05 + index * 0.24;
+  const entryEnd = entryStart + 0.18;
 
-  const rotateX = useTransform(progress, [entryStart, entryEnd], [14, 0]);
-  const y = useTransform(progress, [entryStart, entryEnd], [48, 0]);
+  const rotateX = useTransform(progress, [entryStart, entryEnd], [12, 0]);
+  const y = useTransform(progress, [entryStart, entryEnd], [40, 0]);
   const opacity = useTransform(progress, [entryStart, entryEnd], [0, 1]);
   const pointerEvents = useTransform(progress, (value) => (value >= entryStart + 0.04 ? "auto" : "none"));
 
   const ringRotate = useTransform(progress, [0, 1], [0, 240]);
-  const ringScale = useTransform(progress, [entryStart, entryEnd], [0.8, 1]);
+  const ringScale = useTransform(progress, [entryStart, entryEnd], [0.85, 1]);
 
   // Active laser sweep window for holographic sheen
-  const activeStart = 0.03 + index * 0.16;
-  const activeEnd = activeStart + 0.16;
+  const activeStart = 0.05 + index * 0.26;
+  const activeEnd = activeStart + 0.22;
   const sweepX = useTransform(progress, [activeStart, activeEnd], ["-100%", "200%"]);
 
   const boundaryNotes = [
@@ -648,7 +641,7 @@ function AssuranceLayer({ item, index, progress, disabled }: { item: { title: st
           <span className="scrit-assurance-glyph">{item.mark}</span>
         </div>
         <div className="scrit-assurance-art-footer">
-          <span className="scrit-assurance-status-chip"><i className="scrit-assurance-beacon" />PILOT ACTIVE</span>
+          <span className="scrit-assurance-status-chip">PILOT ACTIVE</span>
           <small>FIELD RECORD / sCRIT</small>
         </div>
         <motion.span className="scrit-assurance-hologram-sweep" style={disabled ? undefined : { left: sweepX }} />
