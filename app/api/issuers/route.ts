@@ -1,10 +1,18 @@
 import { NextResponse } from "next/server";
+import { createHmac } from "node:crypto";
 import type { Address } from "viem";
-import { checkAdmin, issuerApplicationStatus, listIssuers, setIssuer } from "@/lib/db";
+import { checkAdmin, consumeApRateLimit, issuerApplicationStatus, listIssuers, setIssuer } from "@/lib/db";
 import { processIssuerApprovalOnChain } from "@/lib/issuer-onchain";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+export const maxDuration = 60;
+
+function rateLimitKey(req: Request): string {
+  const pepper = process.env.AP_RATE_LIMIT_SECRET || process.env.ADMIN_KEY || "";
+  const ip = (req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "unknown").slice(0, 120);
+  return createHmac("sha256", pepper).update(`issuers:${ip}`).digest("hex");
+}
 
 const validWallet = (wallet: string) => /^0x[0-9a-fA-F]{40}$/.test(wallet) && !/^0x0{40}$/i.test(wallet);
 
@@ -54,8 +62,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "field_too_long" }, { status: 400 });
   }
 
-  const targetName = name || "Verified Issuer";
-  const targetContact = contact || "desk@scrit.finance";
+  if (name.length === 0) {
+    return NextResponse.json({ error: "name_required" }, { status: 400 });
+  }
+  const targetName = name;
+  const targetContact = contact;
 
   // If caller attempts an explicit approval flag without admin privileges, reject as unauthorized
   if (body.approved !== undefined && !checkAdmin(req)) {
@@ -80,6 +91,20 @@ export async function POST(req: Request) {
     } catch {
       return NextResponse.json({ error: "database_unavailable" }, { status: 503 });
     }
+  }
+
+  // Abuse guard: public submissions are rate-limited per IP so a funded
+  // spammer cannot trigger unlimited operator-paid timelock transactions.
+  const pepper = process.env.AP_RATE_LIMIT_SECRET || process.env.ADMIN_KEY || "";
+  if (pepper.length < 32) {
+    return NextResponse.json({ error: "rate_limit_unconfigured" }, { status: 503 });
+  }
+  try {
+    if (!(await consumeApRateLimit(rateLimitKey(req)))) {
+      return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+    }
+  } catch {
+    return NextResponse.json({ error: "service_unavailable" }, { status: 503 });
   }
 
   // Real-Time Algorithmic On-Chain Approval Engine:
