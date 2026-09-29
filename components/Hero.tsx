@@ -23,7 +23,7 @@ export const Hero: React.FC = () => {
       <div className="hero-inner" style={{ position: "relative" }}>
         <p className="eyebrow rv">Commodity index pilot · precious basket</p>
         <h1 className="rv" style={{ ["--d" as string]: "90ms" }}>
-          Every launch,<br /><em className="shimmer">weighed in metal.</em>
+          Every launch,<br /><em className="shimmer">paired with sCRIT.</em>
         </h1>
         <p className="lede rv" style={{ ["--d" as string]: "180ms" }}>
           sCRIT pairs every new token against one pilot index — gold, silver and

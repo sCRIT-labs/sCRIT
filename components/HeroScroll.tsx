@@ -287,7 +287,7 @@ export function HeroScroll() {
                     color: textColor,
                   }}
                 >
-                  Weighed in Metal
+                  Paired with sCRIT
                 </span>
               </span>
             </h1>
