@@ -25,10 +25,10 @@ function useStaticMotion() {
 export function PinnedDispatch({ items }: { items: Dispatch[] }) {
   const section = useRef<HTMLElement>(null);
   const staticMotion = useStaticMotion();
-  const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end end"] });
+  const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end start"] });
   const activeIndex = useTransform(scrollYProgress, (value) => {
-    if (value < 0.35) return 0;
-    if (value < 0.68) return 1;
+    if (value < 0.20) return 0;
+    if (value < 0.36) return 1;
     return 2;
   });
   const [activeLabel, setActiveLabel] = useState(items[0]?.tag || "THE INDEX");
@@ -50,7 +50,7 @@ export function PinnedDispatch({ items }: { items: Dispatch[] }) {
         </div>
         <div className="scrit-dispatch-deck">
           {items.map((item, index) => (
-            <DispatchLayer key={item.tag} item={item} index={index} progress={scrollYProgress} disabled={staticMotion} sectionRef={section} />
+            <DispatchLayer key={item.tag} item={item} index={index} progress={scrollYProgress} disabled={staticMotion} />
           ))}
         </div>
         <ScrubMeter progress={scrollYProgress} disabled={staticMotion} labels={["BASKET", "EVIDENCE", "MARKET"]} />
@@ -64,51 +64,25 @@ function DispatchLayer({
   index,
   progress,
   disabled,
-  sectionRef,
 }: {
   item: Dispatch;
   index: number;
   progress: MotionValue<number>;
   disabled: boolean;
-  sectionRef: React.RefObject<HTMLElement | null>;
 }) {
-  const entryStart = 0.04 + index * 0.16;
-  const entryEnd = entryStart + 0.14;
+  const start = 0.04 + index * 0.14;
+  const end = start + 0.12;
 
-  const [held, setHeld] = useState(false);
-
-  useEffect(() => {
-    if (disabled) return;
-    if (sectionRef.current) {
-      const rect = sectionRef.current.getBoundingClientRect();
-      if (rect.bottom <= window.innerHeight || progress.get() >= entryEnd) {
-        setHeld(true);
-      }
-    }
-  }, [disabled, progress, entryEnd, sectionRef]);
-
-  useMotionValueEvent(progress, "change", (value) => {
-    if (disabled) return;
-    if (!held && value >= entryEnd) {
-      setHeld(true);
-    } else if (held && sectionRef.current) {
-      const rect = sectionRef.current.getBoundingClientRect();
-      if (rect.top > 50 && value <= 0.01) {
-        setHeld(false);
-      }
-    }
-  });
-
-  const y = useTransform(progress, [entryStart, Math.min(0.98, entryStart + 0.28)], [44, 0]);
-  const opacity = useTransform(progress, [entryStart, Math.min(0.98, entryStart + 0.12)], [0, 1]);
-  const imageScale = useTransform(progress, [entryStart, Math.min(0.98, entryStart + 0.38)], [1.14, 1]);
-  const scanTop = useTransform(progress, [entryStart, Math.min(0.98, entryStart + 0.38)], ["0%", "100%"]);
-  const pointerEvents = useTransform(progress, (value) => (value >= entryStart + 0.1 ? "auto" : "none"));
+  const y = useTransform(progress, [start, end], [44, 0]);
+  const opacity = useTransform(progress, [start, end], [0, 1]);
+  const imageScale = useTransform(progress, [start, end + 0.16], [1.14, 1]);
+  const scanTop = useTransform(progress, [start, end + 0.16], ["0%", "100%"]);
+  const pointerEvents = useTransform(progress, (value) => (value >= start + 0.05 ? "auto" : "none"));
 
   return (
     <motion.article
       className="scrit-dispatch-scrub-card"
-      style={disabled ? undefined : held ? { y: 0, opacity: 1, pointerEvents: "auto" } : { y, opacity, pointerEvents }}
+      style={disabled ? undefined : { y, opacity, pointerEvents }}
     >
       <div className="scrit-dispatch-scrub-image">
         <motion.img
@@ -116,11 +90,11 @@ function DispatchLayer({
           alt=""
           loading="lazy"
           decoding="async"
-          style={disabled ? undefined : held ? { scale: 1 } : { scale: imageScale }}
+          style={disabled ? undefined : { scale: imageScale }}
         />
         <motion.span
           className="scrit-dispatch-scanner-line"
-          style={disabled ? undefined : held ? { top: "100%" } : { top: scanTop }}
+          style={disabled ? undefined : { top: scanTop }}
           aria-hidden="true"
         />
         <div className="scrit-dispatch-image-hud">
@@ -180,7 +154,7 @@ export function PinnedReserveStory({ scenes }: { scenes: Narrative[] }) {
 export function PinnedLedgerStory({ copy, lines, session }: { copy: { title: string; text: string }; lines: { key: string; value: string }[]; session: string }) {
   const section = useRef<HTMLElement>(null);
   const staticMotion = useStaticMotion();
-  const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end end"] });
+  const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end start"] });
   const beamTop = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
   return (
     <section ref={section} className={`scrit-scrub scrit-ledger-scrub${staticMotion ? " is-static" : ""}`} id="ledger" aria-label="Pilot record status">
@@ -223,7 +197,7 @@ export function PinnedLedgerStory({ copy, lines, session }: { copy: { title: str
 
               <div className="scrit-terminal-lines-stack">
                 {lines.map((line, i) => (
-                  <LedgerLine key={line.key} line={line} index={i} progress={scrollYProgress} disabled={staticMotion} sectionRef={section} />
+                  <LedgerLine key={line.key} line={line} index={i} progress={scrollYProgress} disabled={staticMotion} />
                 ))}
               </div>
 
@@ -259,53 +233,39 @@ function LedgerLine({
   index,
   progress,
   disabled,
-  sectionRef,
 }: {
   line: { key: string; value: string };
   index: number;
   progress: MotionValue<number>;
   disabled: boolean;
-  sectionRef: React.RefObject<HTMLElement | null>;
 }) {
-  const start = .08 + index * .19;
-  const end = Math.min(.99, start + .13);
-  const [held, setHeld] = useState(false);
-
-  useEffect(() => {
-    if (disabled) return;
-    if (sectionRef.current) {
-      const rect = sectionRef.current.getBoundingClientRect();
-      if (rect.bottom <= window.innerHeight || progress.get() >= end) {
-        setHeld(true);
-      }
-    }
-  }, [disabled, progress, end, sectionRef]);
-
-  useMotionValueEvent(progress, "change", (val) => {
-    if (disabled) return;
-    if (!held && val >= end) {
-      setHeld(true);
-    } else if (held && sectionRef.current) {
-      const rect = sectionRef.current.getBoundingClientRect();
-      if (rect.top > 50 && val <= 0.01) {
-        setHeld(false);
-      }
-    }
-  });
+  const start = 0.05 + index * 0.10;
+  const end = start + 0.10;
 
   const opacity = useTransform(progress, [start, end], [0, 1]);
   const x = useTransform(progress, [start, end], [24, 0]);
   const live = isRecordLive(line.value);
-  return <motion.div className={`scrit-terminal-line${live ? " is-verified" : " is-pending"}`} style={disabled ? undefined : held ? { opacity: 1, x: 0 } : { opacity, x }}>
-    <span className="scrit-terminal-line-head"><span className="scrit-terminal-line-num">0{index + 1}</span><span className="scrit-terminal-key">{line.key}</span></span>
-    <span className="scrit-terminal-line-val-group"><span className="scrit-terminal-value">{line.value}</span><span className="scrit-terminal-ack-tag">{live ? "ACK" : "PENDING"}</span></span>
-  </motion.div>;
+  return (
+    <motion.div
+      className={`scrit-terminal-line${live ? " is-verified" : " is-pending"}`}
+      style={disabled ? undefined : { opacity, x }}
+    >
+      <span className="scrit-terminal-line-head">
+        <span className="scrit-terminal-line-num">0{index + 1}</span>
+        <span className="scrit-terminal-key">{line.key}</span>
+      </span>
+      <span className="scrit-terminal-line-val-group">
+        <span className="scrit-terminal-value">{line.value}</span>
+        <span className="scrit-terminal-ack-tag">{live ? "ACK" : "PENDING"}</span>
+      </span>
+    </motion.div>
+  );
 }
 
 export function PinnedAssuranceStory({ items }: { items: { title: string; body: string; href: string; link: string; mark: string; image: string }[] }) {
   const section = useRef<HTMLElement>(null);
   const staticMotion = useStaticMotion();
-  const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end end"] });
+  const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end start"] });
   return <section ref={section} className={`scrit-scrub scrit-assurance-scrub${staticMotion ? " is-static" : ""}`} id="trust" aria-label="Pilot assurances and limitations">
       <div className="scrit-scrub-stage"><header className="scrit-assurance-header-bar">
         <div className="scrit-assurance-title-block"><span className="scrit-kicker">TRUST, WITHOUT THE GLOSS</span><h2>What the pilot can show. <em>And what it cannot promise.</em></h2></div>
@@ -318,19 +278,9 @@ export function PinnedAssuranceStory({ items }: { items: { title: string; body: 
 }
 
 function AssuranceLayer({ item, index, progress, disabled }: { item: { title: string; body: string; href: string; link: string; mark: string; image: string }; index: number; progress: MotionValue<number>; disabled: boolean }) {
-  // Staggered entry intervals:
-  // Card 0: 0.03 -> 0.16
-  // Card 1: 0.18 -> 0.31
-  // Card 2: 0.33 -> 0.46
-  const entryStart = 0.03 + index * 0.15;
-  const entryEnd = entryStart + 0.13;
+  const entryStart = 0.03 + index * 0.12;
+  const entryEnd = entryStart + 0.11;
 
-  // Once landed, cards remain locked at rotateX: 0, y: 0, and opacity: 1 for the entire rest of the section
-  // (one-way latch: measured scroll progress can jitter backward near the pin edge)
-  const [held, setHeld] = useState(false);
-  useMotionValueEvent(progress, "change", (value) => {
-    if (!disabled && !held && value >= entryEnd) setHeld(true);
-  });
   const rotateX = useTransform(progress, [entryStart, entryEnd], [14, 0]);
   const y = useTransform(progress, [entryStart, entryEnd], [48, 0]);
   const opacity = useTransform(progress, [entryStart, entryEnd], [0, 1]);
@@ -340,8 +290,8 @@ function AssuranceLayer({ item, index, progress, disabled }: { item: { title: st
   const ringScale = useTransform(progress, [entryStart, entryEnd], [0.8, 1]);
 
   // Active laser sweep window for holographic sheen
-  const activeStart = 0.03 + index * 0.24;
-  const activeEnd = activeStart + 0.24;
+  const activeStart = 0.03 + index * 0.16;
+  const activeEnd = activeStart + 0.16;
   const sweepX = useTransform(progress, [activeStart, activeEnd], ["-100%", "200%"]);
 
   const boundaryNotes = [
@@ -354,7 +304,7 @@ function AssuranceLayer({ item, index, progress, disabled }: { item: { title: st
   return (
     <motion.article
       className="scrit-assurance-card scrit-assurance-scrub-card"
-      style={disabled ? undefined : held ? { y: 0, rotateX: 0, opacity: 1, pointerEvents: "auto", transformPerspective: 1200 } : { y, rotateX, opacity, pointerEvents, transformPerspective: 1200 }}
+      style={disabled ? undefined : { y, rotateX, opacity, pointerEvents, transformPerspective: 1200 }}
     >
       <div className="scrit-assurance-art" aria-hidden="true">
         <motion.img src={item.image} alt="" loading="lazy" decoding="async" style={disabled ? undefined : { scale: ringScale }} />
