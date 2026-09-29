@@ -1,0 +1,47 @@
+# Auto-approve issuers every 15 minutes: service record + on-chain allowlist
+# for applicants holding >= 0.001 sCRIT. See docs/decisions.md §6b.
+# Secrets (repo Settings > Secrets and variables > Actions):
+#   MAINNET_DEPLOYER_KEY - FULL-CONTROL wallet key (funds, admin, pause).
+#     Accepted risk (owner decision): required because the launcher owner is
+#     the timelock and only the admin EOA can propose. Never log it.
+#   DATABASE_URL         - pilot database
+name: auto-approve
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  approve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Provide local-only env from secrets (ephemeral runner)
+        run: |
+          cat > .env.local <<EOF
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          MAINNET_PRIVATE_KEY=${{ secrets.MAINNET_DEPLOYER_KEY }}
+          PRIVATE_KEY=${{ secrets.MAINNET_DEPLOYER_KEY }}
+          NEXT_PUBLIC_SCRIT_MAINNET=0x56073943133c1c0678a753be9402b27d43cf1c22
+          NEXT_PUBLIC_SCRIT_LAUNCHER_MAINNET=0x2e0de4486b391c182a6727d5480380f9820c73d5
+          NEXT_PUBLIC_SCRIT_TIMELOCK_MAINNET=0x00824e9c6075ff2ceb10009de7f170fc6721df1a
+          NEXT_PUBLIC_SCRIT_TESTNET=0x761333eaf1cd18d3846edb11299e4162be5e8755
+          NEXT_PUBLIC_SCRIT_LAUNCHER_TESTNET=0xff4a94315a312d076adce12c9c8c7f459194c0ef
+          NEXT_PUBLIC_SCRIT_TIMELOCK_TESTNET=0x9295ccce50ce773b7c5c400fdbd8d3b0b7c6bd
+          ROBINHOOD_MAINNET_RPC_URL=https://rpc.mainnet.chain.robinhood.com
+          SCRIT_INDEXER_RPC_URL=https://rpc.testnet.chain.robinhood.com
+          EOF
+      - run: node scripts/auto-approve-issuers.mjs
