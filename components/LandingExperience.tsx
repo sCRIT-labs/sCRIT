@@ -13,23 +13,23 @@ import { PinnedAssuranceStory, PinnedBasketStory, PinnedDispatch, PinnedEditoria
 const DISPATCHES = [
   {
     tag: "RAIL A · LIQUIDITY ENGINE",
-    title: "Every token anchored to physical critical reserves.",
-    body: "Rail A pairs project tokens directly against sCRIT in Uniswap V4 pools. A 2.5% trading tax feeds the reserve treasury to acquire physical tech commodities.",
+    title: "Launch a memecoin. Stockpile dysprosium.",
+    body: "Rail A pairs project tokens directly against sCRIT in Uniswap V4 pools. A 2.5% tax on those pools feeds the treasury, which funds accessions to the stockpile — recognised only once a custodian signs.",
     image: "/images/scrit_uniswap_v4_rail_a.jpg",
     href: "/launch",
     link: "Explore Rail A Launchpad",
   },
   {
-    tag: "THE INDEX · THREE ASSET CLASSES",
-    title: "Nine strategic minerals. One industrial index.",
-    body: "The starter basket spans battery metals (Lithium), permanent-magnet rare earths (Nd, Dy, Tb, Sc), and catalyst tech metals (Pt, Pd, Au, Ag).",
+    tag: "THE INDEX · FIVE SLEEVES",
+    title: "Five sleeves. One stockpile.",
+    body: "HREE at the tip — dysprosium and terbium. Magnet and minor rare earths behind them. Platinum-group metals. Battery-grade lithium. Gold and silver as monetary ballast.",
     image: "/images/scrit_critical_trio.jpg",
     href: "/proof",
     link: "Inspect commodity targets",
   },
   {
     tag: "THE GATE · CUSTODIAN ATTESTATIONS",
-    title: "Evidence enters the ledger through signed records.",
+    title: "Nothing enters the stockpile unsigned.",
     body: "Reserve reporting uses EIP-712 signed custodian attestations. In this pilot, signatures are verified before any physical mass is recognized on-chain.",
     image: "/images/scrit_attestation_network.jpg",
     href: "/proof",
@@ -40,11 +40,11 @@ const DISPATCHES = [
 const STORY = [
   {
     index: "COMPOSITION",
-    title: "Strategic & critical technology commodities.",
-    copy: "Target weights span Lithium, Neodymium, Dysprosium, Terbium, Scandium, Platinum, Palladium, Gold, and Silver. Engineering a verifiable physical floor.",
+    title: "Technology-critical elements & monetary ballast.",
+    copy: "Target weights span heavy rare earths (Dy, Tb), magnet and minor rare earths (Nd, Sc), platinum-group metals (Pt, Pd), battery-grade lithium (Li), and monetary ballast (Au, Ag). Reserve recognised on attestation · not pegged.",
     image: "/images/scrit_rare_earths.jpg",
-    metric: "9 ASSETS",
-    metricLabel: "CRITICAL RESERVE BASKET",
+    metric: "9 ELEMENTS",
+    metricLabel: "5 SLEEVES · STOCKPILE",
   },
   {
     index: "LIQUIDITY ENGINE",
@@ -96,8 +96,14 @@ export function LandingExperience() {
               </span>
               <b>
                 <span className="scrit-market-tape-item">
+                  <img src="/images/ticker/ticker_minerals.png" alt="" className="scrit-market-tape-icon" width={22} height={22} />
+                  HREE-LED
+                </span>
+              </b>
+              <b>
+                <span className="scrit-market-tape-item">
                   <img src="/images/ticker/ticker_commodities.png" alt="" className="scrit-market-tape-icon" width={22} height={22} />
-                  9 COMMODITIES
+                  9 ELEMENTS · 5 SLEEVES
                 </span>
               </b>
               <b>
@@ -115,13 +121,13 @@ export function LandingExperience() {
               <b>
                 <span className="scrit-market-tape-item">
                   <img src="/images/ticker/ticker_fee.png" alt="" className="scrit-market-tape-icon" width={22} height={22} />
-                  {TAX_ACTIVE ? "PROJECT FEE 2.5%" : SCRIT_CHAIN_ID === 4663 ? "V4 HOOK PENDING" : "TESTNET FEE 0%"}
+                  {TAX_ACTIVE ? "2.5% PROJECT-POOL TAX" : SCRIT_CHAIN_ID === 4663 ? "V4 HOOK PENDING" : "2.5% PROJECT-POOL TAX"}
                 </span>
               </b>
               <b>
                 <span className="scrit-market-tape-item">
                   <img src="/images/ticker/ticker_no_peg.png" alt="" className="scrit-market-tape-icon" width={22} height={22} />
-                  NO PEG
+                  NOT PEGGED
                 </span>
               </b>
             </div>
@@ -163,7 +169,7 @@ export function LandingExperience() {
       <div data-nav-theme="dark">
         <PinnedAssuranceStory items={[
           { mark: "EIP", title: "Signatures tied to a custodian", body: "Attestation signatures are checked against the configured custodian key and its pilot commodity scope.", href: "/proof", link: "See the attestation ledger", image: "/images/scrit_hardware_key.jpg" },
-          { mark: "9×", title: "Three commodity classes", body: "The index design targets precious metals, rare earths, and battery-grade lithium. Uranium remains outside the MVP; diamonds use individually certified Rail B lots only.", href: "/proof", link: "Review basket targets", image: "/images/scrit_critical_vault.jpg" },
+          { mark: "5×", title: "Five sleeves", body: "The index targets heavy rare earths first, then magnet and minor rare earths, platinum-group metals and battery-grade lithium, with gold and silver as ballast. Uranium remains outside the MVP; diamonds use individually certified Rail B lots only.", href: "/proof", link: "Review basket targets", image: "/images/scrit_critical_vault.jpg" },
           { mark: "NAV", title: "No redemption path", body: "sCRIT is not pegged. No authorised participant is active and physical redemption is unavailable in this pilot.", href: "/legal/risk", link: "Read the risk disclosure", image: "/images/scrit_vault_barrier.jpg" },
         ]} />
       </div>
@@ -171,7 +177,7 @@ export function LandingExperience() {
       <div data-nav-theme="light">
         <PinnedLaunchStory image="/images/scrit_uniswap_v4_rail_a.jpg">
           <h2 style={{ whiteSpace: "nowrap" }}>Project tokens <em>pair against sCRIT.</em></h2>
-          <p>Approved issuers create tokens backed by Uniswap V4 pools paired directly with sCRIT. On mainnet, a 2.5% swap tax feeds physical critical commodity procurement; Rail B manages certified individual warehouse lots.</p>
+          <p>Approved issuers create tokens backed by Uniswap V4 pools paired directly with sCRIT. On mainnet, a 2.5% swap tax feeds the treasury to fund accessions to the stockpile; Rail B manages certified individual warehouse lots.</p>
           <div className="scrit-launch-facts"><div><b>0%</b><span>Rail A issuance fee</span></div><div><b>2.5%</b><span>mainnet project-pool fee · 75/25</span></div></div>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 24 }}>
             <a className="scrit-button" href="/issuer" style={{ background: "#d9a92e", color: "#121411", borderColor: "#c29323", display: "inline-flex", alignItems: "center", gap: 8, padding: "0 22px" }}>
@@ -188,8 +194,7 @@ export function LandingExperience() {
 
       <div data-nav-theme="light">
         <PinnedBasketStory
-          items={BASKET.map((row) => ({ symbol: row.symbol, name: row.name, detail: `${row.grade} · ${row.tier}`, weight: row.weightBps / 100 }))}
-          excluded="Diamonds are Rail B only. Uranium is unavailable and outside the MVP. Targets do not establish holdings."
+          items={BASKET.map((row) => ({ symbol: row.symbol, name: row.name, detail: `${row.sleeveLabel} · ${row.grade}`, weight: row.weightBps / 100 }))}
         />
       </div>
 

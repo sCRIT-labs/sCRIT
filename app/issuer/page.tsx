@@ -975,7 +975,7 @@ export default function IssuerDesk() {
                   <span className="issuer-pipeline-tag">Rail A · Liquidity Engine</span>
                   <div className="issuer-pipeline-title">Strike Token / sCRIT Liquidity Pool</div>
                   <div className="issuer-pipeline-desc">
-                    Deploy your token contract and seed an automated Uniswap V4 pool paired against physical critical reserves.
+                    Deploy your token contract and seed an automated Uniswap V4 pool paired against the sCRIT stockpile.
                   </div>
                 </div>
                 <div className="issuer-pipeline-action">

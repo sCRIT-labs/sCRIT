@@ -4,10 +4,10 @@ import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion
 import { useEffect, useRef, useState } from "react";
 
 const STEPS = [
-  { id: "01", label: "NAV INPUTS", title: "An estimate starts with inputs.", body: "Indicative NAV combines accepted custodian records across nine critical metals (battery minerals, rare earths, platinum group) with commodity prices. A verifiable physical estimate, not an algorithmic peg.", signal: "INPUTS", detail: "RECORDED MASS + COMMODITY PRICES", image: "/images/scrit_battery_assay.jpg" },
+  { id: "01", label: "NAV INPUTS", title: "An estimate starts with inputs.", body: "Indicative NAV combines accepted custodian records across nine elements in five sleeves (heavy rare earths, magnet REEs, PGMs, battery, monetary ballast) with commodity prices. A verifiable estimate, not an algorithmic peg.", signal: "INPUTS", detail: "RECORDED MASS + COMMODITY PRICES", image: "/images/scrit_battery_assay.jpg" },
   { id: "02", label: "FRESHNESS", title: "Every price carries an age.", body: "Prices are updated from institutional sources. The interface flags records older than 24 hours so data freshness stays fully transparent beside the NAV estimate.", signal: "24H", detail: "STALE PRICE THRESHOLD", image: "/images/scrit_clock_feed.jpg" },
-  { id: "03", label: "PROJECT POOL FEES", title: "Show the fee before the swap.", body: "Mainnet TOKEN/sCRIT pools charge a 2.5% trading tax through the Uniswap V4 hook. 75% routes directly to the reserve treasury for physical commodity acquisition, 25% to operations.", signal: "2.5%", detail: "MAINNET V4 PROJECT POOLS", image: "/images/scrit_treasury_safe.jpg" },
-  { id: "04", label: "MARKET DYNAMICS", title: "Market price can diverge.", body: "sCRIT is an asset-backed index, not a synthetic peg. Every Rail A token pair trades freely against sCRIT, with liquidity anchored to physical industrial assets.", signal: "RAIL A", detail: "FREE FLOATING AMM POOLS", image: "/images/scrit_uniswap_v4_rail_a.jpg" },
+  { id: "03", label: "PROJECT POOL FEES", title: "Show the fee before the swap.", body: "Mainnet TOKEN/sCRIT pools charge a 2.5% trading tax through the Uniswap V4 hook. 75% routes directly to the treasury to fund stockpile accessions, 25% to operations.", signal: "2.5%", detail: "MAINNET V4 PROJECT POOLS", image: "/images/scrit_treasury_safe.jpg" },
+  { id: "04", label: "MARKET DYNAMICS", title: "Market price can diverge.", body: "sCRIT is an asset-backed index, not a synthetic peg. Every Rail A token pair trades freely against sCRIT, with liquidity paired with the sCRIT stockpile index.", signal: "RAIL A", detail: "FREE FLOATING AMM POOLS", image: "/images/scrit_uniswap_v4_rail_a.jpg" },
 ];
 
 export function PinnedFlowRail() {

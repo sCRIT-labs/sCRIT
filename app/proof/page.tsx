@@ -66,7 +66,7 @@ export default function Proof() {
       <header className="proof-page-head scrit-reveal">
         <p className="eyebrow">Pilot Reserve Ledger · Service-Verified Records</p>
         <h1>Evidence, estimates, <em>and the status between them.</em></h1>
-        <p>This page estimates reserve value from records accepted by the pilot service and manual commodity prices. Basket weights are targets; this page does not establish contracted vault custody or on-chain reserve balances.</p>
+        <p>This page estimates reserve value from records accepted by the pilot service and manual commodity prices. Basket weights are targets across <abbr title="Technology-critical elements — the metals modern hardware can't be built without." style={{ textDecoration: "underline dotted", cursor: "help" }}>technology-critical elements (TCEs)</abbr> and monetary ballast; this page does not establish contracted vault custody or on-chain reserve balances.</p>
       </header>
 
       <section className="proof-summary-grid" aria-label="Current pilot summary">
@@ -86,7 +86,7 @@ export default function Proof() {
             : chain.status === "unavailable" ? <div className="proof-empty"><ShieldCheck /><div><b>{activeNetwork.name} contracts unavailable</b><span>RPC read failed or the configured address is not the sCRIT v2 deployment.</span></div></div>
               : <>
                 <div className="proof-summary-grid">
-                  <article className="panel proof-summary-card"><Coins /><span className="proof-label">On-chain reserve estimate</span><strong>{chain.reserveValueUsdE8 === null ? "Price unavailable" : formatUsd(Number(chain.reserveValueUsdE8 ?? 0n) / 1e8)}</strong><small>{chain.reserveValueUsdE8 === null ? "One or more signed commodity prices are missing or stale." : "Repriced from attested mass × current signed feed; not an independent audit."}</small></article>
+                  <article className="panel proof-summary-card"><Coins /><span className="proof-label">On-chain reserve estimate</span><strong>{chain.reserveValueUsdE8 === null ? "Price unavailable" : formatUsd(Number(chain.reserveValueUsdE8 ?? 0n) / 1e8)}</strong><small>{chain.reserveValueUsdE8 === null ? "One or more signed commodity prices are missing or stale." : "Valued from attested mass × current signed feed; not an independent audit."}</small></article>
                   <article className="panel proof-summary-card"><Scale /><span className="proof-label">On-chain supply</span><strong>{(Number(chain.supplyE18 ?? 0n) / 1e18).toLocaleString("en-US", { maximumFractionDigits: 4 })}</strong><small>From the sCRIT v2 token contract.</small></article>
                   <article className="panel proof-summary-card"><Warehouse /><span className="proof-label">Last read block</span><strong>{chain.blockNumber?.toString()}</strong><small>{activeNetwork.name} read · block explorer records are authoritative.</small></article>
                 </div>
@@ -97,15 +97,15 @@ export default function Proof() {
       </section>
 
       <section className="panel proof-section scrit-reveal" id="holdings">
-        <div className="proof-section-head"><div><span className="eyebrow">01 · Valuation inputs</span><h2>Basket and price records</h2></div><span className="proof-section-note">Nine design targets · no custody implied</span></div>
+        <div className="proof-section-head"><div><span className="eyebrow">01 · Valuation inputs</span><h2>Stockpile sleeves and price records</h2></div><span className="proof-section-note">Five sleeves · nine element design targets</span></div>
         <div className="proof-table-wrap"><table className="dtable"><thead><tr><th>Commodity</th><th>Grade target</th><th className="num">Target weight</th><th className="num">Recorded mass</th><th className="num">Price / kg</th><th>Source · freshness</th><th className="num">Estimated value</th></tr></thead><tbody>
           {BASKET.map((row) => {
             const price = priceMap[row.symbol] ?? 0;
             const priceRow = prices.find((p) => p.commodity === row.symbol);
-            return <tr key={row.symbol}><td><b>{row.symbol}</b><small className="proof-table-sub">{row.name} · {row.assetClass}</small></td><td>{row.grade}</td><td className="num">{row.weightBps / 100}%</td><td className="num">{dataStatus === "ready" ? `${(holdings[row.symbol] ?? 0).toFixed(4)} kg` : "—"}</td><td className="num">{priceRow ? formatUsd(price, 0) : "—"}</td><td>{priceRow ? `${priceRow.source} · ${freshness(priceRow.updated_at)}` : "No price record"}</td><td className="num">{priceRow ? formatUsd((holdings[row.symbol] ?? 0) * price, 2) : "—"}</td></tr>;
+            return <tr key={row.symbol}><td><b>{row.symbol}</b><small className="proof-table-sub">{row.name} · {row.sleeveLabel}</small></td><td>{row.grade}</td><td className="num">{row.weightBps / 100}%</td><td className="num">{dataStatus === "ready" ? `${(holdings[row.symbol] ?? 0).toFixed(4)} kg` : "—"}</td><td className="num">{priceRow ? formatUsd(price, 0) : row.sleeve === "hree" ? "manual pilot input" : "—"}</td><td>{priceRow ? `${priceRow.source} · ${freshness(priceRow.updated_at)}` : row.sleeve === "hree" ? "Market reports" : "No price record"}</td><td className="num">{priceRow ? formatUsd((holdings[row.symbol] ?? 0) * price, 2) : "—"}</td></tr>;
           })}
         </tbody></table></div>
-        <p className="proof-method-note">On-chain NAV per sCRIT: <b>{liveNavUsd === null ? "Unavailable" : formatUsd(liveNavUsd, 6)}</b>. {premiumPercent === null ? "Premium/discount is unavailable until both current on-chain NAV and canonical sCRIT/ETH market price are readable." : `Current market is ${premiumPercent >= 0 ? "above" : "below"} NAV by ${Math.abs(premiumPercent).toFixed(2)}%.`} The spot market price is not an oracle or redemption value.</p>
+        <p className="proof-method-note"><abbr title="Heavy rare earth elements — the scarcest, most concentrated rare earths." style={{ textDecoration: "underline dotted", cursor: "help" }}>HREE</abbr> has no on-chain price feed. Dy and Tb prices are manual pilot inputs from market reports. On-chain NAV per sCRIT: <b>{liveNavUsd === null ? "Unavailable" : formatUsd(liveNavUsd, 6)}</b>. {premiumPercent === null ? "Premium/discount is unavailable until both current on-chain NAV and canonical sCRIT/ETH market price are readable." : `Current market is ${premiumPercent >= 0 ? "above" : "below"} NAV by ${Math.abs(premiumPercent).toFixed(2)}%.`} The spot market price is not an oracle or redemption value.</p>
       </section>
 
       <section className="panel proof-section scrit-reveal" id="attestations">

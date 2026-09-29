@@ -39,33 +39,33 @@ const DISPATCH_METADATA = [
     metrics: [
       { val: "2.50%", label: "Reserve Fee", note: "Treasury Tax" },
       { val: "V4 Hook", label: "Architecture", note: "Singleton Pool" },
-      { val: "100%", label: "Reserve Backed", note: "Physical Floor" },
+      { val: "Attested", label: "Reserve Recognised", note: "Not Pegged" },
     ],
     specs: [
       { key: "EXECUTION RAIL", val: "Ecosystem Pairs Directly Against sCRIT in V4 Pools" },
-      { key: "TREASURY SINK", val: "Continuous Flow to Certified Commodity Procurement" },
+      { key: "TREASURY SINK", val: "Continuous Flow to Treasury Accessions" },
     ],
   },
   {
     pillarCode: "STRATEGIC BASKET",
     shortTitle: "Strategic Basket",
-    shortDesc: "9 Minerals Across 3 Sectors",
-    pillBadge: "CRITICAL BASKET",
-    chips: ["9 Strategic Minerals", "3 Commodity Classes", "Zero Synthetics", "Audited Assays"],
+    shortDesc: "9 Elements Across 5 Sleeves",
+    pillBadge: "STOCKPILE",
+    chips: ["HREE-Led", "9 Elements", "5 Sleeves", "Signed Attestations"],
     telemetryKey: "ASSET ALLOCATION",
-    telemetryVal: "Battery, Magnet & Catalyst Metals",
+    telemetryVal: "HREE, Magnet, PGM, Battery & Ballast",
     statusText: "ALLOCATION DEFINED",
-    actionNote: "Inspect commodity targets & physical reserves",
+    actionNote: "Inspect sleeve targets & stockpile evidence",
     hudStatus: "SECURED VAULT",
     hudCert: "ISO-9001 // BONDED LOGISTICS",
     watermark: "FACILITY: FREEPORT GENEVA · ZURICH LOGISTICS",
     metrics: [
-      { val: "9 Assets", label: "Target Basket", note: "Critical Minerals" },
-      { val: "3 Sectors", label: "Asset Classes", note: "Tech Commodities" },
-      { val: "0% Synth", label: "Pure Physical", note: "No Paper Claims" },
+      { val: "9 Elements", label: "Stockpile", note: "TCEs & Ballast" },
+      { val: "5 Sleeves", label: "Architecture", note: "HREE-Led" },
+      { val: "Attested", label: "Recognition", note: "Not Pegged" },
     ],
     specs: [
-      { key: "ALLOCATION PROFILE", val: "Lithium, Neodymium, Dysprosium, Platinum Group" },
+      { key: "ALLOCATION PROFILE", val: "Dysprosium, Terbium, Neodymium, Platinum, Gold" },
       { key: "STORAGE STANDARD", val: "Insured Bonded Vaults with Segregated Lot Tracking" },
     ],
   },
@@ -153,7 +153,7 @@ export function PinnedDispatch({ items }: { items: Dispatch[] }) {
               Designed around evidence. <em>Honest about the limits.</em>
             </h2>
             <p className="scrit-dispatch-deck-desc">
-              sCRIT anchors liquid market pairs directly to attested physical critical commodities.
+              sCRIT pairs liquid project tokens directly to an on-chain stockpile of technology-critical elements and monetary ballast.
               Scroll to scrub through each foundational pillar, or click a chapter below.
             </p>
           </div>
@@ -453,11 +453,11 @@ export function PinnedIndexStory({ metrics }: { metrics: { label: string; value:
   const details = useTransform(scrollYProgress, [0, .28, .7, 1], [0, 0, 1, 1]);
   return <section ref={section} className={`scrit-scrub scrit-index-scrub${staticMotion ? " is-static" : ""}`} id="products" aria-label="From reserve records to indicative NAV">
     <div className="scrit-scrub-stage scrit-index-scrub-stage">
-      <div className="scrit-index-scrub-copy"><span className="scrit-kicker">THE sCRIT INDEX · RAIL A</span><h2>From evidence <em>to an estimate.</em></h2><p>sCRIT is an index token anchored to attested critical commodities (battery metals, rare earths, platinum group). Every ecosystem token launched on Rail A pairs directly against sCRIT in Uniswap V4 pools.</p><a className="scrit-button scrit-button-dark" href="/proof">Open reserve ledger <ArrowUpRight size={16} /></a>
+      <div className="scrit-index-scrub-copy"><span className="scrit-kicker">THE sCRIT INDEX · RAIL A</span><h2>From evidence <em>to an estimate.</em></h2><p>sCRIT is building an on-chain stockpile of technology-critical elements — led by heavy rare earths, ballasted by gold. Every ecosystem token launched on Rail A pairs directly against sCRIT in Uniswap V4 pools.</p><a className="scrit-button scrit-button-dark" href="/proof">Open reserve ledger <ArrowUpRight size={16} /></a>
         <motion.div className="scrit-index-scrub-metrics" style={staticMotion ? undefined : { opacity: details }}>{metrics.map((metric) => <div key={metric.label}><span className="scrit-kicker">{metric.label}</span><b>{metric.value}</b><small>{metric.detail}</small></div>)}</motion.div>
       </div>
       <div className="scrit-index-scrub-visual">
-        <img className="scrit-index-scrub-base" src="/images/scrit_critical_vault.jpg" alt="Architectural view of the sCRIT critical commodities reserve vault" loading="lazy" decoding="async" />
+        <img className="scrit-index-scrub-base" src="/images/scrit_critical_vault.jpg" alt="Architectural view of the sCRIT stockpile vault" loading="lazy" decoding="async" />
         <motion.img className="scrit-index-scrub-reveal" src="/images/scrit_nav_telemetry.jpg" alt="Cryptographic NAV valuation telemetry and reserve feeds" loading="lazy" decoding="async" style={staticMotion ? undefined : { opacity: revealOpacity }} />
         <motion.span className="scrit-index-scrub-caliper" style={staticMotion ? undefined : { left: divider }} />
         <span className="scrit-index-scrub-tag tag-input">RECORDED INPUTS</span><span className="scrit-index-scrub-tag tag-output">INDICATIVE NAV</span>
@@ -678,15 +678,20 @@ export function PinnedLaunchStory({ image, children }: { image: string; children
   </section>;
 }
 
-export function PinnedBasketStory({ items, excluded }: { items: { symbol: string; name: string; detail: string; weight: number }[]; excluded: string }) {
+export function PinnedBasketStory({ items }: { items: { symbol: string; name: string; detail: string; weight: number }[]; excluded?: string }) {
   const section = useRef<HTMLElement>(null);
   const staticMotion = useStaticMotion();
   const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end end"] });
   return <section ref={section} className={`scrit-scrub scrit-basket-scrub${staticMotion ? " is-static" : ""}`} id="basket" aria-label="Pilot basket target weights">
-    <div className="scrit-scrub-stage scrit-basket-scrub-stage"><header className="scrit-basket-heading"><span className="scrit-kicker">A DEFINED STARTING BASKET</span><h2>Precious metals, with <em>clear boundaries.</em></h2><p>Target allocation, not a claim that the reserve is fully funded.</p></header>
-      <div className="scrit-basket-rows">{items.map((item, index) => <BasketLine key={item.symbol} item={item} index={index} progress={scrollYProgress} disabled={staticMotion} />)}<div className="scrit-basket-excluded"><span>Li</span><p><b>Lithium excluded</b><small>{excluded}</small></p><strong>0%</strong></div></div>
-      <div className="scrit-basket-total"><span>ALLOCATION SHOWN</span><strong>100%</strong><small>Au · Ag · Pt target weights</small></div>
-      <ScrubMeter progress={scrollYProgress} disabled={staticMotion} labels={["Au / GOLD", "Ag / SILVER", "Pt / PLATINUM"]} />
+    <div className="scrit-scrub-stage scrit-basket-scrub-stage"><header className="scrit-basket-heading"><span className="scrit-kicker">FIVE SLEEVES · ONE STOCKPILE</span><h2>Heavy rare earths, with <em>monetary ballast.</em></h2><p>Target allocation, not a claim that the stockpile is fully funded.</p></header>
+      <div className="scrit-basket-rows">
+        {items.map((item, index) => <BasketLine key={item.symbol} item={item} index={index} progress={scrollYProgress} disabled={staticMotion} />)}
+        <div className="scrit-basket-note" style={{ fontSize: "11px", color: "var(--muted, #636b60)", marginTop: "12px", borderTop: "1px dashed var(--line, rgba(20,23,20,0.1))", paddingTop: "8px" }}>
+          <small>HREE has no on-chain price feed. Dy and Tb prices are manual pilot inputs from market reports. Diamonds are Rail B only; Uranium is unavailable.</small>
+        </div>
+      </div>
+      <div className="scrit-basket-total"><span>ALLOCATION SHOWN</span><strong>100%</strong><small>5 sleeves · 9 elements target weights</small></div>
+      <ScrubMeter progress={scrollYProgress} disabled={staticMotion} labels={["HREE / Dy · Tb", "PGMs & MAGNETS", "BALLAST / Au · Ag"]} />
     </div>
   </section>;
 }

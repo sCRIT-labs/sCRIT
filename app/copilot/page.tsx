@@ -51,8 +51,8 @@ const ISSUANCE_PROMPTS = [
 
 const KNOWLEDGE_PROMPTS = [
   {
-    label: "9 Critical Commodities",
-    query: "What are the 9 critical commodities in the sCRIT starter basket and their target allocations?",
+    label: "5 Sleeves & 9 Elements",
+    query: "What are the 5 sleeves and 9 technology-critical elements in the sCRIT stockpile, and their target allocations?",
   },
   {
     label: "Peg & Redemption Policy",
@@ -427,7 +427,7 @@ export default function CopilotPage() {
               <span className="mono-sm" style={{ fontSize: 11, color: "#6e756b" }}>
                 {mode === "issuance"
                   ? "Token Parameter Assistant · Scarcity Tiers · 2.5% V4 Tax Hook"
-                  : "9 Critical Commodities · EIP-712 Custody Proof · Uniswap V4 Hook"}
+                  : "5 Stockpile Sleeves · EIP-712 Custody Proof · Uniswap V4 Hook"}
               </span>
             </div>
           </div>

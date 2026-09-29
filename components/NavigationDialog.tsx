@@ -96,13 +96,13 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     num: "07",
-    label: "Nine Strategic Commodity Index",
+    label: "Five Sleeves Stockpile Index",
     badge: "OVERVIEW",
-    description: "Target basket architecture spanning battery metals (Lithium), permanent magnets (Nd, Dy), and tech metals.",
+    description: "Target stockpile architecture: heavy rare earths (Dy, Tb), magnet REEs, PGMs, battery lithium, and monetary ballast.",
     href: "/#products",
     image: "/images/scrit_critical_vault.jpg",
-    tag: "9 PHYSICAL TARGET COMMODITIES",
-    specs: ["Li · Nd · Dy · Tb · Sc", "Pt · Pd · Au · Ag", "Strictly Non-Pegged"],
+    tag: "5 SLEEVES · 9 TARGET ELEMENTS",
+    specs: ["Dy · Tb · Nd · Sc · Pt", "Pd · Li · Au · Ag", "Strictly Non-Pegged"],
   },
   {
     num: "08",
@@ -208,7 +208,7 @@ export function NavigationDialog({ isOpen, onClose }: NavigationDialogProps) {
         {/* Top Masthead Row */}
         <div className="nav-dialog-masthead">
           <div className="nav-dialog-brand">
-            <ScritLogo size={28} variant="image" />
+            <ScritLogo size={28} variant="mark" />
             <div style={{ display: "flex", flexDirection: "column" }}>
               <span className="nav-dialog-brand-title">sCRIT DIRECTORY</span>
               <span className="nav-dialog-brand-subtitle">

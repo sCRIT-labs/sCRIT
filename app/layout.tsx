@@ -3,9 +3,9 @@ import "./globals.css";
 import "./redesign.css";
 
 export const metadata: Metadata = {
-  title: "sCRIT — Critical Commodities Index & Launchpad",
+  title: "sCRIT — Stockpile the chokepoint",
   description:
-    "A critical-commodities index design and sCRIT-paired token launchpad. Target weights are separate from attested holdings; mainnet project pools apply a 2.5% V4 hook fee split 75/25.",
+    "An HREE-led on-chain stockpile of technology-critical elements. Every token launched here deepens it.",
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",

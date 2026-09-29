@@ -41,7 +41,7 @@ import {
   validateLaunchParams,
 } from "@/lib/scrit-evm";
 import { HOOD_MAINNET, HOOD_TESTNET, PROJECT_POOL_LP_FEE_BPS, SCRIT_CHAIN_ID, scritDeploymentFor } from "@/lib/scrit";
-import { BASKET } from "@/lib/scrit-basket";
+import { BASKET, SLEEVES } from "@/lib/scrit-basket";
 import { TAX_ACTIVE } from "@/lib/scrit";
 import { loadWallet } from "@/lib/wallets";
 import { CopilotDrawerWidget } from "@/components/CopilotDrawerWidget";
@@ -380,7 +380,7 @@ export default function Launch() {
           }}
         >
           Every ecosystem launch is anchored to <b style={{ color: "var(--ink)" }}>TOKEN / sCRIT</b>.
-          Project pools pair with <b style={{ color: "#8c6418" }}>sCRIT</b>, establishing exposure to nine physical critical commodities without misleading 1:1 claims.
+          Project pools pair with <b style={{ color: "#8c6418" }}>sCRIT</b>, funding accessions to an on-chain stockpile across five sleeves of <abbr title="Technology-critical elements — the metals modern hardware can't be built without." style={{ textDecoration: "underline dotted", cursor: "help" }}>technology-critical elements (TCEs)</abbr> and <abbr title="Gold and silver keep the index stable while TCEs move." style={{ textDecoration: "underline dotted", cursor: "help" }}>monetary ballast</abbr>.
         </p>
       </div>
 
@@ -549,45 +549,62 @@ export default function Launch() {
             </div>
           </div>
 
-          {/* Nine-Commodity Basket Anchor */}
+          {/* Five-Sleeve Stockpile Target Bar */}
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 5 }}>
               <span style={{ fontSize: 11.5, fontWeight: 600, color: "var(--ink)", display: "inline-flex", alignItems: "center", gap: 5 }}>
                 <ShieldCheck size={13} color="#8c6418" strokeWidth={2} />
-                Physical Commodity Index Target
+                Stockpile Target Allocation
               </span>
               <span className="mono-sm" style={{ color: "#8c6418", fontSize: 10.5 }}>
-                9 target commodities
+                5 sleeves · 9 elements
               </span>
             </div>
-            <div className="metal-composition-bar" aria-label="Nine-commodity target basket" style={{ display: "flex", height: 5, borderRadius: 999, overflow: "hidden" }}>
-              {BASKET.map((row, index) => (
-                <div
-                  key={row.symbol}
-                  title={`${row.name} ${row.weightBps / 100}%`}
-                  style={{
-                    width: `${row.weightBps / 100}%`,
-                    height: "100%",
-                    background: ["#d9a92e", "#b8b8c0", "#50e3c2", "#c27a50", "#8db4d8", "#7b93cd", "#9b7bc4", "#719875", "#b8a15f"][index],
-                  }}
-                />
-              ))}
-            </div>
-            <div className="metal-legend-row" style={{ display: "flex", flexWrap: "wrap", gap: "2px 8px", marginTop: 6 }}>
-              {BASKET.map((row, index) => (
-                <span className="metal-legend-item" key={row.symbol} style={{ fontSize: 10, color: "#636b60", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  <span
-                    className="metal-dot"
+            <div className="metal-composition-bar" aria-label="Five-sleeve stockpile target" style={{ display: "flex", height: 6, borderRadius: 999, overflow: "hidden" }}>
+              {SLEEVES.map((sleeve) => {
+                const totalBps = BASKET.filter((b) => b.sleeve === sleeve.id).reduce((sum, b) => sum + b.weightBps, 0);
+                return (
+                  <div
+                    key={sleeve.id}
+                    title={`${sleeve.label} ${totalBps / 100}%`}
                     style={{
-                      width: 5,
-                      height: 5,
-                      borderRadius: "50%",
-                      background: ["#d9a92e", "#b8b8c0", "#50e3c2", "#c27a50", "#8db4d8", "#7b93cd", "#9b7bc4", "#719875", "#b8a15f"][index],
+                      width: `${totalBps / 100}%`,
+                      height: "100%",
+                      background: sleeve.color,
                     }}
                   />
-                  {row.symbol} {row.weightBps / 100}%
-                </span>
+                );
+              })}
+            </div>
+            {/* Direct labels: sleeve name + % */}
+            <div className="metal-legend-row" style={{ display: "flex", flexWrap: "wrap", gap: "3px 10px", marginTop: 7 }}>
+              {SLEEVES.map((sleeve) => {
+                const totalBps = BASKET.filter((b) => b.sleeve === sleeve.id).reduce((sum, b) => sum + b.weightBps, 0);
+                return (
+                  <span className="metal-legend-item" key={sleeve.id} style={{ fontSize: 10.5, fontWeight: 600, color: "#1b2019", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    <span
+                      className="metal-dot"
+                      style={{
+                        width: 6,
+                        height: 6,
+                        borderRadius: "50%",
+                        background: sleeve.color,
+                      }}
+                    />
+                    {sleeve.label} {totalBps / 100}%
+                  </span>
+                );
+              })}
+            </div>
+            {/* Per-element details */}
+            <div style={{ fontSize: 9.5, color: "#747d70", marginTop: 4, display: "flex", flexWrap: "wrap", gap: "2px 6px" }}>
+              {BASKET.map((row) => (
+                <span key={row.symbol}>{row.symbol} {row.weightBps / 100}%</span>
               ))}
+            </div>
+            {/* Under-chart note required by §5 */}
+            <div style={{ fontSize: 10, color: "#8a9486", marginTop: 4, fontStyle: "italic" }}>
+              <abbr title="Heavy rare earth elements — the scarcest, most concentrated rare earths." style={{ textDecoration: "underline dotted", cursor: "help" }}>HREE</abbr> has no on-chain price feed. Dy and Tb prices are manual pilot inputs from market reports.
             </div>
           </div>
 

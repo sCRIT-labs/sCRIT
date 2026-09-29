@@ -63,16 +63,9 @@ export function HeaderNav() {
         className={`main-nav-wrapper ${scrolled ? "is-docked" : "is-top"} nav-theme-${navTheme}`}
       >
         <nav className="main-nav-pill">
-          {/* Brand Group */}
+          {/* Brand Group: Unified Logo + Typography Lockup (Only sCRIT) */}
           <Link href="/" className="nav-brand-group" aria-label="sCRIT Protocol Home">
-            <div className="nav-brand-icon-wrap">
-              <ScritLogo size={28} variant="image" />
-            </div>
-
-            <div className="nav-brand-text-block">
-              <span className="nav-brand-text">sCRIT</span>
-              <span className="nav-brand-sub">INDEX</span>
-            </div>
+            <ScritLogo size={28} />
           </Link>
 
           {/* Desktop Center Links */}

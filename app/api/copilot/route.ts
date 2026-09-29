@@ -37,7 +37,8 @@ Every project pool on Robinhood mainnet charges a 2.5% swap tax (75% reserve tre
 
 Established software facts:
 - This is experimental pilot software. sCRIT has no peg and no physical redemption in the pilot.
-- Starter basket target is Au 30%, Ag 5%, Pt 12%, Pd 8%, Nd 8%, Dy 12%, Tb 8%, Sc 7%, and Li 10%.
+- Starter basket target spans five sleeves (100% total): Dy 25% (HREE), Tb 15% (HREE), Nd 10% (Magnet & minor REE), Sc 5% (Magnet & minor REE), Pt 10% (PGMs), Pd 5% (PGMs), Li 5% (Battery), Au 20% (Monetary ballast), Ag 5% (Monetary ballast).
+- HREE Dy and Tb prices are manual pilot inputs from market reports with no on-chain price feed.
 - Diamonds are Rail B only. Uranium is excluded from MVP scope.
 - Do not give legal, tax, or investment advice. Do not use any emojis in your response.`;
 
@@ -173,12 +174,12 @@ Click "Apply to Launch Form" below to populate these parameters into your launch
     if (q.includes("dysprosium") || q.includes("magnet") || q.includes("rare earth") || q.includes("dysp") || q.includes("neodymium")) {
       return `Issuance Parameter Formulation for Heavy Rare Earth Magnet Alloy:
 
-Dysprosium (Dy) is one of the most critical elements in the sCRIT starter basket (12% target weight), vital for thermal resilience in EV traction motor permanent magnets.
+Dysprosium (Dy) is the primary HREE allocation in the sCRIT starter basket (25% target weight), vital for thermal resilience in EV traction motor permanent magnets.
 
 Architecture Parameters:
 - **Scarcity Tier:** Ultra Rare (< 1,000 t annual world production; extremely tight global refining supply).
 - **Liquidity Ratio:** 15% initial pool allocation paired against 1,500 sCRIT.
-- **Hook Fee:** 2.5% swap tax with 75% reinvestment into critical mineral treasury.
+- **Hook Fee:** 2.5% swap tax with 75% routing to the stockpile treasury.
 - **Review Requirement:** Parameters are prepared in compliant draft format.
 
 \`\`\`json:issuance_draft
@@ -201,12 +202,12 @@ Review the parameters in the draft card below. You can apply them directly to th
     if (q.includes("scandium") || q.includes("aerospace") || q.includes("scnd") || q.includes("alloy")) {
       return `Issuance Parameter Formulation for Aerospace Scandium Syndicate:
 
-Scandium (Sc) represents 7% of the sCRIT reserve index, prized for lightweight high-strength scandium-aluminium weldable alloys in aerospace engineering.
+Scandium (Sc) represents 5% of the sCRIT stockpile index, prized for lightweight high-strength scandium-aluminium weldable alloys in aerospace engineering.
 
 Architecture Parameters:
 - **Scarcity Tier:** Ultra Rare (Global supply under 20 tonnes per year).
 - **Liquidity Ratio:** 25% initial pool reserve paired against 2,000 sCRIT.
-- **Hook Fee:** 2.5% Uniswap V4 swap tax ensuring perpetual commodity treasury accumulation.
+- **Hook Fee:** 2.5% Uniswap V4 swap tax ensuring perpetual stockpile accession accumulation.
 
 \`\`\`json:issuance_draft
 {
@@ -228,7 +229,7 @@ The draft card is ready below. Select "Apply to Launch Form" to pre-fill your Ra
     if (q.includes("platinum") || q.includes("catalyst") || q.includes("hydrogen") || q.includes("ptcl") || q.includes("palladium")) {
       return `Issuance Parameter Formulation for Platinum Clean Hydrogen Syndicate:
 
-Platinum (Pt, 12% basket weight) and Palladium (Pd, 8% basket weight) are key PGMs critical for green hydrogen electrolyzers and industrial emission catalysts.
+Platinum (Pt, 10% basket weight) and Palladium (Pd, 5% basket weight) are key PGMs critical for green hydrogen electrolyzers and industrial emission catalysts.
 
 Architecture Parameters:
 - **Scarcity Tier:** Ultra Rare (< 200 t annual world production).
@@ -274,7 +275,7 @@ Recommended Baseline Parameters:
   "description": "Tokenized industrial commodity syndicate backing physical processing reserves with continuous sCRIT liquidity pairing.",
   "commodityTier": "Rare",
   "scarcityThreshold": "1,000 - 10,000 t/yr",
-  "rationale": "Physical commodity asset token paired with sCRIT critical reserve basket."
+  "rationale": "Physical commodity asset token paired with sCRIT stockpile."
 }
 \`\`\`
 
@@ -282,21 +283,29 @@ You can customize any parameter or click "Apply to Launch Form" to load this dir
   }
 
   // 2. KNOWLEDGE BASE & PROTOCOL EXPLORATIONS
-  if (q.includes("9") || q.includes("commodit") || q.includes("basket") || q.includes("asset") || q.includes("au") || q.includes("lithium")) {
-    return `The sCRIT starter basket target comprises 9 critical commodities:
+  if (q.includes("9") || q.includes("commodit") || q.includes("basket") || q.includes("asset") || q.includes("au") || q.includes("lithium") || q.includes("sleeve")) {
+    return `The sCRIT starter basket target comprises five sleeves across nine technology-critical elements (TCEs) and monetary ballast:
 
-1. **Gold (Au)**: 30% - High-grade monetary & reserve gold
-2. **Silver (Ag)**: 5% - Industrial & monetary silver
-3. **Platinum (Pt)**: 12% - Catalyst & green hydrogen metal
-4. **Palladium (Pd)**: 8% - Electronics & emissions control
-5. **Neodymium (Nd)**: 8% - Permanent magnet rare earth
-6. **Dysprosium (Dy)**: 12% - Thermal resilience EV magnet alloy
-7. **Terbium (Tb)**: 8% - Optoelectronic & high-temp magnet element
-8. **Scandium (Sc)**: 7% - Aerospace-grade lightweight alloy
-9. **Lithium (Li)**: 10% - Battery cathode essential mineral
+1. **Heavy Rare Earth Elements (HREE)**:
+   - **Dysprosium (Dy)**: 25% (manual pilot input from market reports)
+   - **Terbium (Tb)**: 15% (manual pilot input from market reports)
+2. **Magnet & Minor REE**:
+   - **Neodymium (Nd)**: 10%
+   - **Scandium (Sc)**: 5%
+3. **Platinum-Group Metals (PGMs)**:
+   - **Platinum (Pt)**: 10%
+   - **Palladium (Pd)**: 5%
+4. **Battery**:
+   - **Lithium (Li)**: 5%
+5. **Monetary Ballast**:
+   - **Gold (Au)**: 20%
+   - **Silver (Ag)**: 5%
+
+Total target weight: 100%.
 
 Architecture Disclosures:
 - Basket weights are design targets, not proof of immediate contracted vault inventory.
+- Unfunded sleeves display 0 mass / $0, not their target.
 - **Diamonds** are segregated strictly to Rail B (Certified Lots).
 - **Uranium** is unavailable and explicitly excluded from MVP scope.`;
   }
@@ -352,7 +361,7 @@ Architecture Disclosures:
 
 Core Software Capabilities:
 1. **Issuance Form Assistant:** Propose token parameters (Name, Ticker, Supply, Paired sCRIT) in human-reviewed draft state for Rail A Launchpad.
-2. **9 Starter Commodities:** Au (30%), Ag (5%), Pt (12%), Pd (8%), Nd (8%), Dy (12%), Tb (8%), Sc (7%), Li (10%).
+2. **5 Stockpile Sleeves (9 Elements):** Dy (25%), Tb (15%), Nd (10%), Sc (5%), Pt (10%), Pd (5%), Li (5%), Au (20%), Ag (5%).
 3. **Uniswap V4 Hook:** 2.5% swap tax on project pools (75% reserve treasury / 25% operations).
 4. **Reserve Ledger:** EIP-712 signed attestations with anti-replay protection.
 

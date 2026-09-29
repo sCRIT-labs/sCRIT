@@ -13,3 +13,6 @@ devbriefsCRIT.md
 
 vercel-production.env
 .vercel
+scratch/
+__pycache__/
+*.pyc

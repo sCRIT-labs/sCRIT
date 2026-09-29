@@ -14,11 +14,10 @@ export const AssayCards: React.FC = () => {
       <div className="section-inner">
         <p className="eyebrow rv">02 · Assay cards & Physical Custody</p>
         <h2 className="rv" style={{ ["--d" as string]: "80ms" }}>
-          Three metals. Graded & Attested.
+          Five sleeves. Nine elements. Graded & Attested.
         </h2>
         <p className="standfirst rv" style={{ ["--d" as string]: "140ms" }}>
-          Each card reads like the physical certificate shipped with the bullion — grade, weight
-          target, live holdings. Tiers derive strictly from global USGS scarcity data: {TIER_RULE}
+          Each card reads like the physical certificate shipped with the stockpile element — sleeve, grade, target weight, and attested holdings. Tiers derive strictly from global USGS scarcity data: {TIER_RULE}
         </p>
 
         <div className="assay-grid">
@@ -33,14 +32,14 @@ export const AssayCards: React.FC = () => {
                   style={{ ["--d" as string]: `${i * 90}ms`, cursor: "pointer" }}
                   onClick={() => setActiveCert(activeCert === b.symbol ? null : b.symbol)}
                 >
-                  <div className="assay-no">ASSAY Nº 00{i + 1} · sCRIT PILOT</div>
-                  <h3>{b.symbol === "Au" ? "Gold" : b.symbol === "Ag" ? "Silver" : "Platinum"}</h3>
+                  <div className="assay-no">ASSAY Nº 00{i + 1} · {b.sleeveLabel.toUpperCase()}</div>
+                  <h3>{b.name} ({b.symbol})</h3>
                   <div className="assay-grade">{b.grade} · {b.tier}</div>
                   <dl>
                     <dt>Target</dt><dd>{b.weightBps / 100}% of new funds</dd>
                     <dt>Held</dt><dd>{kg.toFixed(4)} kg</dd>
-                    <dt>Price</dt><dd>{p ? `$${p.usd_per_kg.toLocaleString("en-US")}/kg${p.stale ? " · stale" : ""}` : "pending"}</dd>
-                    <dt>Source</dt><dd>{p?.source ?? "—"}</dd>
+                    <dt>Price</dt><dd>{p ? `$${p.usd_per_kg.toLocaleString("en-US")}/kg${p.stale ? " · stale" : ""}` : b.sleeve === "hree" ? "manual pilot input" : "pending"}</dd>
+                    <dt>Source</dt><dd>{p?.source ?? (b.sleeve === "hree" ? "Market reports" : "—")}</dd>
                   </dl>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 12 }}>
                     <span className={`stamp ${stamped ? "stamp-ok" : "stamp-wait"}`}>

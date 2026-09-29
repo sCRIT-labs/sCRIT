@@ -10,9 +10,15 @@ import { useScrollIndex } from "@/hooks/usePinnedProgress";
 const TABS = ["index", "raila", "railb"] as const;
 
 const BASKET_META: Record<string, { name: string; color: string; ink: string }> = {
+  Dy: { name: "Dysprosium", color: "#e2b65a", ink: "#221c05" },
+  Tb: { name: "Terbium", color: "#d4a745", ink: "#221c05" },
+  Nd: { name: "Neodymium", color: "#8db4d8", ink: "#0d1b2a" },
+  Sc: { name: "Scandium", color: "#719875", ink: "#0d2a15" },
+  Pt: { name: "Platinum", color: "#b8b8c0", ink: "#1a1a1a" },
+  Pd: { name: "Palladium", color: "#9e9ea8", ink: "#1a1a1a" },
+  Li: { name: "Lithium", color: "#50e3c2", ink: "#0d2a24" },
   Au: { name: "Gold", color: "#d9a92e", ink: "#221c05" },
   Ag: { name: "Silver", color: "#c9c9d1", ink: "#1a1a1a" },
-  Pt: { name: "Platinum", color: "#8e8e96", ink: "#ffffff" },
 };
 
 export function ProductBento() {
@@ -93,7 +99,7 @@ export function ProductBento() {
 
               <p className="ondo-bento-product-desc" style={{ minHeight: "56px", transition: "all 0.3s ease" }}>
                 {selectedProduct === "index" &&
-                  "Starter basket design: Au 30%, Ag 5%, Pt 12%, Pd 8%, Nd 8%, Dy 12%, Tb 8%, Sc 7%, and Li 10%. Target weights do not mean inventory exists."}
+                  "Starter stockpile design across 5 sleeves: HREE (Dy 25%, Tb 15%), Magnet & minor REE (Nd 10%, Sc 5%), PGMs (Pt 10%, Pd 5%), Battery (Li 5%), and Monetary ballast (Au 20%, Ag 5%). Target weights do not mean inventory exists."}
                 {selectedProduct === "raila" &&
                   "Approved issuers create TOKEN/sCRIT pools. Mainnet uses a 2.5% V4 project-pool hook fee split 75/25; testnet V3 rehearsal pools are untaxed."}
                 {selectedProduct === "railb" &&
@@ -102,7 +108,7 @@ export function ProductBento() {
 
               <div className="ondo-bento-badge-row">
                 <span className="ondo-bento-tag">
-                  {selectedProduct === "index" ? "9 COMMODITY TARGETS" : selectedProduct === "raila" ? "TOKEN / sCRIT" : "PLANNED"}
+                  {selectedProduct === "index" ? "5 SLEEVES · 9 ELEMENTS" : selectedProduct === "raila" ? "TOKEN / sCRIT" : "PLANNED"}
                 </span>
                 <span className="ondo-bento-tag">
                   {selectedProduct === "index" ? "TESTNET CONTRACTS" : selectedProduct === "raila" ? "2.5% MAINNET FEE" : "TESTNET DESIGN"}
@@ -194,11 +200,11 @@ export function ProductBento() {
             <div className="ondo-bento-split-row">
               {/* Pilot Basket Card: live weights from lib/scrit-basket */}
               <div className="ondo-bento-card-stat">
-                <span className="ondo-stat-small-label">Pilot Reserve Basket</span>
-                <div className="ondo-stat-big-number">{BASKET.length} Metals</div>
+                <span className="ondo-stat-small-label">Target Stockpile Sleeves</span>
+                <div className="ondo-stat-big-number">{BASKET.length} Elements</div>
                 <div className="ondo-basket-rows">
                   {BASKET.map((b, i) => {
-                    const meta = BASKET_META[b.symbol];
+                    const meta = BASKET_META[b.symbol] ?? { name: b.name, color: "#d9a92e", ink: "#221c05" };
                     const pct = b.weightBps / 100;
                     return (
                       <div key={b.symbol} className="ondo-basket-row">

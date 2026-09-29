@@ -185,7 +185,7 @@ export function HeroScroll() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/images/scrit_vault_core.jpg"
-              alt="sCRIT Subterranean Cryptographic Vault"
+              alt="sCRIT Stockpile Core"
               style={{
                 position: "absolute",
                 inset: 0,
@@ -262,7 +262,7 @@ export function HeroScroll() {
                     color: textColor,
                   }}
                 >
-                  Every Token Launch,&nbsp;
+                  Stockpile&nbsp;
                 </span>
               </span>
 
@@ -287,7 +287,7 @@ export function HeroScroll() {
                     color: textColor,
                   }}
                 >
-                  Paired with sCRIT
+                  the chokepoint.
                 </span>
               </span>
             </h1>
@@ -322,7 +322,7 @@ export function HeroScroll() {
               margin: 0,
             }}
           >
-            sCRIT is a strategic commodity-index token and Uniswap V4 liquidity engine. Rail A pairs project tokens with sCRIT; trading taxes continually build physical reserves across nine technology metals (Lithium, Neodymium, Platinum).
+            sCRIT is building an on-chain stockpile of <abbr title="Technology-critical elements — the metals modern hardware can't be built without." style={{ textDecoration: "underline dotted", cursor: "help" }}>technology-critical elements (TCEs)</abbr> — led by <abbr title="Heavy rare earth elements — the scarcest, most concentrated rare earths." style={{ textDecoration: "underline dotted", cursor: "help" }}>heavy rare earths (HREE)</abbr>, ballasted by <abbr title="Gold and silver keep the index stable while TCEs move." style={{ textDecoration: "underline dotted", cursor: "help" }}>monetary ballast</abbr>. Every token launched here deepens it. Rail A pairs every launched token against sCRIT. A 2.5% tax on those pools funds <abbr title="An addition to the stockpile, recognised only once a custodian signs." style={{ textDecoration: "underline dotted", cursor: "help" }}>accessions</abbr> to the stockpile — dysprosium and terbium first.
           </p>
         </div>
 
