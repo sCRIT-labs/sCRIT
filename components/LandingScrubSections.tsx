@@ -22,94 +22,360 @@ function useStaticMotion() {
   return !ready || Boolean(reduced) || compact;
 }
 
+const DISPATCH_METADATA = [
+  {
+    pillarCode: "PILLAR 01",
+    shortTitle: "Rail A Liquidity",
+    shortDesc: "Uniswap V4 Hooks & Reserve Tax",
+    pillBadge: "LIQUIDITY RAIL",
+    chips: ["Uniswap V4 Hooks", "2.5% Reserve Sink", "Direct Arbitrage"],
+    telemetryKey: "ROUTING PROTOCOL",
+    telemetryVal: "sCRIT/TOKEN Single-Hop Pool",
+    statusText: "V4 HOOK ACTIVE",
+    actionNote: "Inspect Rail A launchpad & liquidity pools",
+  },
+  {
+    pillarCode: "PILLAR 02",
+    shortTitle: "Strategic Basket",
+    shortDesc: "9 Minerals Across 3 Sectors",
+    pillBadge: "CRITICAL BASKET",
+    chips: ["9 Strategic Minerals", "3 Commodity Classes", "Zero Synthetics"],
+    telemetryKey: "ASSET ALLOCATION",
+    telemetryVal: "Battery, Magnet & Catalyst Metals",
+    statusText: "ALLOCATION DEFINED",
+    actionNote: "Inspect commodity targets & physical reserves",
+  },
+  {
+    pillarCode: "PILLAR 03",
+    shortTitle: "Custodian Gate",
+    shortDesc: "EIP-712 Attestation Proofs",
+    pillBadge: "CRYPTOGRAPHIC GATE",
+    chips: ["EIP-712 Signatures", "Assay Certified", "Verifiable On-Chain"],
+    telemetryKey: "VERIFICATION GATE",
+    telemetryVal: "Signed Custodian Ledger Records",
+    statusText: "ATTESTATION VERIFIED",
+    actionNote: "Read evidence model & signed custodian proofs",
+  },
+];
+
 export function PinnedDispatch({ items }: { items: Dispatch[] }) {
   const section = useRef<HTMLElement>(null);
   const staticMotion = useStaticMotion();
-  const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end start"] });
-  const activeIndex = useTransform(scrollYProgress, (value) => {
-    if (value < 0.20) return 0;
-    if (value < 0.36) return 1;
-    return 2;
+  const { scrollYProgress } = useScroll({
+    target: section,
+    offset: ["start start", "end end"],
   });
-  const [activeLabel, setActiveLabel] = useState(items[0]?.tag || "THE INDEX");
-  useMotionValueEvent(activeIndex, "change", (index) => {
-    if (items[index]) setActiveLabel(items[index].tag);
+
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    if (latest < 0.35) {
+      setActiveIndex(0);
+    } else if (latest < 0.68) {
+      setActiveIndex(1);
+    } else {
+      setActiveIndex(2);
+    }
   });
+
+  const handleTabClick = (index: number) => {
+    if (!section.current) return;
+    const rect = section.current.getBoundingClientRect();
+    const scrollTop = window.scrollY || window.pageYOffset;
+    const sectionTop = rect.top + scrollTop;
+    const sectionHeight = section.current.offsetHeight;
+    const viewportHeight = window.innerHeight;
+    const scrollDistance = Math.max(0, sectionHeight - viewportHeight);
+    const targetProgress = index === 0 ? 0.05 : index === 1 ? 0.48 : 0.88;
+    window.scrollTo({
+      top: sectionTop + scrollDistance * targetProgress,
+      behavior: "smooth",
+    });
+  };
+
+  const activeMeta = DISPATCH_METADATA[activeIndex] || DISPATCH_METADATA[0];
+  const activeItem = items[activeIndex] || items[0];
+
   return (
-    <section ref={section} id="dispatches" className={`scrit-scrub scrit-dispatch-scrub${staticMotion ? " is-static" : ""}`} aria-label="sCRIT pilot overview">
-      <div className="scrit-scrub-stage">
-        <div className="scrit-dispatch-header-bar">
-          <div className="scrit-dispatch-title-block">
-            <span className="scrit-kicker">THE PILOT, CLEARLY STATED</span>
-            <h2>Designed around evidence. <em>Honest about the limits.</em></h2>
+    <section
+      ref={section}
+      id="dispatches"
+      className={`scrit-scrub scrit-dispatch-scrub${staticMotion ? " is-static" : ""}`}
+      aria-label="sCRIT pilot architectural dispatches"
+    >
+      <div className="scrit-dispatch-container">
+        {/* Left Column: Command Console & Interactive Tabs */}
+        <div className="scrit-dispatch-console">
+          <div className="scrit-dispatch-header-block">
+            <div className="scrit-dispatch-kicker-row">
+              <span className="scrit-kicker">THE PILOT, CLEARLY STATED</span>
+              <span className="scrit-dispatch-live-beacon">
+                <span className="scrit-beacon-dot" />
+                PILOT ARCHITECTURE
+              </span>
+            </div>
+            <h2>
+              Designed around evidence. <em>Honest about the limits.</em>
+            </h2>
+            <p className="scrit-dispatch-deck-desc">
+              sCRIT anchors liquid market pairs directly to attested physical critical commodities.
+              Scroll to scrub through each foundational pillar, or click a chapter below.
+            </p>
           </div>
-          <div className="scrit-dispatch-meta-block">
-            <p>Scroll through the basket, evidence model, and market limits.</p>
-            <span className="scrit-dispatch-hud-status"><span className="scrit-hud-label">{activeLabel}</span></span>
+
+          {/* Interactive 3-Pillar Chapter Rail */}
+          <div className="scrit-dispatch-tabs" role="tablist" aria-label="Architecture chapters">
+            {items.map((item, index) => {
+              const meta = DISPATCH_METADATA[index] || DISPATCH_METADATA[0];
+              const isActive = activeIndex === index;
+              return (
+                <button
+                  key={item.tag}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  className={`scrit-dispatch-tab${isActive ? " is-active" : ""}`}
+                  onClick={() => handleTabClick(index)}
+                >
+                  <div className="scrit-dispatch-tab-left">
+                    <span className="scrit-dispatch-tab-index mono-sm">0{index + 1}</span>
+                    <div className="scrit-dispatch-tab-titles">
+                      <span className="scrit-dispatch-tab-heading">{meta.shortTitle}</span>
+                      <span className="scrit-dispatch-tab-sub">{meta.shortDesc}</span>
+                    </div>
+                  </div>
+                  <div className="scrit-dispatch-tab-right">
+                    <span className="scrit-dispatch-tab-badge mono-sm">{meta.pillBadge}</span>
+                    <span className={`scrit-dispatch-tab-pip${isActive ? " is-lit" : ""}`} />
+                  </div>
+                  {/* Micro Progress Bar inside Tab */}
+                  <TabProgressBar
+                    index={index}
+                    progress={scrollYProgress}
+                    disabled={staticMotion}
+                    isActive={isActive}
+                  />
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Real-time Telemetry HUD */}
+          <div className="scrit-dispatch-telemetry-hud">
+            <div className="scrit-telemetry-header">
+              <span className="mono-sm scrit-telemetry-title">COMMAND TELEMETRY</span>
+              <span className="mono-sm scrit-telemetry-status">{activeMeta.statusText}</span>
+            </div>
+            <div className="scrit-telemetry-body">
+              <div className="scrit-telemetry-row">
+                <span className="scrit-telemetry-label">{activeMeta.telemetryKey}</span>
+                <span className="scrit-telemetry-value mono-sm">{activeMeta.telemetryVal}</span>
+              </div>
+              <p className="scrit-telemetry-note">{activeMeta.actionNote}</p>
+            </div>
+            <a href={activeItem.href} className="scrit-dispatch-action-cta">
+              <span>{activeItem.link}</span>
+              <ArrowUpRight size={14} />
+            </a>
+          </div>
+
+          {/* Section Scrub Meter */}
+          <ScrubMeter
+            progress={scrollYProgress}
+            disabled={staticMotion}
+            labels={["01 · RAIL A", "02 · THE BASKET", "03 · THE GATE"]}
+          />
+        </div>
+
+        {/* Right Column: 3D Kinetic Vault Stage */}
+        <div className="scrit-dispatch-vault-stage">
+          <div className="scrit-dispatch-vault-frame">
+            <div className="scrit-dispatch-vault-hud-top">
+              <div className="scrit-vault-hud-left">
+                <span className="scrit-vault-reticle">◈</span>
+                <span className="mono-sm scrit-vault-label">EVIDENCE CHAMBER // 3D FOCAL STACK</span>
+              </div>
+              <div className="mono-sm scrit-vault-hud-right">
+                ACTIVE PHASE: 0{activeIndex + 1} / 03
+              </div>
+            </div>
+
+            <div className="scrit-dispatch-card-stack">
+              {items.map((item, index) => (
+                <DispatchKineticCard
+                  key={item.tag}
+                  item={item}
+                  index={index}
+                  meta={DISPATCH_METADATA[index] || DISPATCH_METADATA[0]}
+                  progress={scrollYProgress}
+                  disabled={staticMotion}
+                  isActive={activeIndex === index}
+                />
+              ))}
+            </div>
           </div>
         </div>
-        <div className="scrit-dispatch-deck">
-          {items.map((item, index) => (
-            <DispatchLayer key={item.tag} item={item} index={index} progress={scrollYProgress} disabled={staticMotion} />
-          ))}
-        </div>
-        <ScrubMeter progress={scrollYProgress} disabled={staticMotion} labels={["BASKET", "EVIDENCE", "MARKET"]} />
       </div>
     </section>
   );
 }
 
-function DispatchLayer({
-  item,
+function TabProgressBar({
   index,
   progress,
   disabled,
+  isActive,
 }: {
-  item: Dispatch;
   index: number;
   progress: MotionValue<number>;
   disabled: boolean;
+  isActive: boolean;
 }) {
-  const start = 0.04 + index * 0.14;
-  const end = start + 0.12;
+  const start = index === 0 ? 0.0 : index === 1 ? 0.33 : 0.66;
+  const end = index === 0 ? 0.33 : index === 1 ? 0.66 : 1.0;
+  const scaleX = useTransform(progress, [start, end], [0, 1], { clamp: true });
 
-  const y = useTransform(progress, [start, end], [44, 0]);
-  const opacity = useTransform(progress, [start, end], [0, 1]);
-  const imageScale = useTransform(progress, [start, end + 0.16], [1.14, 1]);
-  const scanTop = useTransform(progress, [start, end + 0.16], ["0%", "100%"]);
-  const pointerEvents = useTransform(progress, (value) => (value >= start + 0.05 ? "auto" : "none"));
+  if (disabled) {
+    return <span className={`scrit-tab-progress-static${isActive ? " is-active" : ""}`} />;
+  }
+
+  return (
+    <motion.span
+      className="scrit-tab-progress-bar"
+      style={{ scaleX, transformOrigin: "left" }}
+    />
+  );
+}
+
+function DispatchKineticCard({
+  item,
+  index,
+  meta,
+  progress,
+  disabled,
+  isActive,
+}: {
+  item: Dispatch;
+  index: number;
+  meta: (typeof DISPATCH_METADATA)[number];
+  progress: MotionValue<number>;
+  disabled: boolean;
+  isActive: boolean;
+}) {
+  // Card 0: starts at center, recedes when progress reaches 0.28 - 0.44
+  const card0_y = useTransform(progress, [0, 0.28, 0.44, 0.70, 1.0], [0, 0, -32, -56, -56]);
+  const card0_scale = useTransform(progress, [0, 0.28, 0.44, 0.70, 1.0], [1, 1, 0.94, 0.88, 0.88]);
+  const card0_opacity = useTransform(progress, [0, 0.28, 0.44, 0.70, 1.0], [1, 1, 0.26, 0.08, 0.08]);
+  const card0_rotateX = useTransform(progress, [0, 0.28, 0.44, 1.0], [0, 0, 4, 7]);
+  const card0_scan = useTransform(progress, [0.0, 0.32], ["0%", "100%"]);
+
+  // Card 1: waits below, rises at 0.20 - 0.36, sits active until 0.62, recedes at 0.62 - 0.76
+  const card1_y = useTransform(progress, [0, 0.20, 0.36, 0.62, 0.76, 1.0], [54, 54, 0, 0, -32, -32]);
+  const card1_scale = useTransform(progress, [0, 0.20, 0.36, 0.62, 0.76, 1.0], [0.94, 0.94, 1, 1, 0.94, 0.94]);
+  const card1_opacity = useTransform(progress, [0, 0.20, 0.36, 0.62, 0.76, 1.0], [0, 0, 1, 1, 0.26, 0.26]);
+  const card1_rotateX = useTransform(progress, [0, 0.20, 0.36, 0.62, 0.76, 1.0], [-5, -5, 0, 0, 4, 4]);
+  const card1_scan = useTransform(progress, [0.34, 0.64], ["0%", "100%"]);
+
+  // Card 2: waits below, rises at 0.52 - 0.68, sits active until 1.0
+  const card2_y = useTransform(progress, [0, 0.52, 0.68, 1.0], [54, 54, 0, 0]);
+  const card2_scale = useTransform(progress, [0, 0.52, 0.68, 1.0], [0.94, 0.94, 1, 1]);
+  const card2_opacity = useTransform(progress, [0, 0.52, 0.68, 1.0], [0, 0, 1, 1]);
+  const card2_rotateX = useTransform(progress, [0, 0.52, 0.68, 1.0], [-5, -5, 0, 0]);
+  const card2_scan = useTransform(progress, [0.68, 0.98], ["0%", "100%"]);
+
+  const y = index === 0 ? card0_y : index === 1 ? card1_y : card2_y;
+  const scale = index === 0 ? card0_scale : index === 1 ? card1_scale : card2_scale;
+  const opacity = index === 0 ? card0_opacity : index === 1 ? card1_opacity : card2_opacity;
+  const rotateX = index === 0 ? card0_rotateX : index === 1 ? card1_rotateX : card2_rotateX;
+  const scanTop = index === 0 ? card0_scan : index === 1 ? card1_scan : card2_scan;
+
+  const pointerEvents = useTransform(progress, (val) => {
+    if (index === 0) return val < 0.35 ? "auto" : "none";
+    if (index === 1) return val >= 0.35 && val < 0.68 ? "auto" : "none";
+    return val >= 0.68 ? "auto" : "none";
+  });
+
+  const zIndex = useTransform(progress, (val) => {
+    if (index === 0) return val < 0.35 ? 30 : 10;
+    if (index === 1) return val >= 0.35 && val < 0.68 ? 30 : val < 0.35 ? 20 : 15;
+    return val >= 0.68 ? 30 : 10;
+  });
 
   return (
     <motion.article
-      className="scrit-dispatch-scrub-card"
-      style={disabled ? undefined : { y, opacity, pointerEvents }}
+      className={`scrit-dispatch-focal-card card-index-${index}${isActive ? " is-focal-active" : ""}`}
+      style={
+        disabled
+          ? undefined
+          : {
+              y,
+              scale,
+              opacity,
+              rotateX,
+              zIndex,
+              pointerEvents,
+              transformPerspective: 1200,
+            }
+      }
     >
-      <div className="scrit-dispatch-scrub-image">
-        <motion.img
+      {/* Top Header Strip */}
+      <div className="scrit-focal-card-topbar">
+        <div className="scrit-focal-card-topbar-left">
+          <span className="mono-sm scrit-focal-card-num">0{index + 1}</span>
+          <span className="mono-sm scrit-focal-card-cat">{meta.pillarCode}</span>
+        </div>
+        <div className="scrit-focal-card-topbar-right">
+          <span className="scrit-focal-badge mono-sm">{meta.pillBadge}</span>
+        </div>
+      </div>
+
+      {/* Visual Header / Image Frame with Holographic Scanner */}
+      <div className="scrit-focal-card-visual">
+        <img
           src={item.image}
-          alt=""
+          alt={item.title}
           loading="lazy"
           decoding="async"
-          style={disabled ? undefined : { scale: imageScale }}
+          className="scrit-focal-card-img"
         />
+        <div className="scrit-focal-card-overlay" />
         <motion.span
-          className="scrit-dispatch-scanner-line"
+          className="scrit-focal-scanner-beam"
           style={disabled ? undefined : { top: scanTop }}
           aria-hidden="true"
         />
-        <div className="scrit-dispatch-image-hud">
-          <span className="scrit-dispatch-image-index">{item.tag}</span>
-          <span className="scrit-dispatch-optic-reticle">⌖</span>
+        <div className="scrit-focal-optic-hud">
+          <span className="mono-sm scrit-focal-ref">[SYS_DISPATCH_0{index + 1}]</span>
+          <span className="mono-sm scrit-focal-target-cross">◈ VERIFIED</span>
         </div>
       </div>
-      <div className="scrit-dispatch-scrub-copy">
-        <span className="scrit-dispatch-card-badge mono-sm">0{index + 1}</span>
+
+      {/* Main Copy Content */}
+      <div className="scrit-focal-card-body">
         <span className="scrit-kicker">{item.tag}</span>
         <h3>{item.title}</h3>
         <p>{item.body}</p>
-        <a className="scrit-text-link" href={item.href}>
-          {item.link}
-          <ArrowUpRight size={15} />
+
+        {/* Feature Spec Chips */}
+        <div className="scrit-focal-chips">
+          {meta.chips.map((chip) => (
+            <span key={chip} className="scrit-focal-chip mono-sm">
+              <span className="scrit-chip-dot" />
+              {chip}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Footer Link & Action */}
+      <div className="scrit-focal-card-footer">
+        <div className="scrit-focal-footer-telemetry">
+          <span className="mono-sm scrit-focal-foot-key">{meta.telemetryKey}</span>
+          <span className="mono-sm scrit-focal-foot-val">{meta.telemetryVal}</span>
+        </div>
+        <a href={item.href} className="scrit-focal-link">
+          <span>{item.link}</span>
+          <ArrowUpRight size={14} />
         </a>
       </div>
     </motion.article>
