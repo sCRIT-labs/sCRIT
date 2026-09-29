@@ -25,6 +25,8 @@ export const SiteFooter: React.FC = () => {
         </div>
         <div>
           <div className="flabel">PROTOCOL</div>
+          <a href="https://github.com/sCRIT-labs/sCRIT" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://x.com/getsCRIT" target="_blank" rel="noopener noreferrer">X (@getsCRIT)</a>
           <a href={HOOD_MAINNET.explorer} target="_blank" rel="noreferrer">Blockscout</a>
           {process.env.NEXT_PUBLIC_ROUTER_ADDRESS && <a href={`${HOOD_MAINNET.explorer}/address/${process.env.NEXT_PUBLIC_ROUTER_ADDRESS}`} target="_blank" rel="noreferrer">Configured router</a>}
           <a href="/launch">Launch form</a>
