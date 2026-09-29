@@ -19,6 +19,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { HOOD_MAINNET, HOOD_TESTNET, SCRIT_CHAIN_ID } from "@/lib/scrit";
+import { ScritLogo } from "./ScritLogo";
 
 export interface NavItem {
   num: string;
@@ -207,12 +208,7 @@ export function NavigationDialog({ isOpen, onClose }: NavigationDialogProps) {
         {/* Top Masthead Row */}
         <div className="nav-dialog-masthead">
           <div className="nav-dialog-brand">
-            <svg width="26" height="26" viewBox="0 0 32 32" fill="none" className="nav-brand-icon">
-              <circle cx="16" cy="16" r="14" stroke="currentColor" strokeWidth="2.5" strokeOpacity="0.3" />
-              <path d="M16 6C10.477 6 6 10.477 6 16C6 21.523 10.477 26 16 26" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-              <path d="M16 11C13.2386 11 11 13.2386 11 16C11 18.7614 13.2386 21 16 21" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-              <circle cx="16" cy="16" r="2.5" fill="currentColor" />
-            </svg>
+            <ScritLogo size={28} variant="image" />
             <div style={{ display: "flex", flexDirection: "column" }}>
               <span className="nav-dialog-brand-title">sCRIT DIRECTORY</span>
               <span className="nav-dialog-brand-subtitle">

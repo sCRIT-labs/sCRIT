@@ -366,12 +366,16 @@
 }
 
 /* Brand mark: gentle rotate + gold glow on hover */
-.scrit-redesign .nav-brand-group .nav-brand-icon {
+.scrit-redesign .nav-brand-group .nav-brand-icon,
+.scrit-redesign .nav-brand-group .scrit-brand-emblem-wrap,
+.scrit-redesign .nav-brand-group .scrit-brand-vector-mark {
   transition: transform 0.45s cubic-bezier(.16, 1, .3, 1), filter 0.3s ease;
 }
-.scrit-redesign .nav-brand-group:hover .nav-brand-icon {
-  transform: rotate(-18deg) scale(1.06);
-  filter: drop-shadow(0 0 6px rgba(226, 182, 90, 0.65));
+.scrit-redesign .nav-brand-group:hover .nav-brand-icon,
+.scrit-redesign .nav-brand-group:hover .scrit-brand-emblem-wrap,
+.scrit-redesign .nav-brand-group:hover .scrit-brand-vector-mark {
+  transform: rotate(-6deg) scale(1.08);
+  filter: drop-shadow(0 0 8px rgba(226, 182, 90, 0.65));
 }
 
 /* Launch button: light sheen sweep on hover */

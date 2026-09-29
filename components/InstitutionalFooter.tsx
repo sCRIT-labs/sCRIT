@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ScrollReveal } from "./ScrollReveal";
 import { HOOD_MAINNET } from "@/lib/scrit";
 import { ArrowUpRight } from "lucide-react";
+import { ScritLogo } from "./ScritLogo";
 
 export function InstitutionalFooter({ theme = "light" }: { theme?: "light" | "dark" }) {
   const isDark = theme === "dark";
@@ -77,7 +78,7 @@ export function InstitutionalFooter({ theme = "light" }: { theme?: "light" | "da
                   display: "inline-block",
                 }}
               >
-                <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: "#d9a92e", marginRight: "8px", verticalAlign: "middle" }} />
+                <ScritLogo size={20} variant="image" style={{ marginRight: "10px", verticalAlign: "middle", display: "inline-block" }} />
                 sCRIT
               </Link>
               <p

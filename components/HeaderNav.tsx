@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowUpRight } from "lucide-react";
 import { NavigationDialog } from "./NavigationDialog";
+import { ScritLogo } from "./ScritLogo";
 
 export function HeaderNav() {
   const [scrolled, setScrolled] = useState(false);
@@ -65,12 +66,7 @@ export function HeaderNav() {
           {/* Brand Group */}
           <Link href="/" className="nav-brand-group" aria-label="sCRIT Protocol Home">
             <div className="nav-brand-icon-wrap">
-              <svg width="24" height="24" viewBox="0 0 32 32" fill="none" className="nav-brand-icon">
-                <circle cx="16" cy="16" r="14" stroke="currentColor" strokeWidth="2.5" strokeOpacity="0.3" />
-                <path d="M16 6C10.477 6 6 10.477 6 16C6 21.523 10.477 26 16 26" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-                <path d="M16 11C13.2386 11 11 13.2386 11 16C11 18.7614 13.2386 21 16 21" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-                <circle cx="16" cy="16" r="2.5" fill="currentColor" />
-              </svg>
+              <ScritLogo size={26} variant="image" />
             </div>
 
             <div className="nav-brand-text-block">

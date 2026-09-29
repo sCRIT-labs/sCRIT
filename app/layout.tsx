@@ -6,6 +6,11 @@ export const metadata: Metadata = {
   title: "sCRIT — Critical Commodities Index & Launchpad",
   description:
     "A critical-commodities index design and sCRIT-paired token launchpad. Target weights are separate from attested holdings; mainnet project pools apply a 2.5% V4 hook fee split 75/25.",
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
