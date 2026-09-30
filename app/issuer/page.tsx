@@ -231,7 +231,6 @@ export default function IssuerDesk() {
             margin: "0 0 16px",
             lineHeight: 1.15,
             color: "var(--ink)",
-            whiteSpace: "nowrap",
           }}
         >
           Issuer clearance & launch journey.

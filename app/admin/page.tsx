@@ -172,7 +172,6 @@ export default function Admin() {
             letterSpacing: "-0.02em",
             margin: "12px 0 16px",
             lineHeight: 1.1,
-            whiteSpace: "nowrap",
           }}
         >
           Protocol ops console.

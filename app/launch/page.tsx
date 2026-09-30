@@ -365,7 +365,6 @@ export default function Launch() {
             margin: "0 0 16px",
             lineHeight: 1.15,
             color: "var(--ink)",
-            whiteSpace: "nowrap",
           }}
         >
           Strike your liquidity engine.

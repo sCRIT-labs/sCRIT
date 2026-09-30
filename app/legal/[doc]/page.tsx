@@ -11,7 +11,7 @@ type LegalDoc = {
 const DOCS: Record<string, LegalDoc> = {
   terms: {
     title: "Terms of Service",
-    badge: "Protocol Agreement · Version 3.0",
+    badge: "Protocol Agreement · Version 3.1",
     sections: [
       {
         heading: "1. Experimental Pilot Network",
@@ -123,7 +123,7 @@ export default async function Legal({ params }: { params: Promise<{ doc: string 
             letterSpacing: "-0.02em",
             margin: "12px 0 16px",
             lineHeight: 1.1,
-            whiteSpace: "nowrap",
+            
           }}
         >
           {d.title}

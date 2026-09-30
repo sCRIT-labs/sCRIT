@@ -112,10 +112,9 @@ export default function TokensPage() {
                   letterSpacing: "-0.02em",
                   color: "var(--ink)",
                   margin: "0 0 10px",
-                  whiteSpace: "nowrap",
                 }}
               >
-                Launched Reserve-Backed Tokens
+                Launched Ecosystem Tokens
               </h1>
               <p
                 style={{

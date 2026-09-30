@@ -254,7 +254,6 @@ export default function CopilotPage() {
             margin: "14px 0 16px",
             lineHeight: 1.15,
             color: "var(--ink)",
-            whiteSpace: "nowrap",
           }}
         >
           Issuance Form Drafter, <em>and Protocol Intelligence.</em>
