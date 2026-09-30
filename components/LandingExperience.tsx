@@ -176,15 +176,40 @@ export function LandingExperience() {
 
       <div data-nav-theme="light">
         <PinnedLaunchStory image="/images/scrit_uniswap_v4_rail_a.jpg">
-          <h2 style={{ whiteSpace: "nowrap" }}>Project tokens <em>pair against sCRIT.</em></h2>
+          <h2>Project tokens <em>pair against sCRIT.</em></h2>
           <p>Approved issuers create tokens backed by Uniswap V4 pools paired directly with sCRIT. On mainnet, a 2.5% swap tax feeds the treasury to fund accessions to the stockpile; Rail B manages certified individual warehouse lots.</p>
           <div className="scrit-launch-facts"><div><b>0%</b><span>Rail A issuance fee</span></div><div><b>2.5%</b><span>mainnet project-pool fee · 75/25</span></div></div>
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 24 }}>
-            <a className="scrit-button" href="/issuer" style={{ background: "#d9a92e", color: "#121411", borderColor: "#c29323", display: "inline-flex", alignItems: "center", gap: 8, padding: "0 22px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginTop: 24, maxWidth: "460px" }}>
+            <a
+              className="scrit-button"
+              href="/issuer"
+              style={{
+                background: "#d9a92e",
+                color: "#121411",
+                borderColor: "#c29323",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "0 20px",
+                width: "100%",
+                boxSizing: "border-box",
+              }}
+            >
               <span>Step 1 · Issuer Clearance</span>
               <ArrowRight size={15} />
             </a>
-            <a className="scrit-button scrit-button-dark" href="/launch" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "0 22px" }}>
+            <a
+              className="scrit-button scrit-button-dark"
+              href="/launch"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "0 20px",
+                width: "100%",
+                boxSizing: "border-box",
+              }}
+            >
               <span>Step 2 · Strike Pair</span>
               <ArrowRight size={15} />
             </a>
