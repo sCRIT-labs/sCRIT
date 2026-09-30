@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sCRIT Protocol — Executive 3D Logo Showcase</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070908;
+      --card-bg: #0f1210;
+      --card-inner: #151916;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-gold: rgba(212, 175, 55, 0.35);
+      --gold: #d4af37;
+      --gold-light: #f3e5ab;
+      --text: #f5f2eb;
+      --muted: #8e968c;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      padding: 48px 24px 80px;
+      line-height: 1.6;
+    }
+    .header {
+      max-width: 900px;
+      margin: 0 auto 36px;
+      text-align: center;
+    }
+    .kicker {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(212, 175, 55, 0.08);
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      border-radius: 999px;
+    }
+    h1 {
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      margin-bottom: 14px;
+      background: linear-gradient(180deg, #ffffff 30%, #c8c2b5 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p.sub {
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    /* Badges list */
+    .specs-pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin: 24px auto 0;
+      max-width: 760px;
+    }
+    .pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 5px 12px;
+      border-radius: 6px;
+      background: #111412;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #b0b8ae;
+    }
+    .pill strong {
+      color: var(--gold);
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1120px;
+      margin: 48px auto 0;
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+    }
+
+    /* Concept Card */
+    .concept-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.6);
+      transition: border-color 0.25s ease, transform 0.25s ease;
+    }
+    .concept-card:hover {
+      border-color: var(--border-gold);
+    }
+    .card-header-bar {
+      padding: 16px 24px;
+      background: #121613;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .opt-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .opt-tagline {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* Navbar Simulation Preview */
+    .navbar-preview-wrap {
+      background: #090a09;
+      border-bottom: 1px solid var(--border);
+      padding: 16px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .mock-nav-left {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+    .mock-nav-logo {
+      height: 38px;
+      display: flex;
+      align-items: center;
+    }
+    .mock-nav-logo img {
+      height: 38px;
+      width: auto;
+      object-fit: contain;
+    }
+    .mock-nav-links {
+      display: flex;
+      gap: 20px;
+      font-size: 13px;
+      color: #9aa298;
+      font-weight: 500;
+    }
+    .mock-nav-links span.active {
+      color: #f5f2eb;
+      font-weight: 600;
+    }
+    .mock-nav-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .mock-btn-outline {
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-size: 12px;
+      color: #c0c8be;
+    }
+    .mock-btn-gold {
+      background: linear-gradient(180deg, #d4af37 0%, #aa831e 100%);
+      border: none;
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #0c0e0c;
+    }
+
+    /* Stage Area (Inspection) */
+    .stage-area {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid var(--border);
+    }
+    .stage-pane {
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .stage-pane.dark {
+      background: radial-gradient(circle at center, #181d19 0%, #0d100e 100%);
+      border-right: 1px solid var(--border);
+    }
+    .stage-pane.light {
+      background: radial-gradient(circle at center, #ffffff 0%, #e6e8e5 100%);
+    }
+    .stage-label {
+      position: absolute;
+      top: 14px;
+      left: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      opacity: 0.7;
+    }
+    .stage-pane.dark .stage-label { color: #8e968c; }
+    .stage-pane.light .stage-label { color: #3d453c; }
+
+    .stage-pane img {
+      max-width: 90%;
+      height: 90px;
+      object-fit: contain;
+      filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.4));
+    }
+    .stage-pane.light img {
+      filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.15));
+    }
+
+    /* Details area */
+    .card-footer-info {
+      padding: 24px 30px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 32px;
+      background: var(--card-bg);
+    }
+    .meta-title {
+      font-size: 21px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #ffffff;
+    }
+    .meta-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .meta-breakdown {
+      border-left: 1px solid var(--border);
+      padding-left: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      justify-content: center;
+    }
+    .spec-item {
+      font-size: 12px;
+    }
+    .spec-item .k {
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .spec-item .v {
+      color: var(--gold-light);
+      font-weight: 600;
+    }
+
+    @media (max-width: 820px) {
+      .stage-area { grid-template-columns: 1fr; }
+      .stage-pane.dark { border-right: none; border-bottom: 1px solid var(--border); }
+      .card-footer-info { grid-template-columns: 1fr; }
+      .meta-breakdown { border-left: none; padding-left: 0; border-top: 1px solid var(--border); padding-top: 16px; }
+      .mock-nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="kicker">sCRIT Executive Brand Identity — 3D Lockup Redesign</div>
+    <h1>Premium 3D Logo Suite (Non-Tambang)</h1>
+    <p class="sub">
+      Menjawab feedback spesifik Anda: <strong>100% bebas unsur tambang &amp; batu</strong>, bukan monogram huruf S biasa, tanpa cincin orbit tiruan Artemis, bertekstur 3D mewah (liquid titanium &amp; 24K gold chamfer), dan format horizontal: <strong>simbol di kiri, tulisan sCRIT di kanan</strong>.
+    </p>
+
+    <div class="specs-pill-row">
+      <div class="pill">Unsur Tambang: <strong>0% (Nol Batu/Mineral)</strong></div>
+      <div class="pill">Huruf S Klise: <strong>Ditiadakan</strong></div>
+      <div class="pill">Tiruan Artemis: <strong>Ditiadakan</strong></div>
+      <div class="pill">Format: <strong>Horizontal Lockup (PNG Transparan)</strong></div>
+      <div class="pill">Kualitas: <strong>3D Haute Horlogerie Craft</strong></div>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- OPTION A: THE KINETIC INFINITY TOROID -->
+    <div class="concept-card">
+      <div class="card-header-bar">
+        <span class="opt-badge">OPSI A &bull; THE KINETIC INFINITY TOROID</span>
+        <span class="opt-tagline">Continuous Reserve Liquidity &bull; Fluid Precision Geometry</span>
+      </div>
+
+      <!-- Live Navbar Mockup -->
+      <div class="navbar-preview-wrap">
+        <div class="mock-nav-left">
+          <div class="mock-nav-logo">
+            <img src="/images/logo-concepts/final_lockup_toroid.png" alt="sCRIT Toroid Lockup" />
+          </div>
+          <div class="mock-nav-links">
+            <span class="active">Launchpad</span>
+            <span>Reserve Index</span>
+            <span>Custody Attestation</span>
+            <span>Documentation</span>
+          </div>
+        </div>
+        <div class="mock-nav-right">
+          <span class="mock-btn-outline">Chain: 4663</span>
+          <button class="mock-btn-gold">Connect Wallet</button>
+        </div>
+      </div>
+
+      <!-- Stage Area: Dark & Light -->
+      <div class="stage-area">
+        <div class="stage-pane dark">
+          <span class="stage-label">Dark Theme Canvas (#090A09)</span>
+          <img src="/images/logo-concepts/final_lockup_toroid.png" alt="Toroid Dark" />
+        </div>
+        <div class="stage-pane light">
+          <span class="stage-label">Light / Clean Canvas (High Contrast)</span>
+          <img src="/images/logo-concepts/final_lockup_toroid.png" alt="Toroid Light" />
+        </div>
+      </div>
+
+      <div class="card-footer-info">
+        <div>
+          <h2 class="meta-title">The Kinetic Infinity Toroid Ribbon</h2>
+          <p class="meta-desc">
+            Pita kontinu Möbius melengkung tanpa sudut tajam yang ditempa dari liquid titanium gelap dengan bevel dalam berlapis emas sampanye dan refleksi kaca obsidian smoked. Tulisan <strong>sCRIT</strong> di sebelah kanan bermaterial satin platinum dengan bevel micro-gold. Sangat aerodinamis, modern, dan melambangkan likuiditas cadangan yang berputar abadi tanpa henti.
+          </p>
+        </div>
+        <div class="meta-breakdown">
+          <div class="spec-item"><span class="k">Mark Archetype:</span> <span class="v">Kinetic Möbius Ribbon</span></div>
+          <div class="spec-item"><span class="k">Material Palette:</span> <span class="v">Liquid Titanium &amp; Amber Gold</span></div>
+          <div class="spec-item"><span class="k">Brand Aura:</span> <span class="v">Fluid, High-Velocity, Modern</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPTION B: THE KINETIC VAULT SHUTTER -->
+    <div class="concept-card">
+      <div class="card-header-bar">
+        <span class="opt-badge">OPSI B &bull; THE KINETIC VAULT SHUTTER</span>
+        <span class="opt-tagline">Haute Horlogerie Precision &bull; Cryptographic Vault Aperture</span>
+      </div>
+
+      <!-- Live Navbar Mockup -->
+      <div class="navbar-preview-wrap">
+        <div class="mock-nav-left">
+          <div class="mock-nav-logo">
+            <img src="/images/logo-concepts/final_lockup_vault_shutter.png" alt="sCRIT Vault Shutter Lockup" />
+          </div>
+          <div class="mock-nav-links">
+            <span class="active">Launchpad</span>
+            <span>Reserve Index</span>
+            <span>Custody Attestation</span>
+            <span>Documentation</span>
+          </div>
+        </div>
+        <div class="mock-nav-right">
+          <span class="mock-btn-outline">Chain: 4663</span>
+          <button class="mock-btn-gold">Connect Wallet</button>
+        </div>
+      </div>
+
+      <!-- Stage Area: Dark & Light -->
+      <div class="stage-area">
+        <div class="stage-pane dark">
+          <span class="stage-label">Dark Theme Canvas (#090A09)</span>
+          <img src="/images/logo-concepts/final_lockup_vault_shutter.png" alt="Vault Shutter Dark" />
+        </div>
+        <div class="stage-pane light">
+          <span class="stage-label">Light / Clean Canvas (High Contrast)</span>
+          <img src="/images/logo-concepts/final_lockup_vault_shutter.png" alt="Vault Shutter Light" />
+        </div>
+      </div>
+
+      <div class="card-footer-info">
+        <div>
+          <h2 class="meta-title">The Haute Horlogerie Kinetic Vault Shutter</h2>
+          <p class="meta-desc">
+            Rana brankas presisi mikroskopis yang terinspirasi dari mekanisme jam tangan mewah Swiss (haute horlogerie). Tiga bilah titanium PVD melengkung mengunci inti emas 24K berukir kaliber presisi. Memberikan kesan institusional berbobot, keamanan protokol kriptografi yang tak tertembus, dan presisi akurasi pengujian cadangan.
+          </p>
+        </div>
+        <div class="meta-breakdown">
+          <div class="spec-item"><span class="k">Mark Archetype:</span> <span class="v">Precision Horology Aperture</span></div>
+          <div class="spec-item"><span class="k">Material Palette:</span> <span class="v">Brushed Titanium &amp; 24K Gold</span></div>
+          <div class="spec-item"><span class="k">Brand Aura:</span> <span class="v">Institutional, Secure, Master-Crafted</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPTION C: THE PRISMATIC CORE PINWHEEL (SELECTED) -->
+    <div class="concept-card" style="border: 2px solid var(--gold); box-shadow: 0 0 35px rgba(212, 175, 55, 0.25);">
+      <div class="card-header-bar" style="background: rgba(212, 175, 55, 0.12);">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="opt-badge" style="color: #ffd700;">OPSI C &bull; THE PRISMATIC CORE PINWHEEL</span>
+          <span style="background: var(--gold); color: #070908; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 4px; text-transform: uppercase;">TERPILIH &bull; AKTIF DI NAVBAR</span>
+        </div>
+        <span class="opt-tagline" style="color: #f5f2eb;">Telah dipasang di /assets/logo.webp</span>
+      </div>
+
+      <!-- Live Navbar Mockup -->
+      <div class="navbar-preview-wrap">
+        <div class="mock-nav-left">
+          <div class="mock-nav-logo">
+            <img src="/images/logo-concepts/final_lockup_prism_core.png" alt="sCRIT Prism Core Lockup" />
+          </div>
+          <div class="mock-nav-links">
+            <span class="active">Launchpad</span>
+            <span>Reserve Index</span>
+            <span>Custody Attestation</span>
+            <span>Documentation</span>
+          </div>
+        </div>
+        <div class="mock-nav-right">
+          <span class="mock-btn-outline">Chain: 4663</span>
+          <button class="mock-btn-gold">Connect Wallet</button>
+        </div>
+      </div>
+
+      <!-- Stage Area: Dark & Light -->
+      <div class="stage-area">
+        <div class="stage-pane dark">
+          <span class="stage-label">Dark Theme Canvas (#090A09)</span>
+          <img src="/images/logo-concepts/final_lockup_prism_core.png" alt="Prism Core Dark" />
+        </div>
+        <div class="stage-pane light">
+          <span class="stage-label">Light / Clean Canvas (High Contrast)</span>
+          <img src="/images/logo-concepts/final_lockup_prism_core.png" alt="Prism Core Light" />
+        </div>
+      </div>
+
+      <div class="card-footer-info">
+        <div>
+          <h2 class="meta-title">The Prismatic Core Pinwheel</h2>
+          <p class="meta-desc">
+            Dua bilah aerodinamis hidrofoil titanium bersudut lengkung tajam yang menopang prisma optik berfaset bersih di pusatnya. Desain ini merefleksikan kecepatan eksekusi EVM launchpad dipadukan dengan transparansi penuh indeks cadangan multi-aset. Ramping, proporsional, dan sangat tajam pada skala navbar.
+          </p>
+        </div>
+        <div class="meta-breakdown">
+          <div class="spec-item"><span class="k">Mark Archetype:</span> <span class="v">Aerodynamic Dual-Hydrofoil</span></div>
+          <div class="spec-item"><span class="k">Material Palette:</span> <span class="v">Gunmetal Foil &amp; Prismatic Diamond</span></div>
+          <div class="spec-item"><span class="k">Brand Aura:</span> <span class="v">Agile, Sharp, Cutting-Edge EVM</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPTION D: THE SWISS CHRONOMETER MONETARY SEAL -->
+    <div class="concept-card">
+      <div class="card-header-bar">
+        <span class="opt-badge">OPSI D &bull; THE SWISS CHRONOMETER MONETARY SEAL</span>
+        <span class="opt-tagline">Sovereign Custody &bull; Engine-Turned Guilloché Index</span>
+      </div>
+
+      <!-- Live Navbar Mockup -->
+      <div class="navbar-preview-wrap">
+        <div class="mock-nav-left">
+          <div class="mock-nav-logo">
+            <img src="/images/logo-concepts/final_lockup_chronometer_seal.png" alt="sCRIT Chronometer Seal Lockup" />
+          </div>
+          <div class="mock-nav-links">
+            <span class="active">Launchpad</span>
+            <span>Reserve Index</span>
+            <span>Custody Attestation</span>
+            <span>Documentation</span>
+          </div>
+        </div>
+        <div class="mock-nav-right">
+          <span class="mock-btn-outline">Chain: 4663</span>
+          <button class="mock-btn-gold">Connect Wallet</button>
+        </div>
+      </div>
+
+      <!-- Stage Area: Dark & Light -->
+      <div class="stage-area">
+        <div class="stage-pane dark">
+          <span class="stage-label">Dark Theme Canvas (#090A09)</span>
+          <img src="/images/logo-concepts/final_lockup_chronometer_seal.png" alt="Chronometer Seal Dark" />
+        </div>
+        <div class="stage-pane light">
+          <span class="stage-label">Light / Clean Canvas (High Contrast)</span>
+          <img src="/images/logo-concepts/final_lockup_chronometer_seal.png" alt="Chronometer Seal Light" />
+        </div>
+      </div>
+
+      <div class="card-footer-info">
+        <div>
+          <h2 class="meta-title">The Swiss Horology Monetary Vault Seal</h2>
+          <p class="meta-desc">
+            Segel moneter horologi dengan pola guilloché mesin bubut klasik diapit roda gigi platinum dan pasak pelepasan emas. Melambangkan indeks cadangan berbobot institusional dengan rantai audit waktu yang permanen. Membawa wibawa institusi keuangan berdaulat kelas atas.
+          </p>
+        </div>
+        <div class="meta-breakdown">
+          <div class="spec-item"><span class="k">Mark Archetype:</span> <span class="v">Engine-Turned Guilloché Seal</span></div>
+          <div class="spec-item"><span class="k">Material Palette:</span> <span class="v">Platinum Rotor &amp; 18K Yellow Gold</span></div>
+          <div class="spec-item"><span class="k">Brand Aura:</span> <span class="v">Sovereign, Timeless, Central-Bank Prestige</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

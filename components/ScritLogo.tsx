@@ -11,9 +11,9 @@ interface ScritLogoProps {
 
 /**
  * sCRIT Protocol Official Brand Identity
- * Horizontal Brand Wordmark & Kinetic Mark Asset (Parity with Artemis / kentir)
- * - Wordmark: /assets/logo.webp (Full horizontal brand artwork with 3D metallic typography & 24K gold orbit)
- * - Mark: /assets/scrit-mark.webp (Standalone orbital mark for compact UI & dialogs)
+ * Horizontal Brand Wordmark & Prismatic Core Pinwheel Mark
+ * - Wordmark: /assets/logo.webp (Full horizontal 3D lockup: Prismatic Core mark on left, titanium & gold sCRIT typography on right)
+ * - Mark: /assets/scrit-mark.webp (Standalone 3D Prismatic Core mark for compact UI & dialogs)
  */
 export function ScritLogo({
   size = 28,
