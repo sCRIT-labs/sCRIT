@@ -217,7 +217,7 @@ export function LandingExperience() {
         </PinnedLaunchStory>
       </div>
 
-      <div data-nav-theme="light">
+      <div data-nav-theme="light" id="products" style={{ scrollMarginTop: "90px" }}>
         <PinnedBasketStory
           items={BASKET.map((row) => ({ symbol: row.symbol, name: row.name, detail: `${row.sleeveLabel} · ${row.grade}`, weight: row.weightBps / 100 }))}
         />

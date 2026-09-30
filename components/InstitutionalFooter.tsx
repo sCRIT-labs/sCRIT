@@ -45,8 +45,8 @@ export function InstitutionalFooter({ theme = "light" }: { theme?: "light" | "da
               </ScrollReveal>
             </h2>
             <div className="ondo-footer-form-row">
-              <a href="/proof" className="ondo-footer-btn-signup">Inspect proof of reserve <ArrowUpRight size={15} /></a>
-              <a href="/launch" className="ondo-footer-secondary-link">Explore token launch</a>
+              <Link href="/proof" className="ondo-footer-btn-signup">Inspect proof of reserve <ArrowUpRight size={15} /></Link>
+              <Link href="/launch" className="ondo-footer-secondary-link">Explore token launch</Link>
             </div>
           </div>
         </div>
@@ -169,6 +169,7 @@ export function InstitutionalFooter({ theme = "light" }: { theme?: "light" | "da
                 <li><Link href="/tokens">Tokens Directory</Link></li>
                 <li><Link href="/proof">Proof of Reserve</Link></li>
                 <li><Link href="/lots">Certified Lots (Rail B)</Link></li>
+                <li><Link href="/copilot">Copilot AI Guide</Link></li>
                 <li><Link href="/#products">Nine-Asset Basket Targets</Link></li>
               </ul>
             </div>
@@ -193,7 +194,7 @@ export function InstitutionalFooter({ theme = "light" }: { theme?: "light" | "da
                 <li><Link href="/legal/terms">Terms of Service</Link></li>
                 <li><Link href="/legal/risk">Risk Disclosures</Link></li>
                 <li><Link href="/legal/privacy">Privacy Policy</Link></li>
-                <li><Link href="/legal/disclaimer">Regulatory Sandbox</Link></li>
+                <li><Link href="/legal/disclaimer">General Pilot Disclaimer</Link></li>
               </ul>
             </div>
           </div>
