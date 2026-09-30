@@ -1,6 +1,6 @@
 # sCRIT
 
-sCRIT is an EVM token launchpad paired with a critical-commodities index design. The nine basket weights are Au 30%, Ag 5%, Pt 12%, Pd 8%, Nd 8%, Dy 12%, Tb 8%, Sc 7%, and Li 10%. These are target allocations, not evidence of inventory. Diamonds are individual Rail B lots only; uranium is unavailable in the MVP.
+sCRIT is an EVM token launchpad paired with a critical-commodities index design. The nine basket weights across five sleeves are Dy 25%, Tb 15%, Nd 10%, Sc 5%, Pt 10%, Pd 5%, Li 5%, Au 20%, and Ag 5%. These are target allocations, not evidence of inventory. Diamonds are individual Rail B lots only; uranium is unavailable in the MVP.
 
 The sCRIT market is not pegged to NAV and has no sCRIT redemption mechanism. A Rail A project token is paired with sCRIT; it is not a claim on commodities. Reserve value changes only after a scoped custodian attestation. Swap fees remain separate, unspent treasury until procurement and attestation.
 

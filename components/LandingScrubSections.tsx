@@ -35,7 +35,7 @@ const DISPATCH_METADATA = [
     actionNote: "Inspect Rail A launchpad & liquidity pools",
     hudStatus: "HOOK ENGAGED",
     hudCert: "UNISWAP_V4 // SINGLETON",
-    watermark: "HOOK: 0x48a1...3f92 · ROUTING: SINGLE-HOP",
+    watermark: "HOOK ARCHITECTURE: UNISWAP V4 · ROUTING: SINGLE-HOP",
     metrics: [
       { val: "2.50%", label: "Reserve Fee", note: "Treasury Tax" },
       { val: "V4 Hook", label: "Architecture", note: "Singleton Pool" },
@@ -56,17 +56,17 @@ const DISPATCH_METADATA = [
     telemetryVal: "HREE, Magnet, PGM, Battery & Ballast",
     statusText: "ALLOCATION DEFINED",
     actionNote: "Inspect sleeve targets & stockpile evidence",
-    hudStatus: "SECURED VAULT",
-    hudCert: "ISO-9001 // BONDED LOGISTICS",
-    watermark: "FACILITY: FREEPORT GENEVA · ZURICH LOGISTICS",
+    hudStatus: "RESERVE TARGETS",
+    hudCert: "5 SLEEVES // 9 ELEMENTS",
+    watermark: "DESIGN TARGETS · NOT PHYSICAL INVENTORY CLAIMS",
     metrics: [
       { val: "9 Elements", label: "Stockpile", note: "TCEs & Ballast" },
       { val: "5 Sleeves", label: "Architecture", note: "HREE-Led" },
       { val: "Attested", label: "Recognition", note: "Not Pegged" },
     ],
     specs: [
-      { key: "ALLOCATION PROFILE", val: "Dysprosium, Terbium, Neodymium, Platinum, Gold" },
-      { key: "STORAGE STANDARD", val: "Insured Bonded Vaults with Segregated Lot Tracking" },
+      { key: "ALLOCATION PROFILE", val: "Dy, Tb, Nd, Sc, Pt, Pd, Li, Au, Ag" },
+      { key: "INTAKE STANDARD", val: "EIP-712 Signed Custodian Attestation Required" },
     ],
   },
   {
@@ -84,12 +84,12 @@ const DISPATCH_METADATA = [
     watermark: "STANDARD: EIP-712 TYPED DATA · ASSAY ATTESTED",
     metrics: [
       { val: "EIP-712", label: "Cryptographic", note: "Typed Signature" },
-      { val: "100% Purity", label: "Assay Verified", note: "Certified Lots" },
+      { val: "99.9%+", label: "Assay Verified", note: "Grade Specs" },
       { val: "On-Chain", label: "Public Ledger", note: "Real-Time Proof" },
     ],
     specs: [
       { key: "ATTESTATION MODEL", val: "Signatures Required Before Reserve Recognition" },
-      { key: "AUDIT TRANSPARENCY", val: "Every Batch Merkle-Linked to Assayer Documents" },
+      { key: "AUDIT TRANSPARENCY", val: "Every Batch Hash-Linked to Assayer Certificate" },
     ],
   },
 ];
