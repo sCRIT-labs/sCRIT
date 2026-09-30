@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sCRIT Protocol — Minimalist Typographic Wordmarks</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e0c;
+      --card-bg: #141714;
+      --border: rgba(255, 255, 255, 0.12);
+      --gold: #d4af37;
+      --text: #f5f2eb;
+      --muted: #8e958c;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      padding: 40px 24px;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .kicker {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    p.sub {
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .grid {
+      display: grid;
+      gap: 36px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      padding: 32px;
+    }
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 14px;
+    }
+    .card-title {
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--gold);
+      background: rgba(212, 175, 55, 0.12);
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+    .card-desc {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    /* Comparison Rows: Dark & Light navbar mockups */
+    .preview-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 768px) {
+      .preview-row { grid-template-columns: 1fr; }
+    }
+    .nav-mock {
+      padding: 20px 24px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-mock-dark {
+      background: #111411;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+    }
+    .nav-mock-light {
+      background: #faf8f2;
+      border: 1px solid rgba(24, 26, 24, 0.15);
+      color: #111411;
+    }
+    .mock-menu {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+      font-weight: 600;
+      opacity: 0.6;
+    }
+    .mock-btn {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 4px;
+    }
+    .nav-mock-dark .mock-btn {
+      background: #f2cf77;
+      color: #111411;
+    }
+    .nav-mock-light .mock-btn {
+      background: #181d19;
+      color: #f5f2eb;
+    }
+
+    /* SVG Wordmark Styles */
+    .wm-svg {
+      display: block;
+      height: 26px;
+      width: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="kicker">Wordmark Typography Exploration</div>
+      <h1>sCRIT Minimalist Typographic Wordmarks</h1>
+      <p class="sub">Tipografi modern murni terinspirasi dari Stripe, Ondo Finance, dan Brex. Tanpa 3D, tanpa simbol tambang, dan tanpa cincin orbit.</p>
+    </div>
+
+    <div class="grid">
+      <!-- Wordmark 1: Swiss Grotesque (Ondo / Brex Style) -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">1. Swiss Modernist Grotesque (Ondo / Brex Style)</div>
+          <span class="badge">REKOMENDASI INSTITUSIONAL</span>
+        </div>
+        <p class="card-desc">Kombinasi huruf kecil <strong>s</strong> bergaya presisi optik yang mengalir mulus ke <strong>CRIT</strong> bermassa tebal (*heavy weight*), dengan aksen aksial horizontal yang sangat tajam dan profesional.</p>
+
+        <div class="preview-row">
+          <!-- Dark Mockup -->
+          <div class="nav-mock nav-mock-dark">
+            <svg class="wm-svg" viewBox="0 0 160 36" fill="currentColor">
+              <!-- s -->
+              <text x="0" y="27" font-family="'Plus Jakarta Sans', sans-serif" font-weight="600" font-size="28" letter-spacing="-0.02em" fill="#d4af37">s</text>
+              <!-- CRIT -->
+              <text x="18" y="27" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="28" letter-spacing="0.04em" fill="#ffffff">CRIT</text>
+            </svg>
+            <div class="mock-menu"><span>Index</span><span>Evidence</span><span>Tokens</span></div>
+            <div class="mock-btn">Launch Pair &nearr;</div>
+          </div>
+
+          <!-- Light Mockup -->
+          <div class="nav-mock nav-mock-light">
+            <svg class="wm-svg" viewBox="0 0 160 36" fill="currentColor">
+              <!-- s -->
+              <text x="0" y="27" font-family="'Plus Jakarta Sans', sans-serif" font-weight="600" font-size="28" letter-spacing="-0.02em" fill="#b8860b">s</text>
+              <!-- CRIT -->
+              <text x="18" y="27" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="28" letter-spacing="0.04em" fill="#111411">CRIT</text>
+            </svg>
+            <div class="mock-menu"><span>Index</span><span>Evidence</span><span>Tokens</span></div>
+            <div class="mock-btn">Launch Pair &nearr;</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wordmark 2: Extended Geometric Tech (Stripe / Linear Style) -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">2. Extended Geometric Tech (Stripe / Linear Style)</div>
+          <span class="badge">MINIMALIS TEKNO</span>
+        </div>
+        <p class="card-desc">Tipografi geometris *wide-tracking* dengan proporsi modular futuristik. Huruf <strong>s</strong> monokrom menyatu serasi dengan <strong>CRIT</strong> dengan sudut potong horizontal yang ultra-clean.</p>
+
+        <div class="preview-row">
+          <!-- Dark Mockup -->
+          <div class="nav-mock nav-mock-dark">
+            <svg class="wm-svg" viewBox="0 0 180 36" fill="currentColor">
+              <text x="0" y="26" font-family="'Space Grotesk', sans-serif" font-weight="700" font-size="25" letter-spacing="0.12em" fill="#ffffff">sCRIT</text>
+            </svg>
+            <div class="mock-menu"><span>Index</span><span>Evidence</span><span>Tokens</span></div>
+            <div class="mock-btn">Launch Pair &nearr;</div>
+          </div>
+
+          <!-- Light Mockup -->
+          <div class="nav-mock nav-mock-light">
+            <svg class="wm-svg" viewBox="0 0 180 36" fill="currentColor">
+              <text x="0" y="26" font-family="'Space Grotesk', sans-serif" font-weight="700" font-size="25" letter-spacing="0.12em" fill="#111411">sCRIT</text>
+            </svg>
+            <div class="mock-menu"><span>Index</span><span>Evidence</span><span>Tokens</span></div>
+            <div class="mock-btn">Launch Pair &nearr;</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wordmark 3: Monolithic Depository Grotesque (BlackRock Style) -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">3. Monolithic Depository (BlackRock / Institutional Style)</div>
+          <span class="badge">ULTRA-SOLID CAPITAL</span>
+        </div>
+        <p class="card-desc">Gaya arsitektural balok baja kokoh (*monolithic bold*). Huruf <strong>s</strong> dibuat *small-caps* yang sejajar dengan <strong>CRIT</strong>, memberi kesan institusi keuangan global yang kokoh dan permanen.</p>
+
+        <div class="preview-row">
+          <!-- Dark Mockup -->
+          <div class="nav-mock nav-mock-dark">
+            <svg class="wm-svg" viewBox="0 0 180 36" fill="currentColor">
+              <!-- Small cap s -->
+              <text x="0" y="27" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="24" letter-spacing="0.08em" fill="#e5dfd0">S</text>
+              <text x="18" y="27" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="27" letter-spacing="0.08em" fill="#ffffff">CRIT</text>
+              <circle cx="106" cy="24" r="3" fill="#d4af37" />
+            </svg>
+            <div class="mock-menu"><span>Index</span><span>Evidence</span><span>Tokens</span></div>
+            <div class="mock-btn">Launch Pair &nearr;</div>
+          </div>
+
+          <!-- Light Mockup -->
+          <div class="nav-mock nav-mock-light">
+            <svg class="wm-svg" viewBox="0 0 180 36" fill="currentColor">
+              <!-- Small cap s -->
+              <text x="0" y="27" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="24" letter-spacing="0.08em" fill="#525c4f">S</text>
+              <text x="18" y="27" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="27" letter-spacing="0.08em" fill="#111411">CRIT</text>
+              <circle cx="106" cy="24" r="3" fill="#b8860b" />
+            </svg>
+            <div class="mock-menu"><span>Index</span><span>Evidence</span><span>Tokens</span></div>
+            <div class="mock-btn">Launch Pair &nearr;</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>
