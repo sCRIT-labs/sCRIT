@@ -470,7 +470,7 @@ export default function TokensPage() {
                     </div>
 
                     <a
-                      href={`${explorer}/token/${token.address}`}
+                      href={`${explorer}/address/${token.address}`}
                       target="_blank"
                       rel="noreferrer"
                       style={{
