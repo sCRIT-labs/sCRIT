@@ -106,16 +106,6 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     num: "08",
-    label: "Protocol Administration",
-    badge: "ADMIN",
-    description: "Administrative console for manual price oracle updates, attestation ingestion, and key management.",
-    href: "/admin",
-    image: "/images/scrit_battery_assay.jpg",
-    tag: "ORACLE CONTROL · ATTESTATION KEYS",
-    specs: ["Manual Price Oracle", "Key Rotation", "Batch Verification"],
-  },
-  {
-    num: "09",
     label: "Terms & Risk Disclosures",
     badge: "LEGAL",
     description: "Mandatory pilot disclaimers, custody architecture limits, and non-redemption legal terms.",
