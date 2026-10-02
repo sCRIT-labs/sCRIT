@@ -10,7 +10,8 @@ export function useBlockNumber(intervalMs = 8000): bigint | null {
 
   useEffect(() => {
     let alive = true;
-    const client = createPublicClient({ transport: http(HOOD_MAINNET.rpc) });
+    const rpcUrl = typeof window !== "undefined" ? "/api/rpc?chainId=4663" : HOOD_MAINNET.rpc;
+    const client = createPublicClient({ transport: http(rpcUrl) });
     const poll = async () => {
       try {
         const n = await client.getBlockNumber();

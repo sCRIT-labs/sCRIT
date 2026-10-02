@@ -61,7 +61,8 @@ const chain = defineChain({
     default: { name: "Robinhood Explorer", url: activeNetwork.explorer },
   },
 });
-const publicClient = createPublicClient({ chain, transport: http() });
+const rpcUrl = typeof window !== "undefined" ? `/api/rpc?chainId=${activeNetwork.id}` : activeNetwork.rpc;
+const publicClient = createPublicClient({ chain, transport: http(rpcUrl) });
 const scritAbi = parseAbi(["function approve(address,uint256) returns (bool)"]);
 const deployment = scritDeploymentFor(SCRIT_CHAIN_ID);
 const marketplace = deployment.lotMarketplace as Address;

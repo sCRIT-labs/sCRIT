@@ -14,7 +14,8 @@ const chain = defineChain({
   rpcUrls: { default: { http: [network.rpc] } },
   blockExplorers: { default: { name: "Robinhood Explorer", url: network.explorer } },
 });
-const publicClient = createPublicClient({ chain, transport: http() });
+const rpcUrl = typeof window !== "undefined" ? `/api/rpc?chainId=${network.id}` : network.rpc;
+const publicClient = createPublicClient({ chain, transport: http(rpcUrl) });
 const configured = (value?: string): value is Address => Boolean(value && /^0x[0-9a-fA-F]{40}$/.test(value) && !/^0x0{40}$/i.test(value));
 const deployment = scritDeploymentFor(SCRIT_CHAIN_ID);
 
