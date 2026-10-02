@@ -457,8 +457,8 @@ export function PinnedIndexStory({ metrics }: { metrics: { label: string; value:
         <motion.div className="scrit-index-scrub-metrics" style={staticMotion ? undefined : { opacity: details }}>{metrics.map((metric) => <div key={metric.label}><span className="scrit-kicker">{metric.label}</span><b>{metric.value}</b><small>{metric.detail}</small></div>)}</motion.div>
       </div>
       <div className="scrit-index-scrub-visual">
-        <img className="scrit-index-scrub-base" src="/images/scrit_critical_vault.jpg" alt="Architectural view of the sCRIT stockpile vault" loading="lazy" decoding="async" />
-        <motion.img className="scrit-index-scrub-reveal" src="/images/scrit_nav_telemetry.jpg" alt="Cryptographic NAV valuation telemetry and reserve feeds" loading="lazy" decoding="async" style={staticMotion ? undefined : { opacity: revealOpacity }} />
+        <img className="scrit-index-scrub-base" src="/images/scrit_critical_vault.jpg" alt="Digital 3D custody attestation recorded inputs" loading="lazy" decoding="async" />
+        <motion.img className="scrit-index-scrub-reveal" src="/images/scrit_nav_telemetry.jpg" alt="Digital 3D indicative NAV valuation telemetry" loading="lazy" decoding="async" style={staticMotion ? undefined : { opacity: revealOpacity }} />
         <motion.span className="scrit-index-scrub-caliper" style={staticMotion ? undefined : { left: divider }} />
         <span className="scrit-index-scrub-tag tag-input">RECORDED INPUTS</span><span className="scrit-index-scrub-tag tag-output">INDICATIVE NAV</span>
       </div>
