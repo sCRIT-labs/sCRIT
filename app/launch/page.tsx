@@ -225,7 +225,7 @@ export default function Launch() {
 
   async function checkAccess() {
     setStep("checking");
-    setMsg("");
+    setMsg("Validating token parameters and compliance disclosures...");
     setResult(null);
     try {
       const supplyU = toTokenUnits(supply);
@@ -248,11 +248,17 @@ export default function Launch() {
         setMsg("Please connect your issuer wallet first.");
         return;
       }
+      if (!ack1 || !ack2) {
+        setStep("error");
+        setMsg("Please accept both required compliance and risk disclosures below.");
+        return;
+      }
       if (scritU > scritBal) {
         setStep("error");
         setMsg("Insufficient sCRIT balance for the chosen liquidity contribution.");
         return;
       }
+      setMsg("Checking dual-gate clearance in compliance registry...");
       if (chainId === 4663) {
         const r = await fetch(`/api/issuers?wallet=${account}`).then((x) => x.json()).catch(() => null);
         if (!r?.approved) {
@@ -266,15 +272,11 @@ export default function Launch() {
         setMsg(`sCRIT and its launcher contracts are not configured for ${chainId === 4663 ? "Robinhood Chain mainnet" : "Robinhood Chain testnet"}.`);
         return;
       }
+      setMsg("Auditing on-chain launcher authorization & pool parameters...");
       const onchainApproved = await launcherIssuerApproved(chainId, account, deployment.launcher as Address).catch(() => false);
       if (!onchainApproved) {
         setStep("error");
         setMsg("Wallet is not approved in the launcher contract. The launcher owner must enable this issuer on-chain.");
-        return;
-      }
-      if (!ack1 || !ack2) {
-        setStep("error");
-        setMsg("Please accept both required compliance and risk disclosures below.");
         return;
       }
       setStep("ready");
@@ -1093,12 +1095,24 @@ export default function Launch() {
 
             <div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 14 }}>
               <div className="launch-field-group">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
-                  <label className="launch-field-label" style={{ margin: 0 }}>
-                    sCRIT to Pair <span>Initial pool depth</span>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                  <label style={{ margin: 0, fontSize: 12.5, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 7 }}>
+                    <span style={{ color: "var(--ink)", fontWeight: 600 }}>sCRIT to Pair</span>
+                    <span style={{ fontSize: 11, color: "#7d8479", fontFamily: "var(--font-mono)", fontWeight: 400 }}>· Initial pool depth</span>
                   </label>
                   {account && (
-                    <span className="mono-sm" style={{ fontSize: 11, color: scritBal > 0n ? "#1b5e20" : "#8a5d00", fontWeight: 600 }}>
+                    <span
+                      className="mono-sm"
+                      style={{
+                        fontSize: 11,
+                        color: scritBal > 0n ? "#1b5e20" : "#8a5d00",
+                        fontWeight: 600,
+                        background: scritBal > 0n ? "rgba(27, 94, 32, 0.08)" : "rgba(184, 134, 11, 0.08)",
+                        padding: "2px 8px",
+                        borderRadius: 3,
+                        border: scritBal > 0n ? "1px solid rgba(27, 94, 32, 0.2)" : "1px solid rgba(184, 134, 11, 0.25)",
+                      }}
+                    >
                       Bal: {parseFloat(formatEther(scritBal)).toLocaleString("en-US", { maximumFractionDigits: 4 })} sCRIT
                     </span>
                   )}
@@ -1246,12 +1260,22 @@ export default function Launch() {
             <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 16 }}>
               <button
                 className="btn btn-ghost"
-                style={{ flex: "1 1 200px", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+                style={{
+                  flex: "1 1 200px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                  transition: "all 0.2s ease",
+                  ...(step === "checking"
+                    ? { background: "rgba(184, 150, 46, 0.08)", borderColor: "rgba(184, 150, 46, 0.4)", color: "#8c6418" }
+                    : {}),
+                }}
                 onClick={checkAccess}
                 disabled={step === "checking" || step === "approve" || step === "launch"}
               >
-                {step === "checking" ? <Loader2 size={15} className="spin" /> : <Sparkles size={15} />}
-                <span>{step === "checking" ? "Verifying..." : "1 · Validate Parameters"}</span>
+                {step === "checking" ? <Loader2 size={15} className="spin" color="#8c6418" /> : <Sparkles size={15} />}
+                <span>{step === "checking" ? "1 · Verifying Parameters..." : "1 · Validate Parameters"}</span>
               </button>
 
               <button
@@ -1276,7 +1300,12 @@ export default function Launch() {
             </div>
 
             {/* Stepper Status Feedback */}
-            <div className="launch-stepper-tracker">
+            <div className="launch-stepper-tracker" style={{ position: "relative", overflow: "hidden" }}>
+              {(step === "checking" || step === "approve" || step === "launch") && (
+                <div className="scrit-progress-bar" style={{ position: "absolute", top: 0, left: 0, right: 0 }}>
+                  <div className="scrit-progress-bar-fill" />
+                </div>
+              )}
               <span
                 className={`launch-step-dot ${
                   step === "error"
@@ -1289,18 +1318,26 @@ export default function Launch() {
                 }`}
               />
               <div style={{ flex: 1 }}>
-                <span className="mono-sm" style={{ color: "#636b60", textTransform: "uppercase", fontSize: 11, letterSpacing: "0.06em" }}>
-                  ENGINE STATUS:{" "}
-                  <b style={{ color: step === "error" ? "#dc2626" : step === "done" ? "#b8962e" : "var(--ink)" }}>
-                    {step.toUpperCase()}
-                  </b>
-                </span>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+                  <span className="mono-sm" style={{ color: "#636b60", textTransform: "uppercase", fontSize: 11, letterSpacing: "0.06em" }}>
+                    ENGINE STATUS:{" "}
+                    <b style={{ color: step === "error" ? "#dc2626" : step === "done" ? "#b8962e" : step === "ready" ? "#1b5e20" : "var(--ink)" }}>
+                      {step.toUpperCase()}
+                    </b>
+                  </span>
+                  {(step === "checking" || step === "approve" || step === "launch") && (
+                    <span className="mono-sm" style={{ fontSize: 11, color: "#8c6418", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                      <Loader2 size={12} className="spin" />
+                      <span>Processing</span>
+                    </span>
+                  )}
+                </div>
                 {msg ? (
-                  <p style={{ margin: "3px 0 0", fontSize: 13, color: step === "error" ? "#b91c1c" : "#b8962e" }}>
+                  <p style={{ margin: "4px 0 0", fontSize: 13, color: step === "error" ? "#b91c1c" : step === "ready" ? "#1b5e20" : "#8c6418", fontWeight: 500 }}>
                     {msg}
                   </p>
                 ) : (
-                  <p style={{ margin: "3px 0 0", fontSize: 12, color: "#7d8479" }}>
+                  <p style={{ margin: "4px 0 0", fontSize: 12, color: "#7d8479" }}>
                     Complete token parameters and click Validate to proceed.
                   </p>
                 )}

@@ -220,20 +220,51 @@ export default function TokensPage() {
 
         {/* Tokens Grid / Loading State */}
         {loading ? (
-          <div
-            style={{
-              padding: "60px 20px",
-              textAlign: "center",
-              background: "#ffffff",
-              border: "1px solid var(--line-ink)",
-              borderRadius: 6,
-              marginTop: 20,
-            }}
-          >
-            <Loader2 size={30} className="spin" color="var(--moss)" style={{ margin: "0 auto 12px" }} />
-            <p style={{ margin: 0, fontSize: 13, color: "#636b60", fontFamily: "var(--font-mono)" }}>
-              Querying verified tokens from database...
-            </p>
+          <div>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "4px 10px", background: "rgba(83, 103, 83, 0.06)", border: "1px solid rgba(83, 103, 83, 0.15)", borderRadius: 3, marginBottom: 16 }}>
+              <Loader2 size={12} className="spin" color="var(--moss)" />
+              <span className="mono-sm" style={{ fontSize: 11, color: "var(--moss)", fontWeight: 600 }}>
+                Querying on-chain indexed token registry...
+              </span>
+            </div>
+            <div className="tokens-directory-grid">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="token-card" style={{ pointerEvents: "none" }}>
+                  <div className="token-card-header">
+                    <div className="token-card-avatar scrit-skeleton" style={{ width: 44, height: 44, borderRadius: 8 }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 6 }}>
+                        <div className="scrit-skeleton" style={{ width: 80, height: 18 }} />
+                        <div className="scrit-skeleton" style={{ width: 56, height: 16, borderRadius: 3 }} />
+                      </div>
+                      <div className="scrit-skeleton" style={{ width: 140, height: 13 }} />
+                    </div>
+                  </div>
+
+                  <div style={{ margin: "14px 0 16px" }}>
+                    <div className="scrit-skeleton" style={{ width: 110, height: 18, borderRadius: 3, marginBottom: 8 }} />
+                    <div className="scrit-skeleton" style={{ width: "100%", height: 12, marginBottom: 4 }} />
+                    <div className="scrit-skeleton" style={{ width: "70%", height: 12 }} />
+                  </div>
+
+                  <div className="token-card-metrics" style={{ margin: "14px 0", background: "rgba(83, 103, 83, 0.04)" }}>
+                    <div className="token-card-metric-col">
+                      <div className="scrit-skeleton" style={{ width: 50, height: 10, marginBottom: 6 }} />
+                      <div className="scrit-skeleton" style={{ width: 80, height: 14 }} />
+                    </div>
+                    <div className="token-card-metric-col">
+                      <div className="scrit-skeleton" style={{ width: 60, height: 10, marginBottom: 6 }} />
+                      <div className="scrit-skeleton" style={{ width: 70, height: 14 }} />
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", gap: 8, marginTop: 14, paddingTop: 14, borderTop: "1px solid var(--line-ink)" }}>
+                    <div className="scrit-skeleton" style={{ flex: 1, height: 32, borderRadius: 4 }} />
+                    <div className="scrit-skeleton" style={{ width: 32, height: 32, borderRadius: 4 }} />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         ) : filteredTokens.length > 0 ? (
           <div className="tokens-directory-grid">
