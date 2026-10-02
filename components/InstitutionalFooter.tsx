@@ -180,7 +180,6 @@ export function InstitutionalFooter({ theme = "light" }: { theme?: "light" | "da
               <ul className="ondo-footer-links-list">
                 <li><a href="https://github.com/sCRIT-labs/sCRIT" target="_blank" rel="noopener noreferrer">GitHub Repository</a></li>
                 <li><a href="https://x.com/getsCRIT" target="_blank" rel="noopener noreferrer">Official X (@getsCRIT)</a></li>
-                <li><Link href="/admin">Manual pilot operations</Link></li>
                 <li><a href="/api/prices" target="_blank" rel="noreferrer">Prices Feed API (JSON)</a></li>
                 <li><a href="/api/custodians" target="_blank" rel="noreferrer">Custodian Registry (JSON)</a></li>
                 <li><a href={HOOD_MAINNET.explorer} target="_blank" rel="noreferrer">Robinhood Blockscout</a></li>

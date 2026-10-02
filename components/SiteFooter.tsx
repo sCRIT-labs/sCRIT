@@ -30,7 +30,6 @@ export const SiteFooter: React.FC = () => {
           <a href={HOOD_MAINNET.explorer} target="_blank" rel="noreferrer">Blockscout</a>
           {process.env.NEXT_PUBLIC_ROUTER_ADDRESS && <a href={`${HOOD_MAINNET.explorer}/address/${process.env.NEXT_PUBLIC_ROUTER_ADDRESS}`} target="_blank" rel="noreferrer">Configured router</a>}
           <a href="/launch">Launch form</a>
-          <a href="/admin">Ops console</a>
         </div>
         <div>
           <div className="flabel">LEGAL</div>
