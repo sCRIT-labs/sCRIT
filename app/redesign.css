@@ -712,6 +712,26 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(217, 169, 46, 0.3) rgba(255, 255, 255, 0.02);
+}
+
+.nav-dialog-body::-webkit-scrollbar {
+  width: 5px;
+}
+
+.nav-dialog-body::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.nav-dialog-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 9999px;
+  transition: background-color 0.2s ease;
+}
+
+.nav-dialog-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(217, 169, 46, 0.55);
 }
 
 .nav-dialog-roster {

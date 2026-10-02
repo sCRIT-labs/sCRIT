@@ -186,6 +186,55 @@ body {
   overflow-x: clip;
 }
 
+/* Custom sleek scrollbar for entire website */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(24, 26, 24, 0.25) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 9999px;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(217, 169, 46, 0.6);
+}
+
+.dark *,
+[data-theme="dark"] *,
+.scrit-redesign *,
+.nav-dialog-backdrop *,
+.nav-dialog-surface * {
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.dark ::-webkit-scrollbar-thumb,
+[data-theme="dark"] ::-webkit-scrollbar-thumb,
+.scrit-redesign ::-webkit-scrollbar-thumb,
+.nav-dialog-backdrop ::-webkit-scrollbar-thumb,
+.nav-dialog-surface ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover,
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover,
+.scrit-redesign ::-webkit-scrollbar-thumb:hover,
+.nav-dialog-backdrop ::-webkit-scrollbar-thumb:hover,
+.nav-dialog-surface ::-webkit-scrollbar-thumb:hover {
+  background: rgba(217, 169, 46, 0.55);
+}
+
 ::selection {
   background: #000000;
   color: #ffffff;
