@@ -2,35 +2,71 @@ Physical critical mineral reserves have officially arrived on Robinhood Chain Ma
 Our full reserve and launch infrastructure is deployed and publicly verifiable onchain.
 
 Chain ID: 4663
-Deploy Block: 74,475,976
+Deploy Blocks: 74,475,976 – 74,476,342
+Deployer: 0xCdbdc82A021071eE445d9f897433a7E4B4EAfD8d
 
-CORE INFRASTRUCTURE
+CORE INFRASTRUCTURE & GOVERNANCE
 
-sCRITV4Launcher
-robinhoodchain.blockscout.com/address/0x2e0de4486b391c182a6727d5480380f9820c73d5
-
-TradingTaxHook (Uniswap V4 2.5% tax, 75/25 split)
-robinhoodchain.blockscout.com/address/0x5a0e9b72a3fcad25cf30757164c90d51f4ca2044
-
-ScritIndexToken ($sCRIT)
+sCRITIndexToken ($sCRIT)
 robinhoodchain.blockscout.com/address/0x56073943133c1c0678a753be9402b27d43cf1c22
 
-ReserveManager (EIP-712 attestation engine)
+ScritTimelockController
+robinhoodchain.blockscout.com/address/0x00824e9c6075ff2ceb10009de7f170fc6721df1a
+
+ReserveManager (Telemetry & Attestation Engine)
 robinhoodchain.blockscout.com/address/0x0cc054ce72fc0a489732e20dd595de934be2e953
 
-PhysicalLotManager (Rail B certified lots)
+CustodianRegistry (Depository Vaults)
+robinhoodchain.blockscout.com/address/0x4993478847d03e13d5eae930878ad428cf2b27f8
+
+PriceOracleAdapter (Commodity Feeds)
+robinhoodchain.blockscout.com/address/0x5341042250dcbc11a929581d22b7be30c14640df
+
+KycRegistry (Authorized Participants)
+robinhoodchain.blockscout.com/address/0x1f1d055014348e60af47065d45247b2c1204c7e8
+
+ScritCreate2Deployer
+robinhoodchain.blockscout.com/address/0xefcb390b33d5edc90f0bf1039f94e53fb18c7346
+
+RAIL A: UNISWAP V4 ENGINE & TAX HOOK
+
+sCRITV4Launcher (Atomic Pool Deployer)
+robinhoodchain.blockscout.com/address/0x2e0de4486b391c182a6727d5480380f9820c73d5
+
+TradingTaxHook (2.5% Tax Hook / CREATE2 Salt 0x2b61)
+robinhoodchain.blockscout.com/address/0x5a0e9b72a3fcad25cf30757164c90d51f4ca2044
+
+RAIL B: PHYSICAL LOTS & WAREHOUSE CUSTODY
+
+PhysicalLotManager
 robinhoodchain.blockscout.com/address/0x4f0332621e9a1f2d79dc3095b0cf82297a562a33
 
-ATOMIC LAUNCH
+PhysicalLotToken
+robinhoodchain.blockscout.com/address/0x46b01dcdad1fb6dbd95bbd2e88f4f69064bd1bf1
 
-Pilot Launch Tx (token + hooked pool, 1 tx)
+LotRedemptionManager
+robinhoodchain.blockscout.com/address/0x6809f71adc27a158a6ab4d74bd6a7ac228014827
+
+LotMarketplace
+robinhoodchain.blockscout.com/address/0xf8e56794c0ded1e01b8f973ff0f6d2f86f8e43e7
+
+ATOMIC LAUNCH & VERIFIED MARKET PROOFS
+
+Canonical Base Market Seed (sCRIT/ETH Uniswap V4 Pool)
 Block: 74,476,342
+Pool ID: 0xd029d347e9706be039efab5de2da16919fc145d31ea0e3c9a8bd0a773bf6c69e
+Position NFT #3370083
+robinhoodchain.blockscout.com/tx/0xe1d56d831c4ea6305d1c47c5298fce39f335e50954b8086e03b2764609d94c50
+
+Pilot Rail A Atomic Launch Tx (PDMO Token + V4 Hooked Pool, 1 tx)
+Pool ID: 0x807c3523b5b47cb53a78cbf03283dfb6c5117b7d1c72d2aaadb5aa5caad30d19
+Position NFT #3370272
 robinhoodchain.blockscout.com/tx/0xdd8d74717fb0b0cedd3d72d9dad001337c1220858732eacc76cdd45bf7986537
 
-Uniswap V4 Pool sCRIT/ETH
-robinhoodchain.blockscout.com/address/0xd029d347e9706be039efab5de2da16919fc145d31ea0e3c9a8bd0a773bf6c69e
+Pilot Token PDMO
+robinhoodchain.blockscout.com/address/0xEaad835Ab56de5EFF1D2B303B166B8aFA220C537
 
-First Taxed Swap Tx (75% reserve buyback verified)
+First Taxed Swap Tx (75% Reserve Buyback / 25% Ops Verified)
 robinhoodchain.blockscout.com/tx/0x2e2b78ee1f88027a74bfcd6243b5282b6670e77a0f0754f1f715fa3033ea7e7f
 
 CANONICAL / EXTERNAL DEPENDENCIES
@@ -41,11 +77,14 @@ robinhoodchain.blockscout.com/address/0x8366a39CC670B4001A1121B8F6A443A643e40951
 Uniswap V4 PositionManager
 robinhoodchain.blockscout.com/address/0x58daec3116aae6d93017baaea7749052e8a04fa7
 
+Uniswap V4 StateView
+robinhoodchain.blockscout.com/address/0xf3334192d15450cdd385c8b70e03f9a6bd9e673b
+
 Permit2
 robinhoodchain.blockscout.com/address/0x000000000022D473030F116dDEE9F6B43aC78BA3
 
 WETH
 robinhoodchain.blockscout.com/address/0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73
 
-5 sleeves. 9 attested minerals. 2.5% tax with 75% autonomous reserve buyback.
+5 sleeves. 9 attested minerals (Dy, Tb, Nd, Sc, Pt, Pd, Li, Au, Ag). 2.5% tax with 75% autonomous reserve buyback.
 Live: scrit.network
