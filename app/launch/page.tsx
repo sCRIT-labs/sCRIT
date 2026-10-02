@@ -1367,8 +1367,8 @@ export default function Launch() {
                   {/* Token Address */}
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", background: "#ffffff", borderRadius: 4, border: "1px solid var(--line-ink)" }}>
                     <div>
-                      <span className="mono-sm" style={{ color: "#7d8479", fontSize: 11, display: "block" }}>TOKEN CONTRACT</span>
-                      <a href={`${explorer}/address/${result.token}`} target="_blank" rel="noreferrer" className="mono-sm" style={{ color: "#8c6418", fontSize: 13, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                      <span className="mono-sm" style={{ color: "#7d8479", fontSize: 11, display: "block" }}>TOKEN CONTRACT (ERC-20 TRACKER)</span>
+                      <a href={`${explorer}/token/${result.token}`} target="_blank" rel="noreferrer" className="mono-sm" style={{ color: "#8c6418", fontSize: 13, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 5 }}>
                         {result.token}
                         <ExternalLink size={12} />
                       </a>
