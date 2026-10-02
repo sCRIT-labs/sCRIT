@@ -1,6 +1,6 @@
 <div align="center">
 
-![sCRIT Protocol Telemetry](./public/images/scrit_nav_telemetry.jpg)
+![sCRIT Protocol Banner](./assets/scrit-banner.png)
 
 # sCRIT
 
