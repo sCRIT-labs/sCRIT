@@ -75,8 +75,8 @@ export default function TokensPage() {
     <PageShell>
       <div style={{ width: "100%", paddingBottom: 60 }}>
         {/* Page Hero Header */}
-        <div style={{ marginBottom: 32 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
+        <div style={{ marginBottom: 32, paddingTop: 8 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 16 }}>
             <div>
               <div
                 style={{
@@ -107,7 +107,8 @@ export default function TokensPage() {
               <h1
                 style={{
                   fontFamily: "var(--font-serif)",
-                  fontSize: "clamp(26px, 3.6vw, 38px)",
+                  fontSize: "clamp(26px, 3.4vw, 36px)",
+                  lineHeight: 1.15,
                   fontWeight: 400,
                   letterSpacing: "-0.02em",
                   color: "var(--ink)",
@@ -141,6 +142,7 @@ export default function TokensPage() {
                 textDecoration: "none",
                 fontWeight: 600,
                 borderRadius: 4,
+                marginBottom: 4,
               }}
             >
               <Rocket size={16} />
@@ -352,10 +354,12 @@ export default function TokensPage() {
                     </div>
                     <div>
                       <span className="mono-sm" style={{ color: "#7d8479", fontSize: 10.5, display: "block" }}>
-                        sCRIT ANCHOR
+                        {token.symbol === "SCRIT" ? "BASE PAIR" : "sCRIT ANCHOR"}
                       </span>
                       <span className="mono-sm" style={{ fontSize: 12, fontWeight: 700, color: "#8c6418" }}>
-                        {token.scritAmount} sCRIT
+                        {token.symbol === "SCRIT"
+                          ? (token.chainId === 4663 ? "0.25 ETH (WETH)" : "0.1 ETH (WETH)")
+                          : `${token.scritAmount} sCRIT`}
                       </span>
                     </div>
                   </div>
@@ -368,12 +372,16 @@ export default function TokensPage() {
                       gap: 6,
                       fontSize: 11,
                       fontFamily: "var(--font-mono)",
-                      color: token.poolType === "v4_hook" ? "#b8962e" : "#636b60",
+                      color: token.symbol === "SCRIT" ? "#355e3b" : token.poolType === "v4_hook" ? "#b8962e" : "#636b60",
                     }}
                   >
                     <ShieldCheck size={13} />
                     <span>
-                      {token.poolType === "v4_hook"
+                      {token.symbol === "SCRIT"
+                        ? (token.chainId === 4663
+                            ? "Uniswap V4 Base Market · 0.30% LP Fee (Untaxed)"
+                            : "Uniswap V3 Rehearsal · 0.30% Fee (Untaxed)")
+                        : token.poolType === "v4_hook"
                         ? "Uniswap V4 Hook · 2.5% Tax (75% Reserve / 25% Ops)"
                         : "Uniswap V3 Rehearsal · 0% Hook Fee"}
                     </span>

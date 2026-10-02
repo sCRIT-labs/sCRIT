@@ -62,14 +62,14 @@ const realTokens = [
     symbol: "SCRIT",
     creator: "0xCdbdc82A021071eE445d9f897433a7E4B4EAfD8d",
     supply: "1,000,000",
-    pooled: "200,000",
-    scrit_amount: "200,000",
+    pooled: "100,000",
+    scrit_amount: "0.1",
     tx_hash: "0xe8f8e5af7fb343c38870ee011153aff46879d17d3c0e3d48b75b2b84f82d2e5d", // Real testnet deploy tx
     pool_id: "0x01824bb84210e7491b5c90812347ae09824c08924b10582a8710924bcf081267",
     pool_type: "v3_standard",
     logo_url: null,
-    backing_category: "9 Critical Commodities Reserve",
-    description: "Canonical Robinhood Testnet contract 0x7613...8755 paired with sCRIT Reserve Engine.",
+    backing_category: "Testnet Pilot Reserve",
+    description: "Canonical Robinhood Testnet contract 0x7613...8755 paired with WETH base market.",
     created_at: new Date("2026-09-26T03:54:03.850Z")
   }
 ];
