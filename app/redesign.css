@@ -324,7 +324,7 @@
   height: 28px;
 }
 
-/* nav-brand-live-dot: removed — no longer in use */
+/* nav-brand-live-dot: removed - no longer in use */
 
 .nav-brand-text-block {
   display: flex;
@@ -681,7 +681,7 @@
   letter-spacing: 0.06em;
 }
 
-/* nav-dialog-env-pill: removed — no longer in use */
+/* nav-dialog-env-pill: removed - no longer in use */
 
 .nav-dialog-close-btn {
   display: inline-flex;
@@ -3080,7 +3080,7 @@ html.has-reveal-js .scrit-dispatch-scrub:not(.is-static) .scrit-dispatch-contain
 .scrit-index-scrub.is-static .scrit-index-scrub-reveal,
 .scrit-index-scrub.is-static .scrit-index-scrub-caliper,
 .scrit-launch-scrub.is-static .scrit-launch-scrub-wipe { display: none; }
-/* Basket: two items per row on desktop. Layout-only change — the per-row
+/* Basket: two items per row on desktop. Layout-only change - the per-row
    scroll-driven fill animation (scaleX) and its stagger timing are untouched.
    Mobile / reduced-motion fallbacks keep the single-column block layout. */
 @media (min-width: 761px) {

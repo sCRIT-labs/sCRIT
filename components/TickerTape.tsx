@@ -6,7 +6,7 @@ import type { PriceRow } from "../hooks/usePilotData";
 const CREED = [
   "RESERVE MOVES ON ATTESTATION ONLY",
   "UNSPENT IS NOT RESERVE",
-  "NOT PEGGED — NO REDEMPTION IN PILOT",
+  "NOT PEGGED - NO REDEMPTION IN PILOT",
   "PREMIUM ALWAYS VISIBLE",
 ];
 

@@ -193,7 +193,7 @@ export default function Launch() {
     if (parsedPooled > 0 && parsedScrit > 0) {
       return (parsedScrit / parsedPooled).toLocaleString("en-US", { maximumSignificantDigits: 6 });
     }
-    return "—";
+    return "-";
   }, [parsedPooled, parsedScrit]);
 
   const impliedFdvScrit = useMemo(() => {
@@ -202,7 +202,7 @@ export default function Launch() {
       const totalFdv = pricePerToken * parsedSupply;
       return totalFdv.toLocaleString("en-US", { maximumFractionDigits: 0 });
     }
-    return "—";
+    return "-";
   }, [parsedPooled, parsedScrit, parsedSupply]);
 
   // Procedural gradient avatar based on ticker
@@ -379,7 +379,7 @@ export default function Launch() {
           }}
         >
           Every ecosystem launch is anchored to <b style={{ color: "var(--ink)" }}>TOKEN / sCRIT</b>.
-          Project pools pair with <b style={{ color: "#8c6418" }}>sCRIT</b>, funding accessions to an on-chain stockpile across five sleeves of <abbr title="Technology-critical elements — the metals modern hardware can't be built without." style={{ textDecoration: "underline dotted", cursor: "help" }}>technology-critical elements (TCEs)</abbr> and <abbr title="Gold and silver keep the index stable while TCEs move." style={{ textDecoration: "underline dotted", cursor: "help" }}>monetary ballast</abbr>.
+          Project pools pair with <b style={{ color: "#8c6418" }}>sCRIT</b>, funding accessions to an on-chain stockpile across five sleeves of <abbr title="Technology-critical elements - the metals modern hardware can't be built without." style={{ textDecoration: "underline dotted", cursor: "help" }}>technology-critical elements (TCEs)</abbr> and <abbr title="Gold and silver keep the index stable while TCEs move." style={{ textDecoration: "underline dotted", cursor: "help" }}>monetary ballast</abbr>.
         </p>
       </div>
 
@@ -603,7 +603,7 @@ export default function Launch() {
             </div>
             {/* Under-chart note required by §5 */}
             <div style={{ fontSize: 10, color: "#8a9486", marginTop: 4, fontStyle: "italic" }}>
-              <abbr title="Heavy rare earth elements — the scarcest, most concentrated rare earths." style={{ textDecoration: "underline dotted", cursor: "help" }}>HREE</abbr> has no on-chain price feed. Dy and Tb prices are manual pilot inputs from market reports.
+              <abbr title="Heavy rare earth elements - the scarcest, most concentrated rare earths." style={{ textDecoration: "underline dotted", cursor: "help" }}>HREE</abbr> has no on-chain price feed. Dy and Tb prices are manual pilot inputs from market reports.
             </div>
           </div>
 

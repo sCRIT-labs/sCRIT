@@ -420,7 +420,7 @@ export default function Admin() {
             <button className="btn btn-ghost" onClick={loadIssuers}>Refresh issuer list</button>
           </div>
           {issuers.length > 0 && <div style={{ overflowX: "auto" }}><table className="dtable"><thead><tr><th>Wallet</th><th>Name</th><th>Contact</th><th>Status</th><th>Action</th></tr></thead><tbody>
-            {issuers.map((issuer) => <tr key={issuer.wallet}><td className="mono-sm">{issuer.wallet}</td><td>{issuer.name}</td><td>{issuer.contact || "—"}</td><td>{issuer.approved ? "Service approved" : "Revoked"}</td><td><button className="btn btn-ghost" onClick={() => saveIssuer(issuer.wallet, !issuer.approved, issuer.name, issuer.contact)}>{issuer.approved ? "Revoke" : "Approve"}</button></td></tr>)}
+            {issuers.map((issuer) => <tr key={issuer.wallet}><td className="mono-sm">{issuer.wallet}</td><td>{issuer.name}</td><td>{issuer.contact || "-"}</td><td>{issuer.approved ? "Service approved" : "Revoked"}</td><td><button className="btn btn-ghost" onClick={() => saveIssuer(issuer.wallet, !issuer.approved, issuer.name, issuer.contact)}>{issuer.approved ? "Revoke" : "Approve"}</button></td></tr>)}
           </tbody></table></div>}
         </div>
       )}

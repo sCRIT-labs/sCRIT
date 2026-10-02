@@ -28,12 +28,12 @@ export const VaultReserve: React.FC = () => {
           What the index holds.
         </h2>
         <p className="standfirst rv" style={{ ["--d" as string]: "140ms" }}>
-          Bar lengths scale with attested value. Empty vault, empty bars — the
+          Bar lengths scale with attested value. Empty vault, empty bars - the
           figure below is <b className="gold">{formatUsd(reserveUsd)}</b> because
           that is all the custodian signatures say so far.
         </p>
 
-        {/* 3D Physical Bullion Ingot Inspector — Prominently Exhibited */}
+        {/* 3D Physical Bullion Ingot Inspector - Prominently Exhibited */}
         <div style={{ margin: "32px 0 24px" }}>
           <Bullion3D />
         </div>

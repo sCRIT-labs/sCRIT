@@ -17,7 +17,7 @@ export const AssayCards: React.FC = () => {
           Five sleeves. Nine elements. Graded & Attested.
         </h2>
         <p className="standfirst rv" style={{ ["--d" as string]: "140ms" }}>
-          Each card reads like the physical certificate shipped with the stockpile element — sleeve, grade, target weight, and attested holdings. Tiers derive strictly from global USGS scarcity data: {TIER_RULE}
+          Each card reads like the physical certificate shipped with the stockpile element - sleeve, grade, target weight, and attested holdings. Tiers derive strictly from global USGS scarcity data: {TIER_RULE}
         </p>
 
         <div className="assay-grid">
@@ -39,7 +39,7 @@ export const AssayCards: React.FC = () => {
                     <dt>Target</dt><dd>{b.weightBps / 100}% of new funds</dd>
                     <dt>Held</dt><dd>{kg.toFixed(4)} kg</dd>
                     <dt>Price</dt><dd>{p ? `$${p.usd_per_kg.toLocaleString("en-US")}/kg${p.stale ? " · stale" : ""}` : b.sleeve === "hree" ? "manual pilot input" : "pending"}</dd>
-                    <dt>Source</dt><dd>{p?.source ?? (b.sleeve === "hree" ? "Market reports" : "—")}</dd>
+                    <dt>Source</dt><dd>{p?.source ?? (b.sleeve === "hree" ? "Market reports" : "-")}</dd>
                   </dl>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 12 }}>
                     <span className={`stamp ${stamped ? "stamp-ok" : "stamp-wait"}`}>

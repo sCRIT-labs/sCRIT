@@ -14,7 +14,7 @@ const DISPATCHES = [
   {
     tag: "RAIL A · LIQUIDITY ENGINE",
     title: "Launch a memecoin. Stockpile dysprosium.",
-    body: "Rail A pairs project tokens directly against sCRIT in Uniswap V4 pools. A 2.5% tax on those pools feeds the treasury, which funds accessions to the stockpile — recognised only once a custodian signs.",
+    body: "Rail A pairs project tokens directly against sCRIT in Uniswap V4 pools. A 2.5% tax on those pools feeds the treasury, which funds accessions to the stockpile - recognised only once a custodian signs.",
     image: "/images/scrit_uniswap_v4_rail_a.jpg",
     href: "/launch",
     link: "Explore Rail A Launchpad",
@@ -22,7 +22,7 @@ const DISPATCHES = [
   {
     tag: "THE INDEX · FIVE SLEEVES",
     title: "Five sleeves. One stockpile.",
-    body: "HREE at the tip — dysprosium and terbium. Magnet and minor rare earths behind them. Platinum-group metals. Battery-grade lithium. Gold and silver as monetary ballast.",
+    body: "HREE at the tip - dysprosium and terbium. Magnet and minor rare earths behind them. Platinum-group metals. Battery-grade lithium. Gold and silver as monetary ballast.",
     image: "/images/scrit_critical_trio.jpg",
     href: "/proof",
     link: "Inspect commodity targets",
@@ -78,7 +78,7 @@ export function LandingExperience() {
   const staleCount = prices.filter((p) => p.stale).length;
   const latest = atts[0];
   const pricesComplete = BASKET.every((row) => prices.some((p) => p.commodity === row.symbol));
-  const reserveLabel = dataStatus === "unavailable" ? "Unavailable" : pricesComplete ? formatUsd(reserveUsd) : "—";
+  const reserveLabel = dataStatus === "unavailable" ? "Unavailable" : pricesComplete ? formatUsd(reserveUsd) : "-";
   const liveChainNav = chain.status === "ready" && chain.reserveValueUsdE8 !== null && (chain.supplyE18 ?? 0n) > 0n
     ? Number(chain.reserveValueUsdE8 ?? 0n) / 1e8 / (Number(chain.supplyE18 ?? 0n) / 1e18)
     : null;
@@ -143,7 +143,7 @@ export function LandingExperience() {
         <PinnedIndexStory metrics={[
           { label: "REPORTED RESERVE VALUE", value: reserveLabel, detail: pricesComplete ? "From accepted records and manual prices." : "Requires all nine manual price inputs." },
           { label: "ON-CHAIN NAV / TOKEN", value: navLabel, detail: "On-chain reserve value ÷ live sCRIT supply. Hidden until both are available." },
-          { label: "ATTESTED BATCHES", value: dataStatus === "ready" ? String(atts.length) : "—", detail: dataStatus !== "ready" ? "Pilot record service unavailable." : latest ? `Latest · ${latest.commodity} · ${latest.mass_kg} kg.` : "No batches recorded in this instance." },
+          { label: "ATTESTED BATCHES", value: dataStatus === "ready" ? String(atts.length) : "-", detail: dataStatus !== "ready" ? "Pilot record service unavailable." : latest ? `Latest · ${latest.commodity} · ${latest.mass_kg} kg.` : "No batches recorded in this instance." },
         ]} />
       </div>
 

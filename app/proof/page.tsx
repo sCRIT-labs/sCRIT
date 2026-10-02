@@ -29,7 +29,7 @@ function renderPayload(payload: unknown) {
       ? (payload as Record<string, unknown>)
       : {};
   const entries = Object.entries(obj);
-  if (entries.length === 0) return <span style={{ color: "#8a9185" }}>—</span>;
+  if (entries.length === 0) return <span style={{ color: "#8a9185" }}>-</span>;
   return (
     <div className="proof-payload-tags">
       {entries.map(([key, value]) => (
@@ -133,7 +133,7 @@ export default function Proof() {
           This page estimates reserve value from records accepted by the pilot service and manual commodity prices.
           Basket weights are targets across{" "}
           <abbr
-            title="Technology-critical elements — the metals modern hardware can't be built without."
+            title="Technology-critical elements - the metals modern hardware can't be built without."
             style={{ textDecoration: "underline dotted", cursor: "help" }}
           >
             technology-critical elements (TCEs)
@@ -204,7 +204,7 @@ export default function Proof() {
             <span className="proof-card-badge">OFF-CHAIN MODEL</span>
           </div>
           <strong>
-            {dataStatus !== "ready" ? "Unavailable" : pricesComplete ? formatUsd(reserveUsd) : "—"}
+            {dataStatus !== "ready" ? "Unavailable" : pricesComplete ? formatUsd(reserveUsd) : "-"}
           </strong>
           <small>
             {pricesComplete
@@ -398,14 +398,14 @@ export default function Proof() {
                     <td>{row.grade}</td>
                     <td className="num">{row.weightBps / 100}%</td>
                     <td className="num">
-                      {dataStatus === "ready" ? `${(holdings[row.symbol] ?? 0).toFixed(4)} kg` : "—"}
+                      {dataStatus === "ready" ? `${(holdings[row.symbol] ?? 0).toFixed(4)} kg` : "-"}
                     </td>
                     <td className="num">
                       {priceRow
                         ? formatUsd(price, 0)
                         : row.sleeve === "hree"
                         ? "manual pilot input"
-                        : "—"}
+                        : "-"}
                     </td>
                     <td>
                       {priceRow
@@ -415,7 +415,7 @@ export default function Proof() {
                         : "No price record"}
                     </td>
                     <td className="num">
-                      {priceRow ? formatUsd((holdings[row.symbol] ?? 0) * price, 2) : "—"}
+                      {priceRow ? formatUsd((holdings[row.symbol] ?? 0) * price, 2) : "-"}
                     </td>
                   </tr>
                 );
@@ -425,7 +425,7 @@ export default function Proof() {
         </div>
         <p className="proof-method-note">
           <abbr
-            title="Heavy rare earth elements — the scarcest, most concentrated rare earths."
+            title="Heavy rare earth elements - the scarcest, most concentrated rare earths."
             style={{ textDecoration: "underline dotted", cursor: "help" }}
           >
             HREE
@@ -491,11 +491,11 @@ export default function Proof() {
                     </td>
                     <td>{row.commodity}</td>
                     <td className="num">{row.mass_kg} kg</td>
-                    <td>{row.vault_id || "—"}</td>
+                    <td>{row.vault_id || "-"}</td>
                     <td className="proof-hash">
                       {row.certificate_hash
                         ? `${row.certificate_hash.slice(0, 10)}...${row.certificate_hash.slice(-8)}`
-                        : "—"}
+                        : "-"}
                     </td>
                     <td>
                       <span className="proof-status">Accepted by pilot API</span>
@@ -637,12 +637,12 @@ export default function Proof() {
                           <ExternalLink size={11} />
                         </a>
                       ) : (
-                        "—"
+                        "-"
                       )}
                     </td>
-                    <td>{row.note || "—"}</td>
+                    <td>{row.note || "-"}</td>
                     <td suppressHydrationWarning>
-                      {row.created_at ? new Date(row.created_at).toLocaleString("en-US") : "—"}
+                      {row.created_at ? new Date(row.created_at).toLocaleString("en-US") : "-"}
                     </td>
                   </tr>
                 ))}

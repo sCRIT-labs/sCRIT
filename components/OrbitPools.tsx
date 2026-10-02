@@ -207,8 +207,8 @@ export const OrbitPools: React.FC = () => {
         </div>
 
         <div className="orbit-legend rv" style={{ marginTop: 14 }}>
-          <span><i className="sw-a" /> sCRIT/ETH — protocol base, untaxed</span>
-          <span><i className="sw-b" /> TOKEN/sCRIT — gated launches, fee hook</span>
+          <span><i className="sw-a" /> sCRIT/ETH - protocol base, untaxed</span>
+          <span><i className="sw-b" /> TOKEN/sCRIT - gated launches, fee hook</span>
         </div>
     </div>
   );

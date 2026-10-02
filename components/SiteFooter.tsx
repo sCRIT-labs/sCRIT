@@ -45,7 +45,7 @@ export const SiteFooter: React.FC = () => {
         <span>Nothing here is financial advice. Tokens are user-created; do your own research.</span>
       </div>
       <div className="footer-bottom" style={{ borderTop: "none", paddingTop: 0 }}>
-        <span>Pilot software only — no claim of physical backing is made.</span>
+        <span>Pilot software only - no claim of physical backing is made.</span>
       </div>
 
       <div className="footer-word" aria-hidden="true">sCRIT</div>

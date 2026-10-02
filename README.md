@@ -24,7 +24,7 @@
 
 ## ⚡ Overview
 
-**sCRIT** is an institutional decentralized finance protocol that tokenizes and liquidifies strategic critical minerals, heavy rare earth elements (HREE), and industrial metals. The reserve index is engineered to reflect the tangible value of materials essential for defense, aerospace, semiconductors, clean energy, and robotics—anchored by physically attested warehouse inventory.
+**sCRIT** is an institutional decentralized finance protocol that tokenizes and liquidifies strategic critical minerals, heavy rare earth elements (HREE), and industrial metals. The reserve index is engineered to reflect the tangible value of materials essential for defense, aerospace, semiconductors, clean energy, and robotics - anchored by physically attested warehouse inventory.
 
 In legacy markets, physical critical minerals are plagued by extreme friction:
 - **Opaque OTC Cartels:** Pricing and supply agreements are closed-door, illiquid, and prone to export restrictions.
@@ -40,11 +40,11 @@ sCRIT solves this through a robust **Dual-Rail Architecture**:
 ## 🏛️ Core Value Proposition
 
 * **5 Sleeves & 9 Critical Commodities:** Mathematical target weights engineered to balance high-growth critical elements with liquid bedrock collateral:
-  - 🧪 **Heavy Rare Earths (40% Target):** Dysprosium (**Dy** 25%) and Terbium (**Tb** 15%) — vital for radar systems, precision-guided munitions, and permanent magnets.
-  - 🧲 **Magnet & Clean Tech (15% Target):** Neodymium (**Nd** 10%) and Scandium (**Sc** 5%) — critical for EV traction motors, wind turbines, and aerospace alloys.
-  - ⚡ **Platinum Group Metals (15% Target):** Platinum (**Pt** 10%) and Palladium (**Pd** 5%) — essential for hydrogen electrolyzers and industrial catalytic converters.
-  - 🔋 **Battery Transition (5% Target):** Lithium (**Li** 5%) — foundational for energy storage grids and solid-state batteries.
-  - 🪙 **Bedrock Ballast (25% Target):** Gold (**Au** 20%) and Silver (**Ag** 5%) — deep-liquidity bedrock collateral stabilizing portfolio volatility.
+  - 🧪 **Heavy Rare Earths (40% Target):** Dysprosium (**Dy** 25%) and Terbium (**Tb** 15%) - vital for radar systems, precision-guided munitions, and permanent magnets.
+  - 🧲 **Magnet & Clean Tech (15% Target):** Neodymium (**Nd** 10%) and Scandium (**Sc** 5%) - critical for EV traction motors, wind turbines, and aerospace alloys.
+  - ⚡ **Platinum Group Metals (15% Target):** Platinum (**Pt** 10%) and Palladium (**Pd** 5%) - essential for hydrogen electrolyzers and industrial catalytic converters.
+  - 🔋 **Battery Transition (5% Target):** Lithium (**Li** 5%) - foundational for energy storage grids and solid-state batteries.
+  - 🪙 **Bedrock Ballast (25% Target):** Gold (**Au** 20%) and Silver (**Ag** 5%) - deep-liquidity bedrock collateral stabilizing portfolio volatility.
 * **Uniswap V4 Autonomous Tax Hook (`TradingTaxHook.sol`):** Implements an on-chain 2.5% transaction levy split **75% into the Protocol Reserve Buyback Treasury** and **25% into Operations**. Every trade autonomously expands physical reserve backing.
 * **EIP-712 Cryptographic Attestation Engine:** Vault custodians sign structured off-chain assay reports and custody certificates. These are published on-chain and verified via cryptographic signature matching, eliminating fraud.
 * **Dual-Rail Non-Interference:** Rail A token holders enjoy continuous AMM liquidity without bearing physical delivery logistics; Rail B institutions gain direct title and redemption rights to vaulted physical inventory.
@@ -84,21 +84,21 @@ flowchart LR
 
 ### End-to-End Pipeline Stages
 
-1. **Stage 1 — Custody Ingestion & Assay Verification:**
+1. **Stage 1 - Custody Ingestion & Assay Verification:**
    - Physical mineral bars and ingots are deposited into ISO-certified high-security vaults (Zurich, Singapore, Rotterdam).
    - Independent assayers (e.g., ALS Global, SGS) analyze purity and serialize bar numbers.
-2. **Stage 2 — Cryptographic Attestation Publishing:**
+2. **Stage 2 - Cryptographic Attestation Publishing:**
    - Custodians sign EIP-712 structured records containing commodity type, weight (kg), vault location, assay URI, and timestamp.
    - Attestations are broadcasted to the protocol Proof Ledger and indexed into PostgreSQL.
-3. **Stage 3 — AMM Trading & Autonomous Buyback Tax:**
+3. **Stage 3 - AMM Trading & Autonomous Buyback Tax:**
    - Swappers trade `sCRIT` against ETH or project tokens on Robinhood Chain Uniswap V4 pools.
    - `TradingTaxHook.sol` intercepts swaps, collecting 2.5%:
      - 75% is routed to the Reserve Treasury to fund subsequent physical commodity procurement.
      - 25% is routed to Protocol Operations for continuous monitoring and index governance.
-4. **Stage 4 — Indicative NAV & Pilot Telemetry:**
+4. **Stage 4 - Indicative NAV & Pilot Telemetry:**
    - The protocol telemetry engine aggregates spot commodity benchmarks (LME, Fastmarkets, Shanghai Metals Market) and multiplies them against attested vault inventory.
    - Live portfolio charts compute the blended NAV per sCRIT token in real-time.
-5. **Stage 5 — Institutional Lot Settlement (Rail B):**
+5. **Stage 5 - Institutional Lot Settlement (Rail B):**
    - Authorized Participants can acquire or redeem discrete physical lots through `LotRedemptionManager.sol`, burning lot tokens upon physical vault handover.
 
 ---
@@ -338,7 +338,7 @@ sCRIT smart contracts are architected for transparency, regulatory compliance, a
 * **`sCRITV4Launcher.sol`:** Mines permissioned hook addresses via CREATE2 and initializes canonical Uniswap V4 pools with exact tick spacing.
 * **`ReserveManager.sol`:** On-chain validator for EIP-712 signed custodian attestations and real-time sleeve weight computations.
 * **`PhysicalLotManager.sol`:** ERC20 / NFT tokenization layer for Rail B certified physical warehouse commodity lots.
-* **`LotRedemptionManager.sol`:** Handles the physical settlement process—locks and burns on-chain lot tokens when an Authorized Participant initiates physical vault retrieval.
+* **`LotRedemptionManager.sol`:** Handles the physical settlement process - locks and burns on-chain lot tokens when an Authorized Participant initiates physical vault retrieval.
 * **`CustodianRegistry.sol` & `KycRegistry.sol`:** Role-based registries governing approved vault facilities, certified assayers, and institutional AP credentials.
 
 ### Deploying to Robinhood Chain

@@ -453,7 +453,7 @@ export function PinnedIndexStory({ metrics }: { metrics: { label: string; value:
   const details = useTransform(scrollYProgress, [0, .28, .7, 1], [0, 0, 1, 1]);
   return <section ref={section} className={`scrit-scrub scrit-index-scrub${staticMotion ? " is-static" : ""}`} id="products" aria-label="From reserve records to indicative NAV">
     <div className="scrit-scrub-stage scrit-index-scrub-stage">
-      <div className="scrit-index-scrub-copy"><span className="scrit-kicker">THE sCRIT INDEX · RAIL A</span><h2>From evidence <em>to an estimate.</em></h2><p>sCRIT is building an on-chain stockpile of technology-critical elements — led by heavy rare earths, ballasted by gold. Every ecosystem token launched on Rail A pairs directly against sCRIT in Uniswap V4 pools.</p><a className="scrit-button scrit-button-dark" href="/proof">Open reserve ledger <ArrowUpRight size={16} /></a>
+      <div className="scrit-index-scrub-copy"><span className="scrit-kicker">THE sCRIT INDEX · RAIL A</span><h2>From evidence <em>to an estimate.</em></h2><p>sCRIT is building an on-chain stockpile of technology-critical elements - led by heavy rare earths, ballasted by gold. Every ecosystem token launched on Rail A pairs directly against sCRIT in Uniswap V4 pools.</p><a className="scrit-button scrit-button-dark" href="/proof">Open reserve ledger <ArrowUpRight size={16} /></a>
         <motion.div className="scrit-index-scrub-metrics" style={staticMotion ? undefined : { opacity: details }}>{metrics.map((metric) => <div key={metric.label}><span className="scrit-kicker">{metric.label}</span><b>{metric.value}</b><small>{metric.detail}</small></div>)}</motion.div>
       </div>
       <div className="scrit-index-scrub-visual">

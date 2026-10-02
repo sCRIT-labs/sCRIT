@@ -593,7 +593,7 @@ export default function IssuerDesk() {
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <span className="issuer-gate-status-pill status-neutral">
-                        {attestationCount === null ? "—" : `${attestationCount} Batches`}
+                        {attestationCount === null ? "-" : `${attestationCount} Batches`}
                       </span>
                       <button
                         type="button"

@@ -3,7 +3,7 @@ import "./globals.css";
 import "./redesign.css";
 
 export const metadata: Metadata = {
-  title: "sCRIT — Stockpile the chokepoint",
+  title: "sCRIT - Stockpile the chokepoint",
   description:
     "An HREE-led on-chain stockpile of technology-critical elements. Every token launched here deepens it.",
   icons: {

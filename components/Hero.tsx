@@ -26,7 +26,7 @@ export const Hero: React.FC = () => {
           Every launch,<br /><em className="shimmer">paired with sCRIT.</em>
         </h1>
         <p className="lede rv" style={{ ["--d" as string]: "180ms" }}>
-          sCRIT pairs every new token against one pilot index — gold, silver and
+          sCRIT pairs every new token against one pilot index - gold, silver and
           platinum, recognised only on custodian signature. No redemption in
           pilot, so the price tells the truth about itself.
         </p>
@@ -55,7 +55,7 @@ export const Hero: React.FC = () => {
                   />
                 </label>
               ) : (
-                <span className={premium >= 0 ? "up" : "down"} title={(band ?? "ok") === "alert" ? "Significant deviation — no arbitrageur of record" : (band ?? "ok") === "watch" ? "Notable deviation" : "Tracking NAV"}>
+                <span className={premium >= 0 ? "up" : "down"} title={(band ?? "ok") === "alert" ? "Significant deviation - no arbitrageur of record" : (band ?? "ok") === "watch" ? "Notable deviation" : "Tracking NAV"}>
                   PREMIUM {formatPct(premium)}{(band ?? "ok") !== "ok" ? ` · ${(band ?? "ok").toUpperCase()}` : ""}
                 </span>
               )}
@@ -68,7 +68,7 @@ export const Hero: React.FC = () => {
             </div>
           ) : band === "watch" ? (
             <div className="notice-gold" style={{ marginTop: 14, textAlign: "left" }}>
-              Notable deviation (±10%+). Watch — the pilot has no redemption anchor.
+              Notable deviation (±10%+). Watch - the pilot has no redemption anchor.
             </div>
           ) : null}
         </div>

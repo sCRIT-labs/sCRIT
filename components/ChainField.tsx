@@ -7,8 +7,7 @@ type Pulse = { x: number; y: number; age: number };
 
 /**
  * Interactive block-field: drifting nodes link into chain segments,
- * cursor bends them, clicks fire attestation pulses. Pure decoration —
- * labeled as ambient art, never as data.
+ * cursor bends them, clicks fire attestation pulses. Pure decoration - * labeled as ambient art, never as data.
  */
 export const ChainField: React.FC<{ density?: number; className?: string }> = ({
   density = 1,

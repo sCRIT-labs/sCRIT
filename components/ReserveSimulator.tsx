@@ -71,7 +71,7 @@ export const ReserveSimulator: React.FC = () => {
               <button
                 className={`bullion-tab ${accrualMode === "accretive" ? "active" : ""}`}
                 onClick={() => setAccrualMode("accretive")}
-                title="Constant supply — NAV rises directly per token"
+                title="Constant supply - NAV rises directly per token"
               >
                 Accretive (Fixed Supply)
               </button>

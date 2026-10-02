@@ -17,7 +17,7 @@ const SIM_POOL = [
 ];
 
 const short = (s?: string, n = 10) =>
-  !s ? "—" : s.length <= n + 4 ? s : `${s.slice(0, n)}…`;
+  !s ? "-" : s.length <= n + 4 ? s : `${s.slice(0, n)}…`;
 
 function fmtTime(iso?: string): string {
   if (!iso) return "--:--:--";

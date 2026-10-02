@@ -5,7 +5,7 @@ import React from "react";
 const ITEMS = [
   {
     title: "sCRIT is not pegged and has no redemption in pilot",
-    body: "A project token is paired with sCRIT — it is not a claim on metal. Only sCRIT relates to the aggregate basket, never to a specific bar.",
+    body: "A project token is paired with sCRIT - it is not a claim on metal. Only sCRIT relates to the aggregate basket, never to a specific bar.",
     flag: "COPY RULE · NEVER CALL IT BACKED",
   },
   {
@@ -15,7 +15,7 @@ const ITEMS = [
   },
   {
     title: "Demo custodian key; first physical audit pending",
-    body: "One team key signs today. Per-class custodians, SLAs, insurance and audit rights are unsigned — every dependent row stays red.",
+    body: "One team key signs today. Per-class custodians, SLAs, insurance and audit rights are unsigned - every dependent row stays red.",
     flag: "CONTRACT FEATURE",
   },
   {
@@ -42,8 +42,7 @@ export const TrustLedger: React.FC = () => {
         <p className="eyebrow rv">05 · Full disclosure</p>
         <h2 className="rv" style={{ ["--d" as string]: "80ms" }}>The pilot&apos;s red ledger.</h2>
         <p className="standfirst rv" style={{ ["--d" as string]: "140ms" }}>
-          Six entries a reserve pilot must print about itself. Open each one —
-          none of them flatter us.
+          Six entries a reserve pilot must print about itself. Open each one - none of them flatter us.
         </p>
         <div className="trust rv" style={{ ["--d" as string]: "200ms" }}>
           {ITEMS.map((it, i) => (
