@@ -53,12 +53,13 @@ robinhoodchain.blockscout.com/address/0xf8e56794c0ded1e01b8f973ff0f6d2f86f8e43e7
 ATOMIC LAUNCH & VERIFIED MARKET PROOFS
 
 Canonical Base Market Seed (sCRIT/ETH Uniswap V4 Pool)
-Block: 74,476,342
+Block: 74,484,139
 Pool ID: 0xd029d347e9706be039efab5de2da16919fc145d31ea0e3c9a8bd0a773bf6c69e
 Position NFT #3370083
 robinhoodchain.blockscout.com/tx/0xe1d56d831c4ea6305d1c47c5298fce39f335e50954b8086e03b2764609d94c50
 
 Pilot Rail A Atomic Launch Tx (PDMO Token + V4 Hooked Pool, 1 tx)
+Block: 74,492,346
 Pool ID: 0x807c3523b5b47cb53a78cbf03283dfb6c5117b7d1c72d2aaadb5aa5caad30d19
 Position NFT #3370272
 robinhoodchain.blockscout.com/tx/0xdd8d74717fb0b0cedd3d72d9dad001337c1220858732eacc76cdd45bf7986537
@@ -67,6 +68,7 @@ Pilot Token PDMO
 robinhoodchain.blockscout.com/address/0xEaad835Ab56de5EFF1D2B303B166B8aFA220C537
 
 First Taxed Swap Tx (75% Reserve Buyback / 25% Ops Verified)
+Block: 74,493,182
 robinhoodchain.blockscout.com/tx/0x2e2b78ee1f88027a74bfcd6243b5282b6670e77a0f0754f1f715fa3033ea7e7f
 
 CANONICAL / EXTERNAL DEPENDENCIES
