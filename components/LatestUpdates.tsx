@@ -28,7 +28,7 @@ const UPDATES = [
     tag: "Mechanism · Rail A",
     title: "Project tokens can launch against sCRIT",
     summary: "Mainnet TOKEN/sCRIT pools use a 2.5% V4 hook fee split 75/25. Collected fees are not reserve inventory until a batch is attested.",
-    image: "/images/scrit_kinetic_scale.jpg",
+    image: "/images/scrit_pair_launch_accelerator.jpg",
     link: "/launch",
     shortLabel: "TOKEN / sCRIT pools"
   }

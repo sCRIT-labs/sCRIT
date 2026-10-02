@@ -1388,7 +1388,7 @@ body {
 .ondo-trust-bg-image {
   position: absolute;
   inset: 0;
-  background: url('/images/scrit_attestation_network.jpg') center/cover no-repeat;
+  background: url('/images/scrit_gate_custodian_ingress.jpg') center/cover no-repeat;
   opacity: 0.38;
   filter: contrast(1.15) brightness(0.85);
 }

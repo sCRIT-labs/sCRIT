@@ -5,7 +5,7 @@ import { ScrollReveal } from "./ScrollReveal";
 
 const ARTICLES = [
   {
-    image: "/images/scrit_kinetic_scale.jpg",
+    image: "/images/scrit_pair_launch_accelerator.jpg",
     meta: "Research Note • Commodity Index Economics",
     title: "Physical Metallurgical Reserves vs Synthetic Tokens: Why Custodian Attestation Matters",
     link: "/proof"

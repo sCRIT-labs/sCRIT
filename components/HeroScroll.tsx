@@ -52,7 +52,7 @@ const TICKER_ICONS: Record<string, React.ReactNode> = {
 const TICKER_ITEMS = [
   { label: "Dy · Tb heavy rare earths (HREE)", badge: "40% TARGET", iconKey: "au" },
   { label: "Nd · Sc magnet and minor rare earths", badge: "15% TARGET", iconKey: "ag" },
-  { label: "Pt · Pd platinum-group metals", badge: "15% TARGET", iconKey: "pt" },
+  { label: "Pt · Pd platinum-group metals (PGMs)", badge: "15% TARGET", iconKey: "pt" },
   { label: "Battery-grade lithium carbonate", badge: "5% TARGET", iconKey: "pt" },
   { label: "Au · Ag monetary ballast", badge: "25% TARGET", iconKey: "vault" },
   { label: "EIP-712 Cryptographic Attestation Engine", badge: "RESERVE GATE", iconKey: "shield" },

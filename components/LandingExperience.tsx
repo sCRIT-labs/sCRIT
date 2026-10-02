@@ -31,7 +31,7 @@ const DISPATCHES = [
     tag: "THE GATE · CUSTODIAN ATTESTATIONS",
     title: "Nothing enters the stockpile unsigned.",
     body: "Reserve reporting uses EIP-712 signed custodian attestations. In this pilot, signatures are verified before any physical mass is recognized on-chain.",
-    image: "/images/scrit_attestation_network.jpg",
+    image: "/images/scrit_gate_custodian_ingress.jpg",
     href: "/proof",
     link: "Read the evidence model",
   },
@@ -50,7 +50,7 @@ const STORY = [
     index: "LIQUIDITY ENGINE",
     title: "Rail A Uniswap V4 paired pools.",
     copy: "Every ecosystem launch seeds against sCRIT. The on-chain trading tax continually flows into physical commodity procurement from certified suppliers.",
-    image: "/images/scrit_uniswap_v4_rail_a.jpg",
+    image: "/images/scrit_v4_pairing_engine.jpg",
     metric: "UNISWAP V4",
     metricLabel: "RAIL A RESERVE ENGINE",
   },
@@ -169,13 +169,13 @@ export function LandingExperience() {
       <div data-nav-theme="dark">
         <PinnedAssuranceStory items={[
           { mark: "EIP", title: "Signatures tied to a custodian", body: "Attestation signatures are checked against the configured custodian key and its pilot commodity scope.", href: "/proof", link: "See the attestation ledger", image: "/images/scrit_hardware_key.jpg" },
-          { mark: "5×", title: "Five sleeves", body: "The index targets heavy rare earths first, then magnet and minor rare earths, platinum-group metals and battery-grade lithium, with gold and silver as ballast. Uranium remains outside the MVP; diamonds use individually certified Rail B lots only.", href: "/proof", link: "Review basket targets", image: "/images/scrit_critical_vault.jpg" },
-          { mark: "NAV", title: "No redemption path", body: "sCRIT is not pegged. No authorised participant is active and physical redemption is unavailable in this pilot.", href: "/legal/risk", link: "Read the risk disclosure", image: "/images/scrit_vault_barrier.jpg" },
+          { mark: "5×", title: "Five sleeves", body: "The index targets heavy rare earths first, then magnet and minor rare earths, platinum-group metals and battery-grade lithium, with gold and silver as ballast. Uranium remains outside the MVP; diamonds use individually certified Rail B lots only.", href: "/proof", link: "Review basket targets", image: "/images/scrit_five_sleeves_pillars.jpg" },
+          { mark: "NAV", title: "No redemption path", body: "sCRIT is not pegged. No authorised participant is active and physical redemption is unavailable in this pilot.", href: "/legal/risk", link: "Read the risk disclosure", image: "/images/scrit_attestation_network.jpg" },
         ]} />
       </div>
 
       <div data-nav-theme="light">
-        <PinnedLaunchStory image="/images/scrit_uniswap_v4_rail_a.jpg">
+        <PinnedLaunchStory image="/images/scrit_launch_story_stage.jpg">
           <h2>Project tokens <em>pair against sCRIT.</em></h2>
           <p>Approved issuers create tokens backed by Uniswap V4 pools paired directly with sCRIT. On mainnet, a 2.5% swap tax feeds the treasury to fund accessions to the stockpile; Rail B manages certified individual warehouse lots.</p>
           <div className="scrit-launch-facts"><div><b>0%</b><span>Rail A issuance fee</span></div><div><b>2.5%</b><span>mainnet project-pool fee · 75/25</span></div></div>
@@ -226,7 +226,7 @@ export function LandingExperience() {
       <PinnedEditorialStory items={[
         { label: "FIELD NOTE / RESERVES", title: "How an attested batch enters the reserve view", action: "Inspect the ledger", href: "/proof", image: "/images/scrit_batch_ingestion.jpg" },
         { label: "FIELD NOTE / MARKET", title: "Why NAV is not a peg, and why that matters", action: "Read the risk notes", href: "/legal/risk", image: "/images/scrit_depository_monolith.jpg" },
-        { label: "FIELD NOTE / LAUNCH", title: "The TOKEN/sCRIT launch flow in the pilot", action: "Explore Rail A", href: "/launch", image: "/images/scrit_concrete_vault.jpg" },
+        { label: "FIELD NOTE / LAUNCH", title: "The TOKEN/sCRIT launch flow in the pilot", action: "Explore Rail A", href: "/launch", image: "/images/scrit_trading_floor.jpg" },
       ]} />
     </div>
   );

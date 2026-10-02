@@ -654,8 +654,8 @@ export default function Launch() {
             }}
           >
             <Image
-              src="/images/scrit_kinetic_scale.jpg"
-              alt="Physical Metal Anchor"
+              src="/images/scrit_pair_launch_accelerator.jpg"
+              alt="Uniswap V4 Hook Infrastructure"
               fill
               style={{ objectFit: "cover" }}
             />

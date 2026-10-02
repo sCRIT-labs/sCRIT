@@ -678,28 +678,152 @@ export function PinnedLaunchStory({ image, children }: { image: string; children
   </section>;
 }
 
-export function PinnedBasketStory({ items }: { items: { symbol: string; name: string; detail: string; weight: number }[]; excluded?: string }) {
+const SLEEVE_GROUPS = [
+  {
+    id: "hree",
+    label: "Heavy Rare Earths",
+    code: "01 · HREE",
+    weight: 40,
+    color: "#e2b65a",
+    detail: "Dy 25% · Tb 15% · Primary choke-point target",
+    elements: [
+      { sym: "Dy", name: "Dysprosium", weight: "25%", grade: "99.5%" },
+      { sym: "Tb", name: "Terbium", weight: "15%", grade: "99.9%" },
+    ],
+  },
+  {
+    id: "magnet",
+    label: "Magnet & Minor REE",
+    code: "02 · MAGNET",
+    weight: 15,
+    color: "#8db4d8",
+    detail: "Nd 10% · Sc 5% · Permanent magnets & alloys",
+    elements: [
+      { sym: "Nd", name: "Neodymium", weight: "10%", grade: "99.5%" },
+      { sym: "Sc", name: "Scandium", weight: "5%", grade: "99.9%" },
+    ],
+  },
+  {
+    id: "pgm",
+    label: "Platinum-Group Metals",
+    code: "03 · PGM",
+    weight: 15,
+    color: "#b8b8c0",
+    detail: "Pt 10% · Pd 5% · Catalyst & hydrogen economy",
+    elements: [
+      { sym: "Pt", name: "Platinum", weight: "10%", grade: "99.95%" },
+      { sym: "Pd", name: "Palladium", weight: "5%", grade: "99.95%" },
+    ],
+  },
+  {
+    id: "battery",
+    label: "Battery Sleeve",
+    code: "04 · BATTERY",
+    weight: 5,
+    color: "#50e3c2",
+    detail: "Li 5% · Battery-grade carbonate",
+    elements: [
+      { sym: "Li", name: "Lithium (Li₂CO₃)", weight: "5%", grade: "99.5%" },
+    ],
+  },
+  {
+    id: "ballast",
+    label: "Monetary Ballast",
+    code: "05 · BALLAST",
+    weight: 25,
+    color: "#d9a92e",
+    detail: "Au 20% · Ag 5% · Volatility absorption",
+    elements: [
+      { sym: "Au", name: "Gold", weight: "20%", grade: "99.99%" },
+      { sym: "Ag", name: "Silver", weight: "5%", grade: "99.9%" },
+    ],
+  },
+];
+
+function SleeveLine({
+  sleeve,
+  index,
+  progress,
+  disabled,
+}: {
+  sleeve: (typeof SLEEVE_GROUPS)[number];
+  index: number;
+  progress: MotionValue<number>;
+  disabled: boolean;
+}) {
+  const from = 0.05 + index * 0.18;
+  const fill = useTransform(progress, [from, Math.min(1, from + 0.35)], [0, sleeve.weight / 100]);
+  return (
+    <div className="scrit-basket-row">
+      <span className="scrit-basket-symbol">{sleeve.code.split(" · ")[0]}</span>
+      <span className="scrit-basket-name">
+        {sleeve.label}
+        <small>{sleeve.detail}</small>
+      </span>
+      <div className="scrit-basket-track">
+        <motion.span
+          style={{
+            scaleX: disabled ? sleeve.weight / 100 : fill,
+            backgroundColor: sleeve.color,
+          }}
+        />
+      </div>
+      <strong style={{ color: "var(--ink, #141714)" }}>{sleeve.weight}%</strong>
+    </div>
+  );
+}
+
+export function PinnedBasketStory({ items, excluded }: { items?: { symbol: string; name: string; detail: string; weight: number }[]; excluded?: string }) {
   const section = useRef<HTMLElement>(null);
   const staticMotion = useStaticMotion();
   const { scrollYProgress } = useScroll({ target: section, offset: ["start start", "end end"] });
-  return <section ref={section} className={`scrit-scrub scrit-basket-scrub${staticMotion ? " is-static" : ""}`} id="basket" aria-label="Pilot basket target weights">
-    <div className="scrit-scrub-stage scrit-basket-scrub-stage"><header className="scrit-basket-heading"><span className="scrit-kicker">FIVE SLEEVES · ONE STOCKPILE</span><h2>Heavy rare earths, with <em>monetary ballast.</em></h2><p>Target allocation, not a claim that the stockpile is fully funded.</p></header>
-      <div className="scrit-basket-rows">
-        {items.map((item, index) => <BasketLine key={item.symbol} item={item} index={index} progress={scrollYProgress} disabled={staticMotion} />)}
-        <div className="scrit-basket-note" style={{ fontSize: "11px", color: "var(--muted, #636b60)", marginTop: "12px", borderTop: "1px dashed var(--line, rgba(20,23,20,0.1))", paddingTop: "8px" }}>
-          <small>HREE has no on-chain price feed. Dy and Tb prices are manual pilot inputs from market reports. Diamonds are Rail B only; Uranium is unavailable.</small>
-        </div>
-      </div>
-      <div className="scrit-basket-total"><span>ALLOCATION SHOWN</span><strong>100%</strong><small>5 sleeves · 9 elements target weights</small></div>
-      <ScrubMeter progress={scrollYProgress} disabled={staticMotion} labels={["HREE / Dy · Tb", "PGMs & MAGNETS", "BALLAST / Au · Ag"]} />
-    </div>
-  </section>;
-}
+  return (
+    <section ref={section} className={`scrit-scrub scrit-basket-scrub${staticMotion ? " is-static" : ""}`} id="basket" aria-label="Pilot basket target weights">
+      <div className="scrit-scrub-stage scrit-basket-scrub-stage">
+        <header className="scrit-basket-heading">
+          <span className="scrit-kicker">FIVE SLEEVES · ONE STOCKPILE</span>
+          <h2>Heavy rare earths, with <em>monetary ballast.</em></h2>
+          <p>
+            Target allocation across five sleeves. Detailed per-element specifications are tracked in the{" "}
+            <a className="scrit-text-link" href="/proof#holdings" style={{ display: "inline-flex", alignItems: "center", gap: "3px" }}>
+              Reserve Ledger <ArrowUpRight size={13} />
+            </a>
+            .
+          </p>
+        </header>
+        <div className="scrit-basket-rows">
+          {SLEEVE_GROUPS.map((sleeve, index) => (
+            <SleeveLine
+              key={sleeve.id}
+              sleeve={sleeve}
+              index={index}
+              progress={scrollYProgress}
+              disabled={staticMotion}
+            />
+          ))}
 
-function BasketLine({ item, index, progress, disabled }: { item: { symbol: string; name: string; detail: string; weight: number }; index: number; progress: MotionValue<number>; disabled: boolean }) {
-  const from = .06 + index * .22;
-  const fill = useTransform(progress, [from, Math.min(1, from + .42)], [0, item.weight / 100]);
-  return <div className="scrit-basket-row"><span className="scrit-basket-symbol">{item.symbol}</span><span className="scrit-basket-name">{item.name}<small>{item.detail}</small></span><div className="scrit-basket-track"><motion.span style={{ scaleX: disabled ? item.weight / 100 : fill }} /></div><strong>{item.weight}%</strong></div>;
+          <div
+            className="scrit-basket-note"
+            style={{
+              fontSize: "11px",
+              color: "var(--muted, #636b60)",
+              marginTop: "14px",
+              borderTop: "1px dashed var(--line, rgba(20,23,20,0.1))",
+              paddingTop: "8px",
+            }}
+          >
+            <small>HREE has no on-chain price feed. Dy and Tb prices are manual pilot inputs from market reports. Diamonds are Rail B only; Uranium is unavailable.</small>
+          </div>
+        </div>
+        <div className="scrit-basket-total">
+          <span>ALLOCATION SHOWN</span>
+          <strong>100%</strong>
+          <small>5 sleeves · 9 elements target weights</small>
+        </div>
+        <ScrubMeter progress={scrollYProgress} disabled={staticMotion} labels={["HREE / Dy · Tb", "PGMs & MAGNETS", "BALLAST / Au · Ag"]} />
+      </div>
+    </section>
+  );
 }
 
 export function PinnedEditorialStory({ items }: { items: { label: string; title: string; action: string; href: string; image: string }[] }) {
