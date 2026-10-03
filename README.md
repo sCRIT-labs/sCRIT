@@ -6,7 +6,7 @@
 
 **Autonomous Critical Minerals & Rare Earths Reserve Protocol on Robinhood Chain**
 
-🌐 **Web Application:** [https://s-crit.vercel.app](https://s-crit.vercel.app) · 📜 **Documentation:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · ⚡ **Proof Ledger:** [/proof](/proof) · 💎 **Physical Lots:** [/lots](/lots)
+🌐 **Web Application:** [https://scritindex.tech](https://scritindex.tech) · 📜 **Documentation:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · ⚡ **Proof Ledger:** [/proof](/proof) · 💎 **Physical Lots:** [/lots](/lots)
 
 *The sovereign on-chain critical mineral index led by heavy rare earths (Dy, Tb) and ballasted by gold. Powered by Robinhood Chain, Uniswap V4 Dynamic Hooks, and Cryptographic EIP-712 Custodian Attestations.*
 

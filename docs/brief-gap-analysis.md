@@ -23,7 +23,7 @@
 | Rail B | 2 lot demo (Diamond + Au, masing-masing 100 unit), 1 ask live (10 unit @ 0,01 sCRIT) |
 | Indexer | GitHub Actions tiap 10 mnt + Vercel Cron harian + (task laptop dihapus) |
 | Harga Au/Ag | REAL via gold-api.com tiap 12 jam (GitHub Actions); 7 komoditas lain manual/demo |
-| Frontend | `s-crit.vercel.app`, env mainnet, 36 vars |
+| Frontend | `scritindex.tech`, env mainnet, 36 vars |
 
 ---
 

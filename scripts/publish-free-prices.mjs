@@ -47,7 +47,7 @@ await publishWithRetry(["scripts/publish-price.mjs", "--mainnet", "Ag", ag.perKg
 
 const admin = { "x-admin-key": env.ADMIN_KEY, "content-type": "application/json" };
 for (const [sym, q] of [["Au", au], ["Ag", ag]]) {
-  const r = await fetch("https://s-crit.vercel.app/api/prices", {
+  const r = await fetch("https://scritindex.tech/api/prices", {
     method: "POST", headers: admin,
     body: JSON.stringify({ commodity: sym, usd_per_kg: Number(q.perKg.toFixed(2)), source: SOURCE }),
   });
