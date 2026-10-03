@@ -1,0 +1,191 @@
+================================================================================
+PROJECT SUBMISSION & HANDOVER REPORT — sCRIT
+Target Chain: Robinhood Chain (EVM) Mainnet 4663 / Testnet 46630
+Generated: October 2026
+================================================================================
+
+--------------------------------------------------------------------------------
+SECTION 1: BRIEF
+--------------------------------------------------------------------------------
+Status: Completed
+- Repository: https://github.com/sCRIT-labs/sCRIT
+- Branch: main (production) & feat/pons-scrit-migration (standby migration)
+- Protocol: sCRIT — Autonomous Critical Minerals & Rare Earths Reserve Protocol
+
+
+--------------------------------------------------------------------------------
+SECTION 2: DEV KERJA
+--------------------------------------------------------------------------------
+1. Live Production Web URL:
+   https://scritindex.tech
+
+2. Platform Routes:
+   - Tokens & Pair Explorer: https://scritindex.tech/tokens
+   - Swap Terminal: https://scritindex.tech/swap
+   - Pair Launcher: https://scritindex.tech/launch
+   - Proof of Physical Reserves: https://scritindex.tech/proof
+   - Physical Lots & Redemption: https://scritindex.tech/lots
+   - Custodian Registry: https://scritindex.tech/custodians
+
+3. GitHub Repository:
+   https://github.com/sCRIT-labs/sCRIT
+   Branch: main
+
+4. Tech Stack & Architecture:
+   - Frontend: Next.js 16.3.4 (App Router) + React 19.2.8 + TypeScript 5 (Strict)
+   - Styling: Ondo-inspired Luxury Design System + Tailwind CSS + Framer Motion
+   - Smart Contracts: Solidity 0.8.37 (Custom pipeline, no Hardhat bloat)
+   - AMM Architecture: Uniswap V4 Core (1.0.2) + Uniswap V4 Periphery (1.0.3)
+   - Hook Engine: TradingTaxHook (CREATE2 mined with flags 0x2044) — 2.5% Tax Hook
+     (75% autonomous reserve stockpile procurement / 25% protocol operations)
+   - Pair Launcher: sCRITV4Launcher (Atomic pair deployment + Permit2 liquidity funding)
+   - Web3 Client: viem 2.56.7 (strict EVM JSON-RPC)
+   - Custody Attestation: EIP-712 structured custody certificates + ECDSA validation
+   - Database: PostgreSQL (tokens catalog, attestation index, rate limits)
+   - Multi-Wallet Sync: TopbarWallet & WalletMenu synchronized across navbar and pages
+     (MetaMask, Rabby, Coinbase, OKX, Trust, Phantom)
+   - Testing: Vitest 4.1.11 — 100% passing test suites across swap, wallets, and migration
+
+5. Documentation Index:
+   - Project Report (report.md): https://github.com/sCRIT-labs/sCRIT/blob/main/docs/report.md
+   - Pons Migration Guide: https://github.com/sCRIT-labs/sCRIT/blob/main/docs/PONS_SCRIT_MIGRATION_GUIDE.md
+   - Protocol Architecture Spec: https://github.com/sCRIT-labs/sCRIT/blob/main/docs/superpowers/specs/2026-09-25-scrit-ondo-inspired-redesign.md
+   - Main Repository README: https://github.com/sCRIT-labs/sCRIT/blob/main/README.md
+
+
+--------------------------------------------------------------------------------
+SECTION 3: QUALITY ASSURANCE (QA) REPORT
+--------------------------------------------------------------------------------
+[PASS] 1. Code Quality & Compilation:
+   - Strict TypeScript compilation: Zero errors (`npx tsc --noEmit` exit code 0).
+   - ESLint: 0 errors (`npm run lint`).
+   - Clean modular layout: contracts in `contracts/`, compiled artifacts in
+     `lib/scrit-artifact.ts`, state synchronization in `lib/wallets.ts` and `lib/tokens.ts`.
+   - Real mathematical logic: live V4 output estimation, 2.5% Hook Tax calculation,
+     0.5% slippage protection, no static placeholders or mock strings.
+
+[PASS] 2. Responsive UI & Luxury Institutional Design:
+   - Desktop (1920px & 1440px): 2-column console (`launch-grid-layout`), telemetry bento,
+     5-sleeve reserve stockpile bar, verified contracts panel.
+   - Tablet (768px): Responsive grid stacking, wrapping quick-select token chips.
+   - Mobile (375px): Full single-column touch experience, truncated addresses, min 44px
+     tap targets, responsive navbar with unified wallet connect.
+
+[PASS] 3. End-to-End Application Flow:
+   - Navigation: Home, Swap, Explore, Launch Pair, Lots, Proof, Custodians fully active.
+   - Swap: Dynamic token-to-token and ETH-to-sCRIT routes.
+     Accurate calculation factoring in 2.5% tax hook (75% reserve / 25% ops).
+   - Wallet Sync: Topbar wallet synchronized across all components via custom
+     event dispatcher (`scrit:walletChange`) without layout shifts or memory leaks.
+   - Pair Launcher: Issuer-authorized V4 pair creation with atomic liquidity and hook attachment.
+   - Physical Lots: Certified warehouse receipts with EIP-712 cryptographic proofs.
+
+[PASS] 4. Automated Test Verification:
+   - `tests/swap-e2e.test.ts`: 7/7 tests passed (5.08s)
+     - Accurate buy/sell calculation with 2.5% tax deduction
+     - 75% physical reserve / 25% ops fee split verification
+     - Edge case input handling (empty, zero, negative, invalid)
+     - Live HTTP 200 checks on `/swap`, `/api/tokens`, `/tokens`, `/`
+   - `tests/wallets.test.ts`: 4/4 tests passed (0.3s)
+     - EVM wallets registry, brand flag matching, address validation, friendly errors
+   - `tests/pons-migration.test.ts`: 2/2 tests passed (0.2s)
+     - CREATE2 salt mining with exact 0x2044 Uniswap V4 hook permission mask
+     - Deterministic PoolKey and numerical token ordering
+
+[PASS] 5. GitHub Repository Cleanliness:
+   - README.md: Professional protocol overview, dual-rail diagrams, contracts table.
+   - Sensitive Data: `.env.local` strictly gitignored; private keys never committed;
+     server is strictly non-custodial and never holds user funds.
+
+
+--------------------------------------------------------------------------------
+SECTION 4: VIDEO & REPORT.MD
+--------------------------------------------------------------------------------
+
+A. VIDEO ASSETS
+1. Protocol Video / Cinematic Teaser:
+   Status: [CREATED BY USER]
+
+B. REPORT.MD
+   Full comprehensive architectural report generated and available at `docs/report.md`.
+
+
+--------------------------------------------------------------------------------
+SECTION 5: ON-CHAIN MAINNET CONTRACT ADDRESSES (ROBINHOOD CHAIN 4663)
+--------------------------------------------------------------------------------
+
+Network: Robinhood Chain Mainnet (EVM)
+Chain ID: 4663
+Native Currency: ETH
+
+1. sCRIT Index Token (SCRIT_INDEX):
+   Address: 0x56073943133c1c0678a753be9402b27d43cf1c22
+   Tx Hash: 0xdff4a7f0b41f1c2af5e580965bce6bb9db4fc49429f5f3c0dfead45047376a3f
+   Block:   74476136
+
+2. Uniswap V4 2.5% Tax Hook (SCRIT_TAX_HOOK):
+   Address: 0x5a0e9b72a3fcad25cf30757164c90d51f4ca2044
+   Tx Hash: 0x86d6827cc22bac5a838c826b7ce1e02331bf82b8837288fbbfb7f7d4618d93d9
+   Block:   74476201
+   Salt:    0x0000000000000000000000000000000000000000000000000000000000002b61
+   Flags:   0x2044 (beforeInitialize | afterSwap | afterSwapReturnDelta)
+
+3. Atomic Pair Launcher V4 (SCRIT_LAUNCHER_V4):
+   Address: 0x2e0de4486b391c182a6727d5480380f9820c73d5
+   Tx Hash: 0x458b4c7b2cc673f43b0f4aae89852e801046dc49f23525d13e9222d142ab8e9e
+   Block:   74476342
+
+4. Reserve Manager (SCRIT_RESERVE):
+   Address: 0x0cc054ce72fc0a489732e20dd595de934be2e953
+   Tx Hash: 0xaff4d2d754ee09b1ccbedbd002d70d56714a9d0cea5f1a557858e91e738ef43f
+   Block:   74476099
+
+5. Protocol Timelock Controller (SCRIT_TIMELOCK):
+   Address: 0x00824e9c6075ff2ceb10009de7f170fc6721df1a
+   Tx Hash: 0xee27744b8f3ddf227ec861816e014e3c2db946ccd11f1ed56a1fdf67c8ce7be1
+   Block:   74475976
+
+6. Custodian Registry (SCRIT_CUSTODIANS):
+   Address: 0x4993478847d03e13d5eae930878ad428cf2b27f8
+   Tx Hash: 0x196bba8af8fd6f101655cfeb5113e08f8ccc6bdb3591532d032cb77e26338d36
+   Block:   74476001
+
+7. Price Oracle Adapter (SCRIT_PRICES):
+   Address: 0x5341042250dcbc11a929581d22b7be30c14640df
+   Tx Hash: 0xe973ea649e8907c58a545e80b71f3b77524b8c16b5080cfc90ac08b5659b3738
+   Block:   74476034
+
+8. KYC Registry (SCRIT_KYC):
+   Address: 0x1f1d055014348e60af47065d45247b2c1204c7e8
+   Tx Hash: 0xf08b4c22946407fe1c190fe8d84986ebde112eab884e980c4a4adf6635283910
+   Block:   74476059
+
+9. Physical Lot Manager (SCRIT_LOT_MANAGER):
+   Address: 0x4f0332621e9a1f2d79dc3095b0cf82297a562a33
+   Tx Hash: 0x5cac7f4487e96c82a1fd6b987a3881eee810881996e6f0acd25a64820819801e
+   Block:   74476233
+
+10. Physical Lot Token (SCRIT_LOT_TOKEN):
+    Address: 0x46b01dcdad1fb6dbd95bbd2e88f4f69064bd1bf1
+    Tx Hash: 0x035854d6b452471956f620ec847678fb2cbccbb9125930f316af508d863b9469
+    Block:   74476259
+
+11. Lot Redemption Manager (SCRIT_LOT_REDEMPTION):
+    Address: 0x6809f71adc27a158a6ab4d74bd6a7ac228014827
+    Tx Hash: 0x841c6865def2d606444a82c2c394053ab9a38ae4ec99846aad75fa9de136aa98
+    Block:   74476285
+
+12. Lot Marketplace (SCRIT_LOT_MARKET):
+    Address: 0xf8e56794c0ded1e01b8f973ff0f6d2f86f8e43e7
+    Tx Hash: 0x144f540d608bc6c3c3d82e5d674c74313044d52dafec33bf7e812bdfe0aa9c30
+    Block:   74476315
+
+13. CREATE2 Deployer (SCRIT_CREATE2_DEPLOYER):
+    Address: 0xefcb390b33d5edc90f0bf1039f94e53fb18c7346
+    Tx Hash: 0xc24f29e9a90c56810a049755080604e1ffb27c7d444e2b2add64205bf7a7b96e
+    Block:   74476165
+
+14. Live Canonical Uniswap V4 Pool:
+    Pool ID: 0xd029d347e9706be039efab5de2da16919fc145d31ea0e3c9a8bd0a773bf6c69e
+    Pair: Native ETH ⇋ sCRIT (Seed Position ID: 3370083)
+================================================================================
