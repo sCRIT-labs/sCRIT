@@ -78,7 +78,7 @@ export function InstitutionalFooter({ theme = "light" }: { theme?: "light" | "da
                   display: "inline-block",
                 }}
               >
-                <ScritLogo size={24} />
+                <ScritLogo size={24} theme={isDark ? "dark" : "light"} />
               </Link>
               <p
                 style={{

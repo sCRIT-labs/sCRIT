@@ -241,13 +241,39 @@ export function clearWallet(): void {
   } catch {
     // private mode: nothing persisted anyway
   }
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("scrit:walletChange", { detail: null }));
+  }
 }
 
-function saveWallet(id: EvmWalletId, address: string): void {
+export function saveWallet(id: EvmWalletId, address: string): void {
   try {
     store()?.setItem(STORE_KEY, JSON.stringify({ id, address }));
   } catch {
     // private mode: session-only
+  }
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("scrit:walletChange", { detail: { id, address } }));
+  }
+}
+
+export function subscribeWalletChange(cb: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+  const handler = () => cb();
+  window.addEventListener("scrit:walletChange", handler);
+  window.addEventListener("storage", handler);
+  return () => {
+    window.removeEventListener("scrit:walletChange", handler);
+    window.removeEventListener("storage", handler);
+  };
+}
+
+export async function getEvmChainId(provider: EvmProvider): Promise<number | null> {
+  try {
+    const hex = (await provider.request({ method: "eth_chainId" })) as string;
+    return parseInt(hex, 16);
+  } catch {
+    return null;
   }
 }
 

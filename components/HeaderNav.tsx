@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { ArrowUpRight } from "lucide-react";
 import { NavigationDialog } from "./NavigationDialog";
 import { ScritLogo } from "./ScritLogo";
+import TopbarWallet from "./TopbarWallet";
 
 export function HeaderNav() {
   const [scrolled, setScrolled] = useState(false);
@@ -89,6 +90,13 @@ export function HeaderNav() {
             </Link>
 
             <Link
+              href="/swap"
+              className={`nav-menu-link ${pathname === "/swap" ? "is-active-link" : ""}`}
+            >
+              <span>Swap</span>
+            </Link>
+
+            <Link
               href="/issuer"
               className={`nav-menu-link ${pathname === "/issuer" ? "is-active-link" : ""}`}
             >
@@ -118,6 +126,9 @@ export function HeaderNav() {
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
               </svg>
             </a>
+
+            {/* Connect Wallet Desk (Live Synced) */}
+            <TopbarWallet />
 
             {/* Launch Pair CTA */}
             <Link

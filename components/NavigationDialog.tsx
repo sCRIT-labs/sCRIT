@@ -17,6 +17,7 @@ import {
   Rocket,
   CheckCircle2,
   ExternalLink,
+  Zap,
 } from "lucide-react";
 import { HOOD_MAINNET, HOOD_TESTNET, SCRIT_CHAIN_ID } from "@/lib/scrit";
 import { ScritLogo } from "./ScritLogo";
@@ -56,6 +57,16 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     num: "03",
+    label: "Instant Swap Desk",
+    badge: "V4 AMM",
+    description: "Direct on-chain liquidity desk to trade $sCRIT and buy/sell launched project tokens without router friction.",
+    href: "/swap",
+    image: "/images/scrit_v4_pairing_engine.jpg",
+    tag: "UNISWAP V4 TAX HOOK · DIRECT SETTLE",
+    specs: ["sCRIT / Token Swaps", "2.5% Tax Hook Auto-Routing", "Instant Wallet Settle"],
+  },
+  {
+    num: "04",
     label: "Reserve Tokens Directory",
     badge: "ECOSYSTEM",
     description: "Verified registry of all tokens launched and anchored to the physical commodity index.",
@@ -65,7 +76,7 @@ const NAV_ITEMS: NavItem[] = [
     specs: ["Canonical Mainnet & Testnet", "Real-Time LP Depth", "Contract Links"],
   },
   {
-    num: "04",
+    num: "05",
     label: "Reserve Evidence & Proof of Reserve",
     badge: "PROOF",
     description: "Inspect on-chain NAV estimates, attested custody batch records, and audited cryptographic signatures.",
@@ -75,7 +86,7 @@ const NAV_ITEMS: NavItem[] = [
     specs: ["9 Commodity Feeds", "Audited Vault Batches", "Zero Peg Disclaimers"],
   },
   {
-    num: "05",
+    num: "06",
     label: "Certified Commodity Lots",
     badge: "RAIL B",
     description: "Fractionalized 100-unit physical precious metal and certified gem lots settled on-chain.",
@@ -85,7 +96,7 @@ const NAV_ITEMS: NavItem[] = [
     specs: ["Automated Order Escrow", "On-Chain Settle", "Direct sCRIT Pairs"],
   },
   {
-    num: "06",
+    num: "07",
     label: "Pilot Intelligence Copilot",
     badge: "AI GUIDE",
     description: "Real-time conversational agent explaining basket composition, risk models, and mechanics.",
@@ -95,7 +106,7 @@ const NAV_ITEMS: NavItem[] = [
     specs: ["Upstream LLM Streaming", "Knowledge Base RAG", "Protocol Disclosures"],
   },
   {
-    num: "07",
+    num: "08",
     label: "Five Sleeves Stockpile Index",
     badge: "OVERVIEW",
     description: "Target stockpile architecture: heavy rare earths (Dy, Tb), magnet REEs, PGMs, battery lithium, and monetary ballast.",
@@ -105,7 +116,7 @@ const NAV_ITEMS: NavItem[] = [
     specs: ["Dy · Tb · Nd · Sc · Pt", "Pd · Li · Au · Ag", "Strictly Non-Pegged"],
   },
   {
-    num: "08",
+    num: "09",
     label: "Terms & Risk Disclosures",
     badge: "LEGAL",
     description: "Mandatory pilot disclaimers, custody architecture limits, and non-redemption legal terms.",
@@ -258,7 +269,24 @@ export function NavigationDialog({ isOpen, onClose }: NavigationDialogProps) {
               })}
             </nav>
 
-            <div className="nav-dialog-quick-action">
+            <div className="nav-dialog-quick-action" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <button
+                type="button"
+                className="nav-quick-launch-btn"
+                onClick={() => handleNavigate("/swap")}
+                style={{
+                  background: "linear-gradient(135deg, rgba(201, 146, 46, 0.15) 0%, rgba(201, 146, 46, 0.05) 100%)",
+                  borderColor: "rgba(201, 146, 46, 0.4)",
+                  color: "#d4a73b",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <Zap size={17} color="#d4a73b" />
+                  <span>INSTANT SWAP &amp; TRADE (V4 AMM)</span>
+                </div>
+                <ArrowUpRight size={16} />
+              </button>
+
               <button
                 type="button"
                 className="nav-quick-launch-btn"

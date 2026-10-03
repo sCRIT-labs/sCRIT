@@ -82,7 +82,7 @@ export function LandingExperience() {
   const liveChainNav = chain.status === "ready" && chain.reserveValueUsdE8 !== null && (chain.supplyE18 ?? 0n) > 0n
     ? Number(chain.reserveValueUsdE8 ?? 0n) / 1e8 / (Number(chain.supplyE18 ?? 0n) / 1e18)
     : null;
-  const navLabel = liveChainNav === null ? "Unavailable" : formatUsd(liveChainNav, 6);
+  const navLabel = liveChainNav === null ? "Unavailable" : formatUsd(liveChainNav, 2);
 
   return (
     <div className="scrit-redesign scrit-landing">
@@ -143,7 +143,7 @@ export function LandingExperience() {
         <PinnedIndexStory metrics={[
           { label: "REPORTED RESERVE VALUE", value: reserveLabel, detail: pricesComplete ? "From accepted records and manual prices." : "Requires all nine manual price inputs." },
           { label: "ON-CHAIN NAV / TOKEN", value: navLabel, detail: "On-chain reserve value ÷ live sCRIT supply. Hidden until both are available." },
-          { label: "ATTESTED BATCHES", value: dataStatus === "ready" ? String(atts.length) : "-", detail: dataStatus !== "ready" ? "Pilot record service unavailable." : latest ? `Latest · ${latest.commodity} · ${latest.mass_kg} kg.` : "No batches recorded in this instance." },
+          { label: "ATTESTED BATCHES", value: dataStatus === "ready" ? String(atts.length) : "-", detail: dataStatus !== "ready" ? "Pilot record service unavailable." : latest ? `Latest · ${latest.commodity} · ${Number(latest.mass_kg).toLocaleString(undefined, { maximumFractionDigits: 2 })} kg.` : "No batches recorded in this instance." },
         ]} />
       </div>
 

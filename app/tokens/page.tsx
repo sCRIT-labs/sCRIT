@@ -435,6 +435,27 @@ export default function TokensPage() {
                         CA :
                       </span>
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <Link
+                          href={`/swap?token=${token.address}`}
+                          className="launch-chip-btn"
+                          style={{
+                            textDecoration: "none",
+                            padding: "3px 10px",
+                            fontSize: 11,
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 4,
+                            background: "var(--signal)",
+                            color: "#ffffff",
+                            fontWeight: 700,
+                            border: "none",
+                          }}
+                          title="Trade on sCRIT V4 Desk"
+                        >
+                          <span>Trade</span>
+                          <ArrowRight size={11} />
+                        </Link>
+
                         <button
                           type="button"
                           className="launch-chip-btn"

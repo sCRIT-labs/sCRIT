@@ -9,6 +9,7 @@ import {
   clearWallet,
   loadWallet,
   silentEvmAccount,
+  subscribeWalletChange,
   walletLabel,
   type EvmWalletId,
 } from "@/lib/wallets";
@@ -35,23 +36,33 @@ export default function WalletButton({
   const [err, setErr] = useState("");
 
   const onConnectRef = useRef(onConnect);
+  const onDisconnectRef = useRef(onDisconnect);
   useEffect(() => {
     onConnectRef.current = onConnect;
+    onDisconnectRef.current = onDisconnect;
   });
 
   useEffect(() => {
     setMounted(true);
-    const saved = loadWallet();
-    setStored(saved);
-    if (saved?.address && /^0x[0-9a-fA-F]{40}$/.test(saved.address)) {
-      const addr = saved.address as Address;
-      onConnectRef.current(addr, 0n);
-      void scritBalanceOf(chainId, addr, scritDeploymentFor(chainId).token)
-        .then((bal) => {
-          onConnectRef.current(addr, bal);
-        })
-        .catch(() => {});
-    }
+    const sync = () => {
+      const saved = loadWallet();
+      setStored(saved);
+      if (saved?.address && /^0x[0-9a-fA-F]{40}$/.test(saved.address)) {
+        const addr = saved.address as Address;
+        onConnectRef.current(addr, 0n);
+        void scritBalanceOf(chainId, addr, scritDeploymentFor(chainId).token)
+          .then((bal) => {
+            onConnectRef.current(addr, bal);
+          })
+          .catch(() => {});
+      } else {
+        onDisconnectRef.current?.();
+      }
+    };
+
+    sync();
+    const unsub = subscribeWalletChange(sync);
+    return () => unsub();
   }, [chainId]);
 
   const walletMeta = mounted && stored ? EVM_WALLETS.find((w) => w.id === stored.id) : undefined;
