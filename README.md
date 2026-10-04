@@ -6,7 +6,7 @@
 
 **Autonomous Critical Minerals & Rare Earths Reserve Protocol on Robinhood Chain**
 
-🌐 **Web Application:** [https://scritindex.tech](https://scritindex.tech) · 📜 **Documentation:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · ⚡ **Proof Ledger:** [/proof](/proof) · 💎 **Physical Lots:** [/lots](/lots)
+🌐 **Web Application:** [https://scritindex.tech](https://scritindex.tech) · 📜 **Documentation:** [docs/report.md](docs/report.md) · 🔄 **Swap:** [https://scritindex.tech/swap](https://scritindex.tech/swap) · ⚡ **Proof Ledger:** [https://scritindex.tech/proof](https://scritindex.tech/proof) · 💎 **Physical Lots:** [https://scritindex.tech/lots](https://scritindex.tech/lots)
 
 *The sovereign on-chain critical mineral index led by heavy rare earths (Dy, Tb) and ballasted by gold. Powered by Robinhood Chain, Uniswap V4 Dynamic Hooks, and Cryptographic EIP-712 Custodian Attestations.*
 
@@ -119,7 +119,12 @@ flowchart LR
 - **Automated Pool Deployment:** Deploy project tokens paired with sCRIT into Robinhood Chain liquidity pools.
 - **Hook Attachment:** Automatic binding of `TradingTaxHook.sol` to enforce the protocol's 2.5% reserve accumulation levy.
 
-### 4. Reserve Tokens Directory (`/tokens`)
+### 4. Institutional Swap Terminal (`/swap`)
+- **Instant Pair Liquidity:** Swap between sCRIT, pilot tokens ($PDMO, $CURUT, etc.), and native ETH.
+- **Dynamic 2.5% Hook Fee Math:** Live real-time output estimate factoring in the 75% reserve buyback and 25% protocol operations deduction.
+- **Slippage & Routing:** Strict 0.5% default slippage bounding and Permit2 compatibility.
+
+### 5. Reserve Tokens Directory (`/tokens`)
 - **Multi-Element Catalog:** Complete inventory of sleeve-specific tokens and index contracts.
 - **Contract Inspection:** Direct links to verified contracts on Robinhood Chain Blockscout.
 

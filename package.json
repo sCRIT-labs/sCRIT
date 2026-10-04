@@ -1,6 +1,17 @@
 {
   "name": "scrit",
   "version": "0.1.0",
+  "description": "Autonomous Critical Minerals & Rare Earths Reserve Protocol on Robinhood Chain",
+  "homepage": "https://scritindex.tech",
+  "keywords": [
+    "rwa",
+    "commodities",
+    "robinhood-chain",
+    "uniswap-v4",
+    "defi",
+    "rare-earths",
+    "eip-712"
+  ],
   "private": true,
   "scripts": {
     "dev": "next dev",
