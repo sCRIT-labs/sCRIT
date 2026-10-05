@@ -450,7 +450,6 @@
 /* Light mode adaptation for brand text */
 .nav-theme-light .scrit-brand-text,
 .scrit-force-light .scrit-brand-text,
-.ondo-footer-light .scrit-brand-text,
 [data-nav-theme="light"] .scrit-brand-text {
   color: #121513 !important;
 }
@@ -478,9 +477,6 @@
 .scrit-force-light .scrit-brand-c-dark,
 .scrit-force-light .scrit-brand-mark-dark,
 .scrit-force-light .scrit-lockup-dark,
-.ondo-footer-light .scrit-brand-c-dark,
-.ondo-footer-light .scrit-brand-mark-dark,
-.ondo-footer-light .scrit-lockup-dark,
 [data-nav-theme="light"] .scrit-brand-c-dark,
 [data-nav-theme="light"] .scrit-brand-mark-dark,
 [data-nav-theme="light"] .scrit-lockup-dark {
@@ -492,9 +488,6 @@
 .scrit-force-light .scrit-brand-c-light,
 .scrit-force-light .scrit-brand-mark-light,
 .scrit-force-light .scrit-lockup-light,
-.ondo-footer-light .scrit-brand-c-light,
-.ondo-footer-light .scrit-brand-mark-light,
-.ondo-footer-light .scrit-lockup-light,
 [data-nav-theme="light"] .scrit-brand-c-light,
 [data-nav-theme="light"] .scrit-brand-mark-light,
 [data-nav-theme="light"] .scrit-lockup-light {
@@ -510,6 +503,36 @@
 .scrit-force-dark .scrit-brand-c-light,
 .scrit-force-dark .scrit-brand-mark-light,
 .scrit-force-dark .scrit-lockup-light {
+  display: none !important;
+}
+
+/* Footer logo: footer is always dark obsidian with luminous cream/gold mark */
+.ondo-footer-root .scrit-brand-text,
+.ondo-footer-white-bottom .scrit-brand-text,
+.ondo-footer-brand-col .scrit-brand-text,
+.scrit-redesign .ondo-footer-brand-col .scrit-brand-text {
+  color: #f7faf8 !important;
+}
+.ondo-footer-root .scrit-brand-c-dark,
+.ondo-footer-root .scrit-brand-mark-dark,
+.ondo-footer-root .scrit-lockup-dark,
+.ondo-footer-white-bottom .scrit-brand-c-dark,
+.ondo-footer-white-bottom .scrit-brand-mark-dark,
+.ondo-footer-white-bottom .scrit-lockup-dark,
+.ondo-footer-brand-col .scrit-brand-c-dark,
+.ondo-footer-brand-col .scrit-brand-mark-dark,
+.ondo-footer-brand-col .scrit-lockup-dark {
+  display: block !important;
+}
+.ondo-footer-root .scrit-brand-c-light,
+.ondo-footer-root .scrit-brand-mark-light,
+.ondo-footer-root .scrit-lockup-light,
+.ondo-footer-white-bottom .scrit-brand-c-light,
+.ondo-footer-white-bottom .scrit-brand-mark-light,
+.ondo-footer-white-bottom .scrit-lockup-light,
+.ondo-footer-brand-col .scrit-brand-c-light,
+.ondo-footer-brand-col .scrit-brand-mark-light,
+.ondo-footer-brand-col .scrit-lockup-light {
   display: none !important;
 }
 

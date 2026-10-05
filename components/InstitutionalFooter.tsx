@@ -7,8 +7,8 @@ import { HOOD_MAINNET } from "@/lib/scrit";
 import { ArrowUpRight } from "lucide-react";
 import { ScritLogo } from "./ScritLogo";
 
-export function InstitutionalFooter({ theme = "light" }: { theme?: "light" | "dark" }) {
-  const isDark = theme === "dark";
+export function InstitutionalFooter({ theme = "dark" }: { theme?: "light" | "dark" }) {
+  const isDark = true; // The footer in sCRIT redesign is always dark obsidian (var(--ink)) with cream text
 
   return (
     <footer
@@ -73,12 +73,12 @@ export function InstitutionalFooter({ theme = "light" }: { theme?: "light" | "da
                   fontSize: "20px",
                   fontWeight: "700",
                   marginBottom: "16px",
-                  color: isDark ? "#ffffff" : "#000000",
+                  color: "var(--cream)",
                   textDecoration: "none",
                   display: "inline-block",
                 }}
               >
-                <ScritLogo size={24} theme={isDark ? "dark" : "light"} />
+                <ScritLogo size={24} theme="dark" />
               </Link>
               <p
                 style={{
