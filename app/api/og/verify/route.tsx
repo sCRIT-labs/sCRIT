@@ -3,7 +3,7 @@ import { NextRequest } from "next/server";
 import { lookupAddress, getCanonicalAddress } from "@/lib/addresses";
 import { decodeHookPermissions } from "@/lib/verify/hook-decoder";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
