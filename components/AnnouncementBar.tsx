@@ -2,7 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { ScritCaBadge } from "./ScritCaBadge";
 
 export function AnnouncementBar() {
   return (
@@ -12,6 +13,9 @@ export function AnnouncementBar() {
         <div className="announcement-pill-badge">
           <span>ISSUER GATEWAY</span>
         </div>
+
+        {/* Live Contract Address Pill */}
+        <ScritCaBadge variant="announcement" />
 
         {/* Centered Descriptive Text */}
         <div className="announcement-text-wrap">
@@ -25,7 +29,7 @@ export function AnnouncementBar() {
 
         {/* Refined CTA Link */}
         <Link href="/issuer" className="announcement-cta-pill">
-          <span>Start Clearance Desk</span>
+          <span>Clearance Desk</span>
           <ArrowRight size={11} strokeWidth={2.5} />
         </Link>
       </div>

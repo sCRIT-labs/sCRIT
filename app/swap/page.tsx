@@ -21,6 +21,7 @@ import { PageShell } from "@/components/PageShell";
 import WalletButton from "@/components/WalletButton";
 import WalletModal from "@/components/WalletModal";
 import ChainLogo from "@/components/ChainLogo";
+import { ScritCaBadge } from "@/components/ScritCaBadge";
 import {
   HOOD_MAINNET,
   HOOD_TESTNET,
@@ -596,6 +597,9 @@ function SwapContent() {
           Trade ecosystem tokens directly against <b style={{ color: "var(--ink)" }}>sCRIT</b> on Robinhood Chain Mainnet.
           Every swap executes natively across Uniswap V4 with the <b style={{ color: "#8c6418" }}>Trading Tax Hook (2.5%)</b>, automatically routing 75% of fees to compound physical heavy rare earth reserves in verified custody.
         </p>
+        <div style={{ marginTop: 14 }}>
+          <ScritCaBadge variant="hero" />
+        </div>
       </div>
 
       {/* Quick Token Selector Bar */}

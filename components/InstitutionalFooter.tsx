@@ -6,6 +6,7 @@ import { ScrollReveal } from "./ScrollReveal";
 import { HOOD_MAINNET } from "@/lib/scrit";
 import { ArrowUpRight } from "lucide-react";
 import { ScritLogo } from "./ScritLogo";
+import { ScritCaBadge } from "./ScritCaBadge";
 
 export function InstitutionalFooter({ theme = "dark" }: { theme?: "light" | "dark" }) {
   const isDark = true; // The footer in sCRIT redesign is always dark obsidian (var(--ink)) with cream text
@@ -155,7 +156,10 @@ export function InstitutionalFooter({ theme = "dark" }: { theme?: "light" | "dar
                 </a>
               </div>
 
-              <div style={{ fontSize: "12px", color: isDark ? "#636366" : "#8e8e93" }}>
+              {/* Official Verified Contract Address Badge */}
+              <ScritCaBadge variant="footer" />
+
+              <div style={{ fontSize: "12px", color: isDark ? "#636366" : "#8e8e93", marginTop: "12px" }}>
                 &copy; {new Date().getFullYear()} sCRIT Protocol. Open source contracts.
               </div>
             </div>
