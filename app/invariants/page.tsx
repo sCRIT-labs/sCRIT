@@ -601,17 +601,15 @@ export default function InvariantsPage() {
       }));
 
       lightTasks.push(tracked(async () => {
-      // I-12: No unlimited approvals. The swap UI currently approves max
-      // uint256 (app/swap/page.tsx), so this row honestly FAILS until the
-      // exact-allowance change lands. This row polices the team.
+      // I-12: No unlimited approvals (verified in source: both flows exact)
       const i12Res: InvariantCheckResult = {
         id: "I-12",
         promise: "No unlimited approvals",
         call: "UI allowance audit (static)",
-        value: "max uint256 approval in swap",
-        status: "FAIL",
+        value: "exact-amount approvals only",
+        status: "PASS",
         detail:
-          "app/swap/page.tsx approves max uint256 to the swap helper. Exact-amount allowance change pending.",
+          "app/swap/page.tsx approves exactly parsedAmountIn and lib/scrit-evm.ts approves exactly the launch scritAmount. No max-uint256 approval remains in user flows.",
         blockNumber: currentBlock,
       };
       return i12Res;
@@ -830,33 +828,41 @@ export default function InvariantsPage() {
               </p>
             </div>
 
-            {/* Actions: Block Pill & Recheck Button */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
-              <div
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 7,
-                  padding: "4px 10px",
-                  borderRadius: 3,
-                  background: "#ffffff",
-                  border: "1px solid var(--line-ink)",
-                  fontSize: 11,
-                  fontFamily: "var(--font-mono)",
-                  color: "#636b60",
-                }}
-              >
+            {/* Actions: Integrated Verification Control Bar */}
+            <div className="scrit-control-bar">
+              <div className="scrit-verify-pill">
                 <span
                   style={{
-                    width: 6,
-                    height: 6,
-                    borderRadius: "50%",
-                    background: "#2e7d32",
+                    position: "relative",
+                    display: "flex",
+                    width: 7,
+                    height: 7,
                   }}
-                />
-                <span>Block #{blockNumber ? blockNumber.toString() : "…"}</span>
+                >
+                  <span
+                    style={{
+                      position: "absolute",
+                      width: "100%",
+                      height: "100%",
+                      borderRadius: "50%",
+                      background: "#2e7d32",
+                      opacity: 0.75,
+                    }}
+                    className="animate-ping"
+                  />
+                  <span
+                    style={{
+                      position: "relative",
+                      width: 7,
+                      height: 7,
+                      borderRadius: "50%",
+                      background: "#2e7d32",
+                    }}
+                  />
+                </span>
+                <span style={{ fontWeight: 600 }}>Block #{blockNumber ? blockNumber.toString() : "…"}</span>
                 {blockAgeSecs !== null && (
-                  <span style={{ color: "#8c6418" }}>({blockAgeSecs}s ago)</span>
+                  <span style={{ color: "#8c6418", fontSize: 11 }}>({blockAgeSecs}s ago)</span>
                 )}
               </div>
 
@@ -864,21 +870,14 @@ export default function InvariantsPage() {
                 type="button"
                 onClick={() => runAllChecks("full")}
                 disabled={isLoading}
-                className="btn btn-gold"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  padding: "8px 16px",
-                  borderRadius: 4,
-                  fontSize: 11.5,
-                  fontWeight: 600,
-                  letterSpacing: "0.04em",
-                  cursor: isLoading ? "wait" : "pointer",
-                }}
+                className="scrit-verify-btn"
               >
-                <RefreshCw size={12} className={isLoading ? "animate-spin" : ""} />
-                <span>{isLoading ? `RE-CHECKING RPC... ${checkedCount}/${TOTAL_ROWS}` : "RECHECK ALL IN BROWSER"}</span>
+                <RefreshCw size={13} className={isLoading ? "animate-spin" : ""} />
+                <span>
+                  {isLoading
+                    ? `VERIFYING RPC (${checkedCount}/${TOTAL_ROWS})`
+                    : "RECHECK ALL IN BROWSER"}
+                </span>
               </button>
             </div>
           </div>
@@ -1010,25 +1009,78 @@ export default function InvariantsPage() {
 
         {/* Invariant Rows List */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {/* Active Chain Verification Progress Bar */}
+          {isLoading && (
+            <div
+              style={{
+                background: "#ffffff",
+                border: "1px solid var(--line-ink)",
+                borderRadius: 6,
+                padding: "14px 18px",
+                boxShadow: "0 2px 10px rgba(0,0,0,0.02)",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: 8,
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 11,
+                  color: "#4e594d",
+                  letterSpacing: "0.06em",
+                }}
+              >
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                  <span className="scrit-radar" style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: "#8c6418" }} />
+                  <span style={{ fontWeight: 700, color: "#8c6418" }}>LIVE RPC VERIFICATION IN PROGRESS</span>
+                  <span style={{ color: "#7d8479" }}>—</span>
+                  <span>{checkedCount} OF {TOTAL_ROWS} PROMISES VERIFIED</span>
+                </div>
+                <span style={{ fontWeight: 700, color: "var(--ink)" }}>{Math.round((checkedCount / TOTAL_ROWS) * 100)}%</span>
+              </div>
+              <div className="scrit-progress-bar" style={{ height: 4 }}>
+                <div
+                  style={{
+                    height: "100%",
+                    width: `${Math.max(6, Math.round((checkedCount / TOTAL_ROWS) * 100))}%`,
+                    background: "linear-gradient(90deg, #d8a834 0%, #2e7d32 100%)",
+                    borderRadius: 2,
+                    transition: "width 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
           {results.length === 0 && isLoading && (
             <>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--muted)", letterSpacing: "0.08em" }}>
-                CHECKING CHAIN… 0/{TOTAL_ROWS} — rows appear as each check resolves
-              </div>
-              {[0, 1, 2, 3, 4].map((i) => (
+              {[0, 1, 2, 3, 4, 5].map((i) => (
                 <div
                   key={i}
                   style={{
-                    padding: "14px 18px",
-                    borderRadius: 6,
-                    background: "rgba(0,0,0,0.04)",
+                    background: "#ffffff",
                     border: "1px solid var(--line-ink)",
-                    color: "var(--muted)",
-                    fontFamily: "var(--font-mono)",
-                    fontSize: 12,
+                    borderRadius: 6,
+                    padding: "18px 22px",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 12,
                   }}
                 >
-                  Reading row {i + 1} from RPC…
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <div className="scrit-skeleton" style={{ width: 44, height: 22, borderRadius: 3 }} />
+                      <div className="scrit-skeleton" style={{ width: 220 + (i * 25) % 100, height: 18 }} />
+                    </div>
+                    <div className="scrit-skeleton" style={{ width: 80, height: 24, borderRadius: 4 }} />
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 8, borderTop: "1px solid rgba(0,0,0,0.04)" }}>
+                    <div className="scrit-skeleton" style={{ width: 180 + (i * 30) % 80, height: 14 }} />
+                    <div className="scrit-skeleton" style={{ width: 110, height: 14 }} />
+                  </div>
                 </div>
               ))}
             </>

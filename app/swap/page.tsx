@@ -433,13 +433,12 @@ function SwapContent() {
         transport: custom(provider as never),
       });
 
-      // Max approval
-      const maxUint256 = 2n ** 256n - 1n;
+      // Exact-amount approval (I-12: never request unlimited allowances)
       const hash = await walletClient.writeContract({
         address: activeInputToken,
         abi: ERC20_ABI,
         functionName: "approve",
-        args: [swapHelperAddress, maxUint256],
+        args: [swapHelperAddress, parsedAmountIn],
       });
 
       setSuccessMessage(`Approval submitted: ${hash.slice(0, 10)}... Waiting for confirmation.`);
