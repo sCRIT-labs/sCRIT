@@ -6,7 +6,7 @@ const ITEMS = [
   {
     title: "sCRIT is not pegged and has no redemption in pilot",
     body: "A project token is paired with sCRIT - it is not a claim on metal. Only sCRIT relates to the aggregate basket, never to a specific bar.",
-    flag: "COPY RULE · NEVER CALL IT BACKED",
+    flag: "COPY RULE · STOCKPILE-PAIRED ONLY",
   },
   {
     title: "The reserve moves on attestation only",
@@ -14,8 +14,8 @@ const ITEMS = [
     flag: "ACCOUNTING RULE",
   },
   {
-    title: "Demo custodian key; first physical audit pending",
-    body: "One team key signs today. Per-class custodians, SLAs, insurance and audit rights are unsigned - every dependent row stays red.",
+    title: "Demo custodian key; first physical inspection pending",
+    body: "One team key signs today. Per-class custodians, SLAs, insurance and inspection rights are unsigned - every dependent row stays red.",
     flag: "CONTRACT FEATURE",
   },
   {

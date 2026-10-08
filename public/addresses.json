@@ -1,0 +1,85 @@
+{
+  "chainId": 4663,
+  "canonical": {
+    "CRIT": {
+      "address": "0x351776b6fba6a910c32e46f3775aa946a724d78f",
+      "name": "sCRIT Token (Pons)",
+      "description": "Canonical ERC20 critical commodity index token"
+    },
+    "TradingTaxHook": {
+      "address": "0x4bbd5c4894b75ddbf215c82304b6c21f9134a044",
+      "name": "Uniswap V4 Trading Tax Hook",
+      "flags": "0x2044",
+      "description": "2.5% trading tax hook routing 75% to reserve stockpile and 25% to operations"
+    },
+    "PoolManager": {
+      "address": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+      "name": "Uniswap V4 PoolManager",
+      "description": "Canonical Uniswap V4 core singleton pool manager"
+    },
+    "sCRITV4Launcher": {
+      "address": "0x90e94eac08d1d3989d5560320c2096d38274d711",
+      "name": "Pair Launcher V4",
+      "description": "Atomic project pair deployment factory with TradingTaxHook"
+    },
+    "ReserveManager": {
+      "address": "0x0cc054ce72fc0a489732e20dd595de934be2e953",
+      "name": "Reserve Manager",
+      "description": "Cryptographic custodian attestation and reserve mass accounting"
+    },
+    "CustodianRegistry": {
+      "address": "0x4993478847d03e13d5eae930878ad428cf2b27f8",
+      "name": "Custodian Registry",
+      "description": "Registry of authorized vault custodians and scope limits"
+    },
+    "PriceOracleAdapter": {
+      "address": "0x5341042250dcbc11a929581d22b7be30c14640df",
+      "name": "Price Oracle Adapter",
+      "description": "Multi-feed commodity price oracle adapter"
+    },
+    "TimelockController": {
+      "address": "0x00824e9c6075ff2ceb10009de7f170fc6721df1a",
+      "name": "Protocol Timelock Controller",
+      "description": "Decentralized governance timelock governing protocol parameters and launcher"
+    },
+    "StockpileTreasury": {
+      "address": "0x00824e9c6075ff2ceb10009de7f170fc6721df1a",
+      "name": "Stockpile Treasury (Timelock Vault)",
+      "description": "Treasury receiver for 75% physical commodity accession buybacks"
+    },
+    "BurnWallet": {
+      "address": "0x000000000000000000000000000000000000dEaD",
+      "name": "Burn Wallet (dEaD)",
+      "description": "Permanent burn address for destroyed $CRIT tokens"
+    },
+    "OpsWallet": {
+      "address": "0xCdbdc82A021071eE445d9f897433a7E4B4EAfD8d",
+      "name": "Operations Treasury",
+      "description": "Operations wallet receiving 25% protocol maintenance fee"
+    },
+    "DevWallet": {
+      "address": "0x272568D25b9634Ad8A4e8E8CBB10b729f41C781d",
+      "name": "Developer Deployer Wallet",
+      "description": "Original contract deployer address"
+    },
+    "Dead": {
+      "address": "0x000000000000000000000000000000000000dEaD",
+      "name": "Canonical Dead Address",
+      "description": "Standard EVM burn sink"
+    }
+  },
+  "deprecated": {
+    "sCRIT_legacy": {
+      "address": "0x56073943133c1c0678a753be9402b27d43cf1c22",
+      "reason": "Pre-Pons token. Not $CRIT. Do not buy or pair against it."
+    },
+    "TaxHook_legacy": {
+      "address": "0x5a0e9b72a3fcad25cf30757164c90d51f4ca2044",
+      "reason": "Pre-Pons tax hook. Deprecated."
+    },
+    "Launcher_legacy": {
+      "address": "0x2e0de4486b391c182a6727d5480380f9820c73d5",
+      "reason": "Pre-Pons pair launcher. Deprecated."
+    }
+  }
+}

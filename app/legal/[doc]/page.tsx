@@ -68,7 +68,7 @@ const DOCS: Record<string, LegalDoc> = {
       {
         heading: "1. Onchain Records",
         content:
-          "Blockchain transactions (including token deployment and liquidity additions) are public on the selected chain. Pilot attestation records are submitted to a PostgreSQL-backed off-chain service and are not themselves reserve contract transactions.",
+          "Blockchain transactions (including token deployment and liquidity additions) are public on the selected chain. Pilot attestation records are submitted to a PostgreSQL-managed off-chain service and are not themselves reserve contract transactions.",
       },
       {
         heading: "2. Off-Chain Contact Information",

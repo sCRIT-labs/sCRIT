@@ -79,11 +79,11 @@ const NAV_ITEMS: NavItem[] = [
     num: "05",
     label: "Reserve Evidence & Proof of Reserve",
     badge: "PROOF",
-    description: "Inspect on-chain NAV estimates, attested custody batch records, and audited cryptographic signatures.",
+    description: "Inspect on-chain NAV estimates, attested custody batch records, and cryptographic signatures.",
     href: "/proof",
     image: "/images/scrit_gate_custodian_ingress.jpg",
     tag: "ON-CHAIN ATTESTATION · INDICATIVE NAV",
-    specs: ["9 Commodity Feeds", "Audited Vault Batches", "Zero Peg Disclaimers"],
+    specs: ["9 Commodity Feeds", "Attested Vault Batches", "Zero Peg Disclaimers"],
   },
   {
     num: "06",

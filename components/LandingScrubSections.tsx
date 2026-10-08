@@ -84,12 +84,12 @@ const DISPATCH_METADATA = [
     watermark: "STANDARD: EIP-712 TYPED DATA · ASSAY ATTESTED",
     metrics: [
       { val: "EIP-712", label: "Cryptographic", note: "Typed Signature" },
-      { val: "99.9%+", label: "Assay Verified", note: "Grade Specs" },
+      { val: "99.9%+", label: "Purity Attested", note: "Grade Specs" },
       { val: "On-Chain", label: "Public Ledger", note: "Real-Time Proof" },
     ],
     specs: [
       { key: "ATTESTATION MODEL", val: "Signatures Required Before Reserve Recognition" },
-      { key: "AUDIT TRANSPARENCY", val: "Every Batch Hash-Linked to Assayer Certificate" },
+      { key: "VERIFICATION TRANSPARENCY", val: "Every Batch Hash-Linked to Assayer Certificate" },
     ],
   },
 ];
@@ -533,7 +533,7 @@ export function PinnedLedgerStory({ copy, lines, session }: { copy: { title: str
                 <div className="scrit-terminal-cmd-stream">
                   <span className="scrit-prompt-symbol">$</span>
                   <span className="scrit-prompt-cmd">pilot.reserve.observe --chain 4663</span>
-                  <span className="scrit-prompt-tag">AUDITED</span>
+                  <span className="scrit-prompt-tag">OBSERVED</span>
                   <i className="scrit-terminal-blinker">▌</i>
                 </div>
                 <div className="scrit-terminal-status-footer">

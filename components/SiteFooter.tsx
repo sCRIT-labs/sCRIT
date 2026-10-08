@@ -14,7 +14,7 @@ export const SiteFooter: React.FC = () => {
       <div className="footer-grid">
         <div>
           <div className="flabel">sCRIT · PILOT</div>
-          <p>Experimental token launch software and proposed commodity-index design. No pilot redemption, peg, contracted custody, or audited reserve.</p>
+          <p>Experimental token launch software and proposed commodity-index design. No pilot redemption, price peg, contracted custody, or certified vault claims.</p>
         </div>
         <div>
           <div className="flabel">INDEX</div>

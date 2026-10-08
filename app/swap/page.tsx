@@ -595,7 +595,7 @@ function SwapContent() {
           }}
         >
           Trade ecosystem tokens directly against <b style={{ color: "var(--ink)" }}>sCRIT</b> on Robinhood Chain Mainnet.
-          Every swap executes natively across Uniswap V4 with the <b style={{ color: "#8c6418" }}>Trading Tax Hook (2.5%)</b>, automatically routing 75% of fees to compound physical heavy rare earth reserves in verified custody.
+          Every swap executes natively across Uniswap V4 with the <b style={{ color: "#8c6418" }}>Trading Tax Hook (2.5%)</b>, automatically routing 75% of fees to compound physical heavy rare earth reserves in attested vault custody.
         </p>
         <div style={{ marginTop: 14 }}>
           <ScritCaBadge variant="hero" />

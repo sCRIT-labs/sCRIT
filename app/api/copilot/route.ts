@@ -341,7 +341,7 @@ Architecture Disclosures:
     return `Issuance Architecture: Rail A vs Rail B:
 
 - **Rail A (Project Token Launcher):**
-  - Deploys fixed-supply reserve-backed tokens paired with sCRIT.
+  - Deploys fixed-supply stockpile-paired tokens paired with sCRIT.
   - Checks on-chain issuer allowlist; zero issuance protocol fee.
   - Integrates Uniswap V4 hook for automated reserve treasury accrual.
 - **Rail B (Certified Lots Marketplace):**

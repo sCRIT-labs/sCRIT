@@ -44,7 +44,7 @@ export const VaultReserve: React.FC = () => {
               REPORTED ALLOCATED HOLDINGS
             </span>
             <span className="mono-sm" style={{ color: "var(--muted)", fontSize: 11 }}>
-              AUDITED VAULT SPECS
+              ATTESTED VAULT SPECS
             </span>
           </div>
 
