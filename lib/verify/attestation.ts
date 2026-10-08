@@ -39,9 +39,18 @@ export const RESERVE_ATTESTATION_TYPES = {
 // Canonical ReserveManager per chain. Mainnet from deployments/
 // robinhood-mainnet-2026-09-28 manifest; testnet from deployments/
 // robinhood-testnet-2026-09-26 manifest.
+// Canonical ReserveManager per chain. Mainnet from deployments/
+// robinhood-mainnet-2026-09-28 manifest; testnet from deployments/
+// robinhood-testnet-2026-09-26 manifest.
 export const RESERVE_MANAGER_BY_CHAIN: Record<number, `0x${string}`> = {
   4663: "0x0cc054ce72fc0a489732e20dd595de934be2e953",
   46630: "0x8094e63ee75119769c114ff4ac77dbdd562aba8c",
+};
+
+// Canonical CustodianRegistry per chain (mainnet manifest + testnet manifest).
+export const CUSTODIAN_REGISTRY_BY_CHAIN: Record<number, `0x${string}`> = {
+  4663: "0x4993478847d03e13d5eae930878ad428cf2b27f8",
+  46630: "0x3a3f2ce80a50fedce12eb464fe06aa38499c84b0",
 };
 
 // Throwaway demo key address. Samples below carry real ECDSA signatures made
@@ -285,45 +294,45 @@ export async function resolveAttestationChainReads(
   signer: `0x${string}`
 ): Promise<AttestationChainReads> {
   const reserveManager = RESERVE_MANAGER_BY_CHAIN[chainId];
-  const custodianRegistry = getCanonicalAddress("CustodianRegistry");
+  const custodianRegistry = CUSTODIAN_REGISTRY_BY_CHAIN[chainId];
 
-  // On Testnet (chain 46630), provide the designated demo custodian record
-  // and sample acceptance tx for the demo sample, fulfilling Acceptance #3
-  // ("testnet sample attestation -> ACCEPTED on testnet. On mainnet it fails at step 2").
-  if (chainId === 46630 && signer.toLowerCase() === DEMO_SIGNER_ADDRESS.toLowerCase()) {
-    return {
-      custodian: { active: true, scopeMask: 0x01 }, // Au authorized
-      nonceUsed: false,
-      acceptanceTxHash: "0x8094e63ee75119769c114ff4ac77dbdd562aba8c1234567890abcdef12345678",
-      scanFromBlock: 1000n,
-    };
+  async function readWithRetry<T>(fn: () => Promise<T>, tries = 3): Promise<T | null> {
+    let lastErr: unknown = null;
+    for (let i = 0; i < tries; i++) {
+      try {
+        return await fn();
+      } catch (e) {
+        lastErr = e;
+        await new Promise((r) => setTimeout(r, 800 * (i + 1)));
+      }
+    }
+    void lastErr;
+    return null;
   }
 
-  let custodian: AttestationChainReads["custodian"] = null;
-  try {
+  const custodianRec = await readWithRetry(async () => {
     const rec = (await client.readContract({
       address: custodianRegistry,
       abi: CUSTODIAN_ABI,
       functionName: "custodians",
       args: [signer],
     })) as unknown as { scopeMask: number | bigint; active: boolean };
-    custodian = { scopeMask: Number(rec.scopeMask), active: Boolean(rec.active) };
-  } catch {
-    custodian = null;
-  }
+    return { scopeMask: Number(rec.scopeMask), active: Boolean(rec.active) };
+  });
 
-  let nonceUsed: AttestationChainReads["nonceUsed"] = null;
-  try {
+  let custodian: AttestationChainReads["custodian"] = custodianRec;
+
+  const nonceRes = await readWithRetry(async () => {
     const used = (await client.readContract({
       address: reserveManager,
       abi: CUSTODIAN_ABI,
       functionName: "usedNonce",
       args: [signer, BigInt(payload.message.nonce)],
     })) as boolean;
-    nonceUsed = Boolean(used);
-  } catch {
-    nonceUsed = null;
-  }
+    return Boolean(used);
+  });
+
+  let nonceUsed: AttestationChainReads["nonceUsed"] = nonceRes;
 
   const head = await client.getBlockNumber().catch(() => null);
   const WINDOW = 100_000n;
@@ -664,7 +673,7 @@ export async function verifyAttestationLocally(
       (pendingReads.length > 0
         ? `On-chain reads failed for: ${pendingReads
             .map((s) => `step ${s.id} (${s.label})`)
-            .join(", ")}. Nothing was assumed — klik VERIFY IN BROWSER untuk retry.`
+            .join(", ")}. Nothing was assumed — click VERIFY IN BROWSER to retry.`
         : "Cryptographic verification failed.");
   }
 
