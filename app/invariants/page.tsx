@@ -14,7 +14,8 @@ import {
 } from "@/lib/invariants/checks";
 import { formatUnits, keccak256, parseAbiItem } from "viem";
 import { PageShell } from "@/components/PageShell";
-import { Sparkles, RefreshCw } from "lucide-react";
+import { VerificationToolbar } from "@/components/VerificationToolbar";
+import { Sparkles } from "lucide-react";
 
 export default function InvariantsPage() {
   const [results, setResults] = useState<InvariantCheckResult[]>([]);
@@ -799,89 +800,45 @@ export default function InvariantsPage() {
             </span>
           </div>
 
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
-            <div>
-              <h1
-                style={{
-                  fontFamily: "var(--font-serif)",
-                  fontSize: "clamp(24px, 3.8vw, 44px)",
-                  fontWeight: 450,
-                  letterSpacing: "-0.035em",
-                  margin: "0 0 14px",
-                  lineHeight: 1.15,
-                  color: "var(--ink)",
-                }}
-              >
-                Every promise. <em>Checked live.</em>
-              </h1>
-              <p
-                style={{
-                  color: "#5e645d",
-                  fontSize: "clamp(15px, 1.8vw, 17px)",
-                  lineHeight: 1.6,
-                  margin: 0,
-                  maxWidth: 780,
-                }}
-              >
-                Each row is something sCRIT says. Each status is what the chain says.
-                Failing rows stay visible and sort to the top automatically.
-              </p>
-            </div>
-
-            {/* Actions: Integrated Verification Control Bar */}
-            <div className="scrit-control-bar">
-              <div className="scrit-verify-pill">
-                <span
-                  style={{
-                    position: "relative",
-                    display: "flex",
-                    width: 7,
-                    height: 7,
-                  }}
-                >
-                  <span
-                    style={{
-                      position: "absolute",
-                      width: "100%",
-                      height: "100%",
-                      borderRadius: "50%",
-                      background: "#2e7d32",
-                      opacity: 0.75,
-                    }}
-                    className="animate-ping"
-                  />
-                  <span
-                    style={{
-                      position: "relative",
-                      width: 7,
-                      height: 7,
-                      borderRadius: "50%",
-                      background: "#2e7d32",
-                    }}
-                  />
-                </span>
-                <span style={{ fontWeight: 600 }}>Block #{blockNumber ? blockNumber.toString() : "…"}</span>
-                {blockAgeSecs !== null && (
-                  <span style={{ color: "#8c6418", fontSize: 11 }}>({blockAgeSecs}s ago)</span>
-                )}
-              </div>
-
-              <button
-                type="button"
-                onClick={() => runAllChecks("full")}
-                disabled={isLoading}
-                className="scrit-verify-btn"
-              >
-                <RefreshCw size={13} className={isLoading ? "animate-spin" : ""} />
-                <span>
-                  {isLoading
-                    ? `VERIFYING RPC (${checkedCount}/${TOTAL_ROWS})`
-                    : "RECHECK ALL IN BROWSER"}
-                </span>
-              </button>
-            </div>
-          </div>
+          <h1
+            style={{
+              fontFamily: "var(--font-serif)",
+              fontSize: "clamp(24px, 3.8vw, 44px)",
+              fontWeight: 450,
+              letterSpacing: "-0.035em",
+              margin: "0 0 14px",
+              lineHeight: 1.15,
+              color: "var(--ink)",
+            }}
+          >
+            Every promise. <em>Checked live.</em>
+          </h1>
+          <p
+            style={{
+              color: "#5e645d",
+              fontSize: "clamp(15px, 1.8vw, 17px)",
+              lineHeight: 1.6,
+              margin: 0,
+              maxWidth: 780,
+            }}
+          >
+            Each row is something sCRIT says. Each status is what the chain says.
+            Failing rows stay visible and sort to the top automatically.
+          </p>
         </div>
+
+        {/* Universal Verification Toolbar */}
+        <VerificationToolbar
+          networkName="Robinhood Chain"
+          chainId={4663}
+          blockNumber={blockNumber}
+          blockAgeSecs={blockAgeSecs}
+          onRecheck={() => runAllChecks("full")}
+          isRechecking={isLoading}
+          recheckLabel="RECHECK ALL IN BROWSER"
+          recheckProgressText={`VERIFYING RPC (${checkedCount}/${TOTAL_ROWS})`}
+          subtitle="Continuous Formal Verification · 15 Invariants Evaluated"
+        />
 
         {/* 4-Metric Summary Strip */}
         <div

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { PageShell } from "@/components/PageShell";
+import { VerificationToolbar } from "@/components/VerificationToolbar";
 import { publicClientFor } from "@/lib/scrit-evm";
 import { getCanonicalAddress } from "@/lib/addresses";
 import { decodeHookPermissions } from "@/lib/verify/hook-decoder";
@@ -43,59 +44,61 @@ export default function PairDetailPage() {
   const [pool, setPool] = useState<DiscoveredPool | null>(null);
   const [swaps, setSwaps] = useState<RecentSwap[]>([]);
   const [blockNumber, setBlockNumber] = useState<bigint | null>(null);
+  const [blockAgeSecs, setBlockAgeSecs] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    let mounted = true;
-    async function load() {
-      setIsLoading(true);
-      try {
-        const pools = await discoverPoolsFromChain(4663);
-        const match =
-          pools.find((p) => p.projectToken.toLowerCase() === token) ?? null;
-        if (!mounted) return;
-        if (!match) {
-          setNotFound(true);
-          setIsLoading(false);
-          return;
-        }
-        setPool(match);
-        const client = publicClientFor(4663);
-        const head = await client.getBlockNumber();
-        setBlockNumber(head);
-        const from = match.createdAtBlock > 200000n ? match.createdAtBlock : 0n;
-        const logs = await client
-          .getLogs({
-            address: getCanonicalAddress("PoolManager") as `0x${string}`,
-            event: SWAP_EVENT,
-            args: { id: match.poolId as `0x${string}` },
-            fromBlock: from > head ? head : from,
-            toBlock: head,
-          })
-          .catch(() => []);
-        setSwaps(
-          logs.slice(-10).reverse().map((l) => {
-            const a = l.args as { amount0: bigint; amount1: bigint };
-            return {
-              tx: l.transactionHash,
-              block: l.blockNumber,
-              amount0: BigInt(a.amount0),
-              amount1: BigInt(a.amount1),
-            };
-          })
-        );
-      } catch {
-        if (mounted) setNotFound(true);
-      } finally {
-        if (mounted) setIsLoading(false);
+  async function loadData() {
+    setIsLoading(true);
+    setNotFound(false);
+    try {
+      const pools = await discoverPoolsFromChain(4663);
+      const match =
+        pools.find((p) => p.projectToken.toLowerCase() === token) ?? null;
+      if (!match) {
+        setNotFound(true);
+        setIsLoading(false);
+        return;
       }
+      setPool(match);
+      const client = publicClientFor(4663);
+      const block = await client.getBlock({ blockTag: "latest" });
+      const head = block.number;
+      setBlockNumber(head);
+      setBlockAgeSecs(Math.max(0, Math.floor(Date.now() / 1000) - Number(block.timestamp)));
+      const from = match.createdAtBlock > 200000n ? match.createdAtBlock : 0n;
+      const logs = await client
+        .getLogs({
+          address: getCanonicalAddress("PoolManager") as `0x${string}`,
+          event: SWAP_EVENT,
+          args: { id: match.poolId as `0x${string}` },
+          fromBlock: from > head ? head : from,
+          toBlock: head,
+        })
+        .catch(() => []);
+      setSwaps(
+        logs.slice(-10).reverse().map((l) => {
+          const a = l.args as { amount0: bigint; amount1: bigint };
+          return {
+            tx: l.transactionHash,
+            block: l.blockNumber,
+            amount0: BigInt(a.amount0),
+            amount1: BigInt(a.amount1),
+          };
+        })
+      );
+    } catch {
+      setNotFound(true);
+    } finally {
+      setIsLoading(false);
     }
-    if (token) load();
-    return () => {
-      mounted = false;
-    };
+  }
+
+  useEffect(() => {
+    if (token) {
+      loadData();
+    }
   }, [token]);
 
   const hook = pool ? decodeHookPermissions(pool.hook) : null;
@@ -153,35 +156,65 @@ export default function PairDetailPage() {
             </span>
           </div>
 
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
-            <div>
-              <h1
-                style={{
-                  fontFamily: "var(--font-serif)",
-                  fontSize: "clamp(24px, 3.8vw, 44px)",
-                  fontWeight: 450,
-                  letterSpacing: "-0.035em",
-                  margin: "0 0 10px",
-                  lineHeight: 1.15,
-                  color: "var(--ink)",
-                }}
-              >
-                {pool ? `${pool.tokenSymbol} / $CRIT` : "Pool Verification"} <em>Uniswap V4 Pool</em>
-              </h1>
-              <p
-                style={{
-                  color: "#5e645d",
-                  fontFamily: "var(--font-mono)",
-                  fontSize: 12,
-                  wordBreak: "break-all",
-                  margin: 0,
-                }}
-              >
-                Token: {token} · Verified Block: {blockNumber ? `#${blockNumber.toString()}` : "READING..."}
-              </p>
-            </div>
-          </div>
+          <h1
+            style={{
+              fontFamily: "var(--font-serif)",
+              fontSize: "clamp(24px, 3.8vw, 44px)",
+              fontWeight: 450,
+              letterSpacing: "-0.035em",
+              margin: "0 0 10px",
+              lineHeight: 1.15,
+              color: "var(--ink)",
+            }}
+          >
+            {pool ? `${pool.tokenSymbol} / $CRIT` : "Pool Verification"} <em>Uniswap V4 Pool</em>
+          </h1>
+          <p
+            style={{
+              color: "#5e645d",
+              fontSize: "clamp(14px, 1.6vw, 16px)",
+              lineHeight: 1.5,
+              margin: 0,
+            }}
+          >
+            Cryptographic audit of Uniswap V4 pool state, hook execution, and stockpile tax reconciliation on Robinhood Chain.
+          </p>
         </div>
+
+        {/* Universal Verification Toolbar */}
+        <VerificationToolbar
+          networkName="Robinhood Chain"
+          chainId={4663}
+          blockNumber={blockNumber}
+          blockAgeSecs={blockAgeSecs}
+          onRecheck={loadData}
+          isRechecking={isLoading}
+          recheckLabel="REFRESH POOL PROOFS"
+          recheckProgressText="VERIFYING HOOK &amp; SWAPS..."
+          subtitle={`Pair Token: ${token ? `${token.slice(0, 8)}...${token.slice(-6)}` : "..."} · 0x2044 Hook Enforced`}
+          extraControls={
+            <Link
+              href="/pairs"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "6px 12px",
+                borderRadius: 4,
+                border: "1px solid var(--line-ink)",
+                background: "#ffffff",
+                fontSize: 11,
+                fontFamily: "var(--font-mono)",
+                fontWeight: 700,
+                color: "var(--ink)",
+                textDecoration: "none",
+              }}
+            >
+              <ArrowLeft size={12} />
+              ALL PAIRS
+            </Link>
+          }
+        />
 
         {isLoading && (
           <div

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { PageShell } from "@/components/PageShell";
+import { VerificationToolbar } from "@/components/VerificationToolbar";
 import { publicClientFor } from "@/lib/scrit-evm";
 import { getCanonicalAddress, ADDRESSES } from "@/lib/addresses";
 import {
@@ -129,85 +130,45 @@ export default function PairsPage() {
             </span>
           </div>
 
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
-            <div>
-              <h1
-                style={{
-                  fontFamily: "var(--font-serif)",
-                  fontSize: "clamp(24px, 3.8vw, 44px)",
-                  fontWeight: 450,
-                  letterSpacing: "-0.035em",
-                  margin: "0 0 14px",
-                  lineHeight: 1.15,
-                  color: "var(--ink)",
-                }}
-              >
-                Every stockpile-paired pool. <em>Found by the chain, not by us.</em>
-              </h1>
-              <p
-                style={{
-                  color: "#5e645d",
-                  fontSize: "clamp(15px, 1.8vw, 17px)",
-                  lineHeight: 1.6,
-                  margin: 0,
-                  maxWidth: 780,
-                }}
-              >
-                No allowlist, no curation. If a pool runs the sCRIT hook against $CRIT, it&apos;s here,
-                and so is every wei it sent to the stockpile.
-              </p>
-            </div>
-
-            {/* Actions: Integrated Verification Control Bar */}
-            <div className="scrit-control-bar">
-              <div className="scrit-verify-pill">
-                <span
-                  style={{
-                    position: "relative",
-                    display: "flex",
-                    width: 7,
-                    height: 7,
-                  }}
-                >
-                  <span
-                    style={{
-                      position: "absolute",
-                      width: "100%",
-                      height: "100%",
-                      borderRadius: "50%",
-                      background: "#2e7d32",
-                      opacity: 0.75,
-                    }}
-                    className="animate-ping"
-                  />
-                  <span
-                    style={{
-                      position: "relative",
-                      width: 7,
-                      height: 7,
-                      borderRadius: "50%",
-                      background: "#2e7d32",
-                    }}
-                  />
-                </span>
-                <span style={{ fontWeight: 600 }}>Block #{blockNumber ? blockNumber.toString() : "…"}</span>
-                {blockAgeSecs !== null && (
-                  <span style={{ color: "#8c6418", fontSize: 11 }}>({blockAgeSecs}s ago)</span>
-                )}
-              </div>
-
-              <button
-                type="button"
-                onClick={loadChainData}
-                disabled={isLoading}
-                className="scrit-verify-btn"
-              >
-                <RefreshCw size={13} className={isLoading ? "animate-spin" : ""} />
-                <span>{isLoading ? "SCANNING LOGS..." : "RECHECK IN BROWSER"}</span>
-              </button>
-            </div>
-          </div>
+          <h1
+            style={{
+              fontFamily: "var(--font-serif)",
+              fontSize: "clamp(24px, 3.8vw, 44px)",
+              fontWeight: 450,
+              letterSpacing: "-0.035em",
+              margin: "0 0 14px",
+              lineHeight: 1.15,
+              color: "var(--ink)",
+            }}
+          >
+            Every stockpile-paired pool. <em>Found by the chain, not by us.</em>
+          </h1>
+          <p
+            style={{
+              color: "#5e645d",
+              fontSize: "clamp(15px, 1.8vw, 17px)",
+              lineHeight: 1.6,
+              margin: 0,
+              maxWidth: 780,
+            }}
+          >
+            No allowlist, no curation. If a pool runs the sCRIT hook against $CRIT, it&apos;s here,
+            and so is every wei it sent to the stockpile.
+          </p>
         </div>
+
+        {/* Universal Verification Toolbar */}
+        <VerificationToolbar
+          networkName="Robinhood Chain"
+          chainId={4663}
+          blockNumber={blockNumber}
+          blockAgeSecs={blockAgeSecs}
+          onRecheck={loadChainData}
+          isRechecking={isLoading}
+          recheckLabel="RECHECK IN BROWSER"
+          recheckProgressText="SCANNING LOGS..."
+          subtitle="Direct client-side log scan · Zero curation allowlist"
+        />
 
         {/* Reconciliation Bar (Always Visible) */}
         <div

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { PageShell } from "@/components/PageShell";
+import { VerificationToolbar } from "@/components/VerificationToolbar";
 import { publicClientFor } from "@/lib/scrit-evm";
 import { lookupAddress, getCanonicalAddress } from "@/lib/addresses";
 import {
@@ -365,115 +366,89 @@ function VerifyContent() {
             </span>
           </div>
 
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
-            <div>
-              <h1
-                style={{
-                  fontFamily: "var(--font-serif)",
-                  fontSize: "clamp(24px, 3.8vw, 44px)",
-                  fontWeight: 450,
-                  letterSpacing: "-0.035em",
-                  margin: "0 0 14px",
-                  lineHeight: 1.15,
-                  color: "var(--ink)",
-                }}
-              >
-                Don&apos;t trust the site. <em>Verify the chain.</em>
-              </h1>
-              <p
-                style={{
-                  color: "#5e645d",
-                  fontSize: "clamp(15px, 1.8vw, 17px)",
-                  lineHeight: 1.6,
-                  margin: 0,
-                  maxWidth: 780,
-                }}
-              >
-                Paste a transaction, an address or a custodian attestation. Your browser checks it directly against Robinhood Chain. Nothing is sent to our server.
-              </p>
-            </div>
+          <h1
+            style={{
+              fontFamily: "var(--font-serif)",
+              fontSize: "clamp(24px, 3.8vw, 44px)",
+              fontWeight: 450,
+              letterSpacing: "-0.035em",
+              margin: "0 0 14px",
+              lineHeight: 1.15,
+              color: "var(--ink)",
+            }}
+          >
+            Don&apos;t trust the site. <em>Verify the chain.</em>
+          </h1>
+          <p
+            style={{
+              color: "#5e645d",
+              fontSize: "clamp(15px, 1.8vw, 17px)",
+              lineHeight: 1.6,
+              margin: 0,
+              maxWidth: 780,
+            }}
+          >
+            Paste a transaction, an address or a custodian attestation. Your browser checks it directly against Robinhood Chain. Nothing is sent to our server.
+          </p>
+        </div>
 
-            {/* Network Toggle Deck & Block Pill */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
-              <div
+        {/* Universal Verification Toolbar */}
+        <VerificationToolbar
+          networkName={activeChainId === 4663 ? "Robinhood Mainnet" : "Robinhood Testnet"}
+          chainId={activeChainId}
+          blockNumber={blockNumber}
+          blockAgeSecs={blockAgeSecs}
+          subtitle="Direct browser RPC evaluation · Zero server tracking"
+          extraControls={
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                padding: 3,
+                borderRadius: 4,
+                background: "#faf8f2",
+                border: "1px solid var(--line-ink)",
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => handleNetworkChange(4663)}
                 style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  padding: 3,
-                  borderRadius: 4,
-                  background: "#ffffff",
-                  border: "1px solid var(--line-ink)",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
-                }}
-              >
-                <button
-                  type="button"
-                  onClick={() => handleNetworkChange(4663)}
-                  style={{
-                    padding: "4px 12px",
-                    borderRadius: 3,
-                    border: "none",
-                    fontSize: 11,
-                    fontFamily: "var(--font-mono)",
-                    fontWeight: 700,
-                    cursor: "pointer",
-                    transition: "all 0.15s ease",
-                    background: activeChainId === 4663 ? "var(--ink)" : "transparent",
-                    color: activeChainId === 4663 ? "#faf8f2" : "#636b60",
-                  }}
-                >
-                  MAINNET 4663
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleNetworkChange(46630)}
-                  style={{
-                    padding: "4px 12px",
-                    borderRadius: 3,
-                    border: "none",
-                    fontSize: 11,
-                    fontFamily: "var(--font-mono)",
-                    fontWeight: 700,
-                    cursor: "pointer",
-                    transition: "all 0.15s ease",
-                    background: activeChainId === 46630 ? "var(--ink)" : "transparent",
-                    color: activeChainId === 46630 ? "#faf8f2" : "#636b60",
-                  }}
-                >
-                  TESTNET 46630
-                </button>
-              </div>
-
-              <div
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 7,
-                  padding: "4px 10px",
+                  padding: "4px 12px",
                   borderRadius: 3,
-                  background: "#ffffff",
-                  border: "1px solid var(--line-ink)",
+                  border: "none",
                   fontSize: 11,
                   fontFamily: "var(--font-mono)",
-                  color: "#636b60",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                  background: activeChainId === 4663 ? "var(--ink)" : "transparent",
+                  color: activeChainId === 4663 ? "#faf8f2" : "#636b60",
                 }}
               >
-                <span
-                  style={{
-                    width: 6,
-                    height: 6,
-                    borderRadius: "50%",
-                    background: "#2e7d32",
-                  }}
-                />
-                <span>Block #{blockNumber ? blockNumber.toString() : "…"}</span>
-                {blockAgeSecs !== null && (
-                  <span style={{ color: "#8c6418" }}>({blockAgeSecs}s ago)</span>
-                )}
-              </div>
+                MAINNET 4663
+              </button>
+              <button
+                type="button"
+                onClick={() => handleNetworkChange(46630)}
+                style={{
+                  padding: "4px 12px",
+                  borderRadius: 3,
+                  border: "none",
+                  fontSize: 11,
+                  fontFamily: "var(--font-mono)",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                  background: activeChainId === 46630 ? "var(--ink)" : "transparent",
+                  color: activeChainId === 46630 ? "#faf8f2" : "#636b60",
+                }}
+              >
+                TESTNET 46630
+              </button>
             </div>
-          </div>
-        </div>
+          }
+        />
 
         {/* Quick Sample Presets Bar */}
         <div

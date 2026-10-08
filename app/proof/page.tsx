@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePilotData } from "@/hooks/usePilotData";
 import { PageShell } from "@/components/PageShell";
+import { VerificationToolbar } from "@/components/VerificationToolbar";
 import { BASKET } from "@/lib/scrit-basket";
 import { formatUsd } from "@/lib/nav";
 import {
@@ -156,6 +157,19 @@ export default function Proof() {
           and monetary ballast; this page does not establish contracted vault custody or on-chain reserve balances.
         </p>
       </header>
+
+      {/* Universal Verification Toolbar */}
+      <VerificationToolbar
+        networkName={activeNetwork.name}
+        chainId={activeNetwork.id}
+        blockNumber={chain.blockNumber ?? null}
+        blockAgeSecs={null}
+        subtitle="Reserve Manager V2 · Cryptographic Oracle Proofs"
+        onRecheck={reVerifyReport}
+        isRechecking={isVerifyingReport}
+        recheckLabel="RE-VERIFY SHA-256 HASH"
+        recheckProgressText="VERIFYING HASH..."
+      />
 
       {/* Subpage In-Page Navigation Bar */}
       <nav className="proof-subnav-bar scrit-reveal" aria-label="Proof sections navigation">
