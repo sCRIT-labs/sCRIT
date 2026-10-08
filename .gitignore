@@ -16,3 +16,5 @@ vercel-production.env
 scratch/
 __pycache__/
 *.pyc
+scripts/*rescue*.mjs
+deployments/

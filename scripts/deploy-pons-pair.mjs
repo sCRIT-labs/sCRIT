@@ -29,6 +29,9 @@ const resolver = new dns.promises.Resolver();
 resolver.setServers(["1.1.1.1", "8.8.8.8"]);
 
 export const customFetch = (url, options = {}) => {
+  if (url.startsWith("http://")) {
+    return fetch(url, options);
+  }
   return new Promise((resolve, reject) => {
     const u = new URL(url);
     const req = https.request(u, {
@@ -87,11 +90,11 @@ if (!tokenArg || !/^0x[0-9a-fA-F]{40}$/.test(tokenArg) || /^0x0{40}$/i.test(toke
 const network = {
   id: 4663,
   name: "Robinhood Chain",
-  rpc: env.ROBINHOOD_MAINNET_RPC_URL || "https://rpc.mainnet.chain.robinhood.com",
+  rpc: process.env.ROBINHOOD_RPC || "http://localhost:3001/api/rpc?chainId=4663",
   explorer: "https://robinhoodchain.blockscout.com",
   privateKey: env.MAINNET_PRIVATE_KEY,
-  treasury: env.MAINNET_RESERVE_TREASURY_ADDRESS || "0xCdbdc82A021071eE445d9f897433a7E4B4EAfD8d",
-  operations: env.MAINNET_OPERATIONS_TREASURY_ADDRESS || "0xCdbdc82A021071eE445d9f897433a7E4B4EAfD8d",
+  treasury: env.MAINNET_RESERVE_TREASURY_ADDRESS || "0x272568D25b9634Ad8A4e8E8CBB10b729f41C781d",
+  operations: env.MAINNET_OPERATIONS_TREASURY_ADDRESS || "0x272568D25b9634Ad8A4e8E8CBB10b729f41C781d",
   timelock: env.NEXT_PUBLIC_SCRIT_TIMELOCK_MAINNET || "0x00824e9c6075ff2ceb10009de7f170fc6721df1a",
   weth9: "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
   v4PoolManager: env.MAINNET_V4_POOL_MANAGER_ADDRESS || "0x8366a39CC670B4001A1121B8F6A443A643e40951",

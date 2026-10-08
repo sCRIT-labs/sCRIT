@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { getCanonicalAddress } from "../lib/addresses";
 import {
   filterStockpilePairedPools,
   calculatePoolContribution,
@@ -7,9 +8,9 @@ import {
 } from "../lib/pairs/discovery";
 
 describe("Pairs Discovery - Pool Classification and Reconciliation", () => {
-  const canonicalCrit = "0x351776b6fba6a910c32e46f3775aa946a724d78f";
+  const canonicalCrit = getCanonicalAddress("CRIT");
   const legacyCrit = "0x56073943133c1c0678a753be9402b27d43cf1c22";
-  const canonicalHook = "0x4bbd5c4894b75ddbf215c82304b6c21f9134a044";
+  const canonicalHook = getCanonicalAddress("TradingTaxHook");
   const fakeHook = "0x1111111111111111111111111111111111112044";
 
   const mockPools: DiscoveredPool[] = [

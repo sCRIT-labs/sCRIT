@@ -535,7 +535,7 @@ function VerifyContent() {
             type="button"
             className="launch-chip-btn"
             onClick={() => {
-              const hookAddr = "0x4bbd5c4894b75ddbf215c82304b6c21f9134a044";
+              const hookAddr = "0x60d5fec2f4ac14ef7c48f317bcd287c68ff52044";
               setInputVal(hookAddr);
               handleProcessInput(hookAddr, "addr");
             }}
