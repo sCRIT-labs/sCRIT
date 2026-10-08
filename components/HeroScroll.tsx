@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { ScritCaBadge } from "./ScritCaBadge";
 
 const TICKER_ICONS: Record<string, React.ReactNode> = {
   au: (
@@ -344,6 +345,36 @@ export function HeroScroll() {
           >
             sCRIT is building an on-chain stockpile of <abbr title="Technology-critical elements - the metals modern hardware can't be built without." style={{ textDecoration: "underline dotted", cursor: "help" }}>technology-critical elements (TCEs)</abbr> - led by <abbr title="Heavy rare earth elements - the scarcest, most concentrated rare earths." style={{ textDecoration: "underline dotted", cursor: "help" }}>heavy rare earths (HREE)</abbr>, ballasted by <abbr title="Gold and silver keep the index stable while TCEs move." style={{ textDecoration: "underline dotted", cursor: "help" }}>monetary ballast</abbr>. Every token launched here deepens it. Rail A pairs every launched token against sCRIT. A 2.5% tax on those pools funds <abbr title="An addition to the stockpile, recognised only once a custodian signs." style={{ textDecoration: "underline dotted", cursor: "help" }}>accessions</abbr> to the stockpile - dysprosium and terbium first.
           </p>
+          <div
+            style={{
+              marginTop: 18,
+              display: "flex",
+              justifyContent: "center",
+              pointerEvents: "auto",
+            }}
+          >
+            <ScritCaBadge variant="hero" />
+          </div>
+        </div>
+
+        {/* Layer 2.5: Interactive Hero CA Card */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: isMobile ? "124px" : "154px",
+            left: 0,
+            right: 0,
+            display: "flex",
+            justifyContent: "center",
+            padding: "0 16px",
+            zIndex: 12,
+            pointerEvents: "auto",
+            opacity: cueOpacity,
+            transform: `translateY(${(1 - cueOpacity) * 14}px)`,
+            transition: "opacity 0.08s linear, transform 0.08s linear",
+          }}
+        >
+          <ScritCaBadge variant="hero" />
         </div>
 
         {/* Layer 3: Scroll cue */}
