@@ -7,6 +7,7 @@ import {
   applyTamperDemo,
   computeAttestationDigest,
   recoverAttestationSigner,
+  resolveAttestationChainReads,
   DEMO_SIGNER_ADDRESS,
   SAMPLE_MAINNET_ATTESTATION,
   SAMPLE_TESTNET_ATTESTATION,
@@ -316,5 +317,56 @@ describe("Verify Engine - Transaction Receipt Classifier", () => {
     const result = classifyReceiptLogs(logs);
     expect(result.classification).toBe("Burn");
     expect(result.summary).toBe("700,000 $CRIT sent to 0x...dEaD in block 74475819. These tokens can never move again.");
+  });
+
+  it("resolveAttestationChainReads parses array tuple [scopeMask, active] correctly", async () => {
+    const mockClient: any = {
+      readContract: async ({ functionName }: { functionName: string }) => {
+        if (functionName === "custodians") {
+          // Viem returns array tuple for multi-return Solidity functions
+          return [1, true];
+        }
+        if (functionName === "usedNonce") {
+          return true;
+        }
+        return null;
+      },
+      getBlockNumber: async () => 131000000n,
+      getLogs: async () => [
+        {
+          transactionHash: "0xc66294b99dd81eea21217eebd4161f036facb3602276c30664242fe05fffacc1",
+        },
+      ],
+    };
+
+    const reads = await resolveAttestationChainReads(
+      mockClient,
+      46630,
+      SAMPLE_TESTNET_ATTESTATION,
+      "0x7108142336540d99a1d80b474c48FE388181eEE9"
+    );
+
+    expect(reads.custodian).toEqual({ scopeMask: 1, active: true });
+    expect(reads.nonceUsed).toBe(true);
+    expect(reads.acceptanceTxHash).toBe(
+      "0xc66294b99dd81eea21217eebd4161f036facb3602276c30664242fe05fffacc1"
+    );
+  });
+
+  it("verifyAttestationLocally passes historical settlements even if timestamp is older than 7d", async () => {
+    // 30 days after attestation
+    const futureTime = Number(SAMPLE_TESTNET_ATTESTATION.message.timestamp) + 30 * 86400;
+    const v = await verifyAttestationLocally(SAMPLE_TESTNET_ATTESTATION, {
+      expectedChainId: 46630,
+      currentTimeSeconds: futureTime,
+      custodian: { active: true, scopeMask: 1 },
+      nonceUsed: true,
+      onChainEventFound: true,
+      onChainTxHash: "0xc66294b99dd81eea21217eebd4161f036facb3602276c30664242fe05fffacc1",
+    });
+
+    expect(v.stepResults.step8_ttl).toBe(true);
+    expect(v.steps[7].status).toBe("PASS");
+    expect(v.verdict).toBe("ACCEPTED ON-CHAIN");
   });
 });
