@@ -29,7 +29,7 @@ const realTokens = [
     pooled: "0",
     scrit_amount: "0",
     tx_hash: "0x0000000000000000000000000000000000000000000000000000000000000000",
-    pool_id: null,
+    pool_id: "0xd37335683979b6f2f8f745a18ab6e9edf91d988916b727e3b5852546e3cefff1",
     pool_type: "v4_hook",
     logo_url: null,
     backing_category: "Pons Launched Canonical sCRIT Token",
