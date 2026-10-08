@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useTransition, Suspense } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { PageShell } from "@/components/PageShell";
 import { publicClientFor } from "@/lib/scrit-evm";
 import { lookupAddress, getCanonicalAddress } from "@/lib/addresses";
 import {
@@ -18,6 +19,24 @@ import {
 import { decodeHookPermissions, type DecodedHookPermissions } from "@/lib/verify/hook-decoder";
 import { classifyReceiptLogs, type ClassifiedTransaction } from "@/lib/verify/transaction";
 import { keccak256, formatUnits } from "viem";
+import {
+  ShieldCheck,
+  ShieldAlert,
+  FileCheck2,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  Sparkles,
+  Zap,
+  RefreshCw,
+  ExternalLink,
+  Flame,
+  ArrowRight,
+  Layers,
+  Activity,
+  AlertTriangle,
+  RotateCcw,
+} from "lucide-react";
 
 function VerifyContent() {
   const searchParams = useSearchParams();
@@ -55,7 +74,7 @@ function VerifyContent() {
     let mounted = true;
     async function fetchBlockInfo() {
       try {
-        const client = publicClientFor(4663);
+        const client = publicClientFor(activeChainId);
         const block = await client.getBlock({ blockTag: "latest" });
         if (mounted) {
           setBlockNumber(block.number);
@@ -72,7 +91,7 @@ function VerifyContent() {
       mounted = false;
       clearInterval(interval);
     };
-  }, []);
+  }, [activeChainId]);
 
   // Handle URL query parameters on mount
   useEffect(() => {
@@ -88,8 +107,7 @@ function VerifyContent() {
     }
   }, [searchParams]);
 
-  // Full attestation pipeline: recover signer -> read registry/nonce/logs
-  // from the payload's own chain -> run the 9-step checklist against activeChainId.
+  // Full attestation pipeline
   async function runAttestationVerification(
     payload: EIP712AttestationPayload,
     targetNetwork?: 4663 | 46630
@@ -101,21 +119,18 @@ function VerifyContent() {
     try {
       signer = await recoverAttestationSigner(payload);
     } catch {
-      signer = null;
+      // recovery failed
     }
 
     let custodian: { active: boolean; scopeMask: number } | null = null;
     let nonceUsed: boolean | null = null;
     let acceptanceTxHash: `0x${string}` | null = null;
+
     if (signer) {
-      try {
-        const reads = await resolveAttestationChainReads(client, chainId, payload, signer);
-        custodian = reads.custodian;
-        nonceUsed = reads.nonceUsed;
-        acceptanceTxHash = reads.acceptanceTxHash;
-      } catch {
-        // Reads stay null -> checklist shows PENDING, never assumed.
-      }
+      const chainReads = await resolveAttestationChainReads(client, chainId, payload, signer);
+      custodian = chainReads.custodian;
+      nonceUsed = chainReads.nonceUsed;
+      acceptanceTxHash = chainReads.acceptanceTxHash;
     }
 
     return verifyAttestationLocally(payload, {
@@ -175,12 +190,11 @@ function VerifyContent() {
         setOriginalAttestation(parsed);
         setIsTampered(false);
 
-        // Full pipeline: signer recovery + live registry/nonce/event reads.
         const result = await runAttestationVerification(parsed, activeChainId);
         setAttestationResult(result);
       } else if (mode === "tx") {
         router.replace(`/verify?tx=${trimmed}`, { scroll: false });
-        const client = publicClientFor(4663);
+        const client = publicClientFor(activeChainId);
         let receipt = null;
         try {
           receipt = await client.getTransactionReceipt({ hash: trimmed as `0x${string}` });
@@ -203,7 +217,7 @@ function VerifyContent() {
           trimmed.toLowerCase() ===
           "0xac25ded31eb3ec73030ba6da747cba55ca0d6e5d03a119e71ec91244e8c56fa7".toLowerCase()
         ) {
-          // Canonical Week-3 initial burn transaction fallback for pruned non-archive public RPC
+          // Canonical initial burn transaction fallback for pruned non-archive public RPC
           const deadBal = await client
             .readContract({
               address: getCanonicalAddress("CRIT"),
@@ -256,13 +270,11 @@ function VerifyContent() {
         const lookup = lookupAddress(trimmed);
         setAddressLookup(lookup);
 
-        // Check if hook (ends with 2044 or contains hook flags)
         const hookInfo = decodeHookPermissions(trimmed);
         setHookDecoded(hookInfo);
 
-        // Live code hash via RPC
         try {
-          const client = publicClientFor(4663);
+          const client = publicClientFor(activeChainId);
           const bytecode = await client.getBytecode({ address: trimmed as `0x${string}` });
           if (bytecode) {
             const hash = keccak256(bytecode);
@@ -284,17 +296,14 @@ function VerifyContent() {
     }
   }
 
-  // Tamper demo trigger (re-runs the full pipeline: a new mass recovers a
-  // new signer, so registry/nonce/event reads resolve against the new key).
+  // Tamper demo trigger
   async function handleTamperDemo() {
     if (!attestationPayload) return;
     if (isTampered && originalAttestation) {
-      // Revert to original
       setAttestationPayload(originalAttestation);
       setIsTampered(false);
       setAttestationResult(await runAttestationVerification(originalAttestation, activeChainId));
     } else {
-      // Tamper +1g
       const tampered = applyTamperDemo(attestationPayload, 1);
       setAttestationPayload(tampered);
       setIsTampered(true);
@@ -304,166 +313,284 @@ function VerifyContent() {
   }
 
   return (
-    <div className="scrit-proof-page" style={{ minHeight: "100vh", padding: "100px 24px 80px" }}>
-      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-        {/* Header / Hero */}
-        <div style={{ marginBottom: 40, borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: 28 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+    <PageShell>
+      <div style={{ width: "100%", paddingBottom: 60 }}>
+        {/* Editorial Header */}
+        <div style={{ maxWidth: 1100, marginBottom: 28 }}>
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "4px 12px",
+              borderRadius: 2,
+              background: "rgba(83, 103, 83, 0.08)",
+              border: "1px solid rgba(83, 103, 83, 0.2)",
+              marginBottom: 14,
+            }}
+          >
+            <Sparkles size={13} color="var(--moss)" />
             <span
               style={{
-                fontFamily: "var(--font-mono, monospace)",
                 fontSize: 11,
-                letterSpacing: "0.14em",
-                color: "#e6b43b",
-                background: "rgba(230,180,59,0.1)",
-                padding: "3px 8px",
-                borderRadius: 4,
-                border: "1px solid rgba(230,180,59,0.3)",
+                fontFamily: "var(--font-mono)",
+                color: "var(--moss)",
+                fontWeight: 700,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
               }}
             >
-              INDEPENDENT CRYPTOGRAPHIC AUDIT
-            </span>
-
-            {/* Network Selector Toggle */}
-            <div
-              style={{
-                display: "inline-flex",
-                borderRadius: 4,
-                overflow: "hidden",
-                border: "1px solid rgba(255,255,255,0.15)",
-                background: "rgba(0,0,0,0.3)",
-              }}
-            >
-              <button
-                type="button"
-                onClick={() => handleNetworkChange(4663)}
-                style={{
-                  background: activeChainId === 4663 ? "#e6b43b" : "transparent",
-                  color: activeChainId === 4663 ? "#121411" : "rgba(255,255,255,0.6)",
-                  fontFamily: "var(--font-mono, monospace)",
-                  fontSize: 11,
-                  fontWeight: activeChainId === 4663 ? 700 : 500,
-                  padding: "3px 10px",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                MAINNET 4663
-              </button>
-              <button
-                type="button"
-                onClick={() => handleNetworkChange(46630)}
-                style={{
-                  background: activeChainId === 46630 ? "#e6b43b" : "transparent",
-                  color: activeChainId === 46630 ? "#121411" : "rgba(255,255,255,0.6)",
-                  fontFamily: "var(--font-mono, monospace)",
-                  fontSize: 11,
-                  fontWeight: activeChainId === 46630 ? 700 : 500,
-                  padding: "3px 10px",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                TESTNET 46630
-              </button>
-            </div>
-
-            <span
-              style={{
-                fontFamily: "var(--font-mono, monospace)",
-                fontSize: 11,
-                color: "rgba(255,255,255,0.45)",
-              }}
-            >
-              CLIENT-SIDE TRUTH
+              Cryptographic Verification · Client-Side Execution
             </span>
           </div>
 
-          <h1
-            style={{
-              fontSize: "clamp(28px, 4vw, 42px)",
-              fontWeight: 700,
-              letterSpacing: "-0.02em",
-              color: "#ffffff",
-              margin: "0 0 12px",
-            }}
-          >
-            Don&apos;t trust the site. Verify the chain.
-          </h1>
-          <p
-            style={{
-              fontSize: 16,
-              color: "rgba(255,255,255,0.7)",
-              maxWidth: 760,
-              lineHeight: 1.6,
-              margin: 0,
-            }}
-          >
-            Paste a transaction, an address, or a custodian attestation. Your browser checks it
-            directly against Robinhood Chain. Nothing is sent to our server.
-          </p>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
+            <div>
+              <h1
+                style={{
+                  fontFamily: "var(--font-serif)",
+                  fontSize: "clamp(24px, 3.8vw, 44px)",
+                  fontWeight: 450,
+                  letterSpacing: "-0.035em",
+                  margin: "0 0 14px",
+                  lineHeight: 1.15,
+                  color: "var(--ink)",
+                }}
+              >
+                Don&apos;t trust the site. <em>Verify the chain.</em>
+              </h1>
+              <p
+                style={{
+                  color: "#5e645d",
+                  fontSize: "clamp(15px, 1.8vw, 17px)",
+                  lineHeight: 1.6,
+                  margin: 0,
+                  maxWidth: 780,
+                }}
+              >
+                Paste a transaction, an address or a custodian attestation. Your browser checks it directly against Robinhood Chain. Nothing is sent to our server.
+              </p>
+            </div>
 
-          {/* Block age indicator */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 16,
-              marginTop: 18,
-              fontFamily: "var(--font-mono, monospace)",
-              fontSize: 12,
-              color: "rgba(255,255,255,0.5)",
-            }}
-          >
-            <span>
-              LATEST BLOCK:{" "}
-              <b style={{ color: "#ffffff" }}>
-                {blockNumber ? `#${blockNumber.toString()}` : "CONNECTING..."}
-              </b>
-            </span>
-            <span>·</span>
-            <span>
-              BLOCK AGE:{" "}
-              <b style={{ color: blockAgeSecs !== null ? "#3dd68c" : "inherit" }}>
-                {blockAgeSecs !== null ? `${blockAgeSecs}s ago` : "UNKNOWN"}
-              </b>
-            </span>
+            {/* Network Toggle Deck & Block Pill */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  padding: 3,
+                  borderRadius: 4,
+                  background: "#ffffff",
+                  border: "1px solid var(--line-ink)",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => handleNetworkChange(4663)}
+                  style={{
+                    padding: "4px 12px",
+                    borderRadius: 3,
+                    border: "none",
+                    fontSize: 11,
+                    fontFamily: "var(--font-mono)",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    transition: "all 0.15s ease",
+                    background: activeChainId === 4663 ? "var(--ink)" : "transparent",
+                    color: activeChainId === 4663 ? "#faf8f2" : "#636b60",
+                  }}
+                >
+                  MAINNET 4663
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleNetworkChange(46630)}
+                  style={{
+                    padding: "4px 12px",
+                    borderRadius: 3,
+                    border: "none",
+                    fontSize: 11,
+                    fontFamily: "var(--font-mono)",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    transition: "all 0.15s ease",
+                    background: activeChainId === 46630 ? "var(--ink)" : "transparent",
+                    color: activeChainId === 46630 ? "#faf8f2" : "#636b60",
+                  }}
+                >
+                  TESTNET 46630
+                </button>
+              </div>
+
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 7,
+                  padding: "4px 10px",
+                  borderRadius: 3,
+                  background: "#ffffff",
+                  border: "1px solid var(--line-ink)",
+                  fontSize: 11,
+                  fontFamily: "var(--font-mono)",
+                  color: "#636b60",
+                }}
+              >
+                <span
+                  style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: "50%",
+                    background: "#2e7d32",
+                  }}
+                />
+                <span>Block #{blockNumber ? blockNumber.toString() : "…"}</span>
+                {blockAgeSecs !== null && (
+                  <span style={{ color: "#8c6418" }}>({blockAgeSecs}s ago)</span>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Unified Input Box */}
+        {/* Quick Sample Presets Bar */}
         <div
           style={{
-            background: "rgba(18,20,18,0.7)",
-            border: "1px solid rgba(255,255,255,0.12)",
-            borderRadius: 8,
-            padding: 24,
-            marginBottom: 32,
-            boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            flexWrap: "wrap",
+            marginBottom: 24,
+            padding: "10px 14px",
+            background: "#faf8f2",
+            border: "1px solid var(--line-ink)",
+            borderRadius: 6,
           }}
         >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-            <label
-              style={{
-                fontFamily: "var(--font-mono, monospace)",
-                fontSize: 12,
-                color: "#e6b43b",
-                letterSpacing: "0.08em",
-                fontWeight: 600,
-              }}
-            >
-              UNIFIED VERIFICATION INPUT (TX HASH / CONTRACT ADDRESS / EIP-712 JSON)
-            </label>
+          <span
+            style={{
+              fontSize: 11,
+              fontFamily: "var(--font-mono)",
+              fontWeight: 700,
+              color: "var(--muted)",
+              letterSpacing: "0.06em",
+              textTransform: "uppercase",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <Zap size={13} color="var(--signal)" />
+            Quick Presets:
+          </span>
+
+          <button
+            type="button"
+            className="launch-chip-btn"
+            onClick={() => {
+              const burnTx = "0xac25ded31eb3ec73030ba6da747cba55ca0d6e5d03a119e71ec91244e8c56fa7";
+              setInputVal(burnTx);
+              handleProcessInput(burnTx, "tx");
+            }}
+          >
+            <span>Burn Tx (700,000 $CRIT)</span>
+          </button>
+
+          <button
+            type="button"
+            className="launch-chip-btn"
+            onClick={() => {
+              const sampleStr = JSON.stringify(SAMPLE_MAINNET_ATTESTATION, null, 2);
+              setInputVal(sampleStr);
+              handleProcessInput(sampleStr, "attestation");
+            }}
+          >
+            <span>Attestation (Mainnet 4663)</span>
+          </button>
+
+          <button
+            type="button"
+            className="launch-chip-btn"
+            onClick={() => {
+              const sampleStr = JSON.stringify(SAMPLE_TESTNET_ATTESTATION, null, 2);
+              setInputVal(sampleStr);
+              handleProcessInput(sampleStr, "attestation");
+            }}
+          >
+            <span>Attestation (Testnet 46630)</span>
+          </button>
+
+          <button
+            type="button"
+            className="launch-chip-btn"
+            onClick={() => {
+              const hookAddr = "0x4bbd5c4894b75ddbf215c82304b6c21f9134a044";
+              setInputVal(hookAddr);
+              handleProcessInput(hookAddr, "addr");
+            }}
+          >
+            <span>Hook (0x2044)</span>
+          </button>
+
+          <button
+            type="button"
+            className="launch-chip-btn"
+            onClick={() => {
+              const legacyAddr = "0x56073943133c1c0678a753be9402b27d43cf1c22";
+              setInputVal(legacyAddr);
+              handleProcessInput(legacyAddr, "addr");
+            }}
+            style={{
+              color: "#b71c1c",
+              borderColor: "rgba(211, 47, 47, 0.3)",
+              background: "#fdf2f2",
+            }}
+          >
+            <span>Deprecated Token</span>
+          </button>
+        </div>
+
+        {/* Primary Verification Console Card */}
+        <div
+          style={{
+            background: "#ffffff",
+            border: "1px solid var(--line-ink)",
+            borderRadius: 6,
+            boxShadow: "0 4px 24px rgba(0,0,0,0.04)",
+            overflow: "hidden",
+            marginBottom: 32,
+          }}
+        >
+          {/* Card Sub-header */}
+          <div
+            style={{
+              padding: "14px 18px",
+              borderBottom: "1px solid var(--line-ink)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              background: "#faf8f2",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <ShieldCheck size={16} color="var(--signal)" />
+              <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: "-0.01em", color: "var(--ink)" }}>
+                Universal On-Chain Verification Console
+              </span>
+            </div>
+
             {detectedType !== "unknown" && (
               <span
                 style={{
-                  fontFamily: "var(--font-mono, monospace)",
                   fontSize: 11,
+                  fontFamily: "var(--font-mono)",
+                  fontWeight: 700,
                   padding: "2px 8px",
-                  borderRadius: 4,
-                  background: "rgba(61,214,140,0.12)",
-                  color: "#3dd68c",
-                  border: "1px solid rgba(61,214,140,0.3)",
+                  borderRadius: 3,
+                  background: "#f0f7f1",
+                  color: "#1b5e20",
+                  border: "1px solid rgba(46, 125, 50, 0.25)",
                 }}
               >
                 DETECTED: {detectedType.toUpperCase()}
@@ -471,207 +598,131 @@ function VerifyContent() {
             )}
           </div>
 
-          <textarea
-            value={inputVal}
-            onChange={(e) => {
-              setInputVal(e.target.value);
-              setDetectedType(detectInputMode(e.target.value));
-            }}
-            placeholder="Paste 0x... (tx hash or address) or paste EIP-712 custodian JSON payload"
-            rows={inputVal.includes("\n") || inputVal.length > 80 ? 5 : 2}
-            style={{
-              width: "100%",
-              background: "#0c0e0c",
-              border: "1px solid rgba(255,255,255,0.15)",
-              borderRadius: 6,
-              color: "#f0f2f0",
-              fontFamily: "var(--font-mono, monospace)",
-              fontSize: 13,
-              padding: "12px 14px",
-              outline: "none",
-              resize: "vertical",
-              marginBottom: 16,
-            }}
-          />
+          {/* Card Body */}
+          <div style={{ padding: "20px 24px" }}>
+            <textarea
+              value={inputVal}
+              onChange={(e) => {
+                setInputVal(e.target.value);
+                setDetectedType(detectInputMode(e.target.value));
+              }}
+              placeholder="Paste 0x... (64-char transaction hash or 40-char contract address) or paste EIP-712 custodian JSON payload"
+              rows={inputVal.includes("\n") || inputVal.length > 80 ? 5 : 2}
+              className="field"
+              style={{
+                width: "100%",
+                background: "#ffffff",
+                border: "1px solid rgba(24, 26, 24, 0.2)",
+                borderRadius: 4,
+                color: "var(--ink)",
+                fontFamily: "var(--font-mono)",
+                fontSize: 13,
+                padding: "12px 14px",
+                outline: "none",
+                resize: "vertical",
+                marginBottom: 16,
+                boxSizing: "border-box",
+              }}
+            />
 
-          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-            {/* Quick Sample Presets */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
-              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-mono, monospace)" }}>
-                QUICK SAMPLES:
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+              <span style={{ fontSize: 11, color: "#7d8479", fontFamily: "var(--font-mono)" }}>
+                * Client-side RPC reads. Testnet sample attestation demonstrates Step 2 chain gating on Mainnet mode.
               </span>
 
-              <button
-                type="button"
-                onClick={() => {
-                  const burnTx = "0xac25ded31eb3ec73030ba6da747cba55ca0d6e5d03a119e71ec91244e8c56fa7";
-                  setInputVal(burnTx);
-                  handleProcessInput(burnTx, "tx");
-                }}
-                style={{
-                  background: "rgba(255,255,255,0.06)",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  color: "#e6b43b",
-                  fontFamily: "var(--font-mono, monospace)",
-                  fontSize: 11,
-                  padding: "4px 8px",
-                  borderRadius: 4,
-                  cursor: "pointer",
-                }}
-              >
-                Burn Tx (700,000 $CRIT)
-              </button>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                {inputVal && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setInputVal("");
+                      setDetectedType("unknown");
+                      setAttestationResult(null);
+                      setClassifiedTx(null);
+                      setAddressLookup(null);
+                      setHookDecoded(null);
+                      setErrorMsg(null);
+                    }}
+                    className="btn btn-ghost"
+                    style={{
+                      padding: "8px 14px",
+                      fontSize: 11.5,
+                      borderRadius: 4,
+                    }}
+                  >
+                    Clear
+                  </button>
+                )}
 
-              <button
-                type="button"
-                onClick={() => {
-                  const sampleStr = JSON.stringify(SAMPLE_MAINNET_ATTESTATION, null, 2);
-                  setInputVal(sampleStr);
-                  handleProcessInput(sampleStr, "attestation");
-                }}
-                style={{
-                  background: "rgba(255,255,255,0.06)",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  color: "#cbd5e1",
-                  fontFamily: "var(--font-mono, monospace)",
-                  fontSize: 11,
-                  padding: "4px 8px",
-                  borderRadius: 4,
-                  cursor: "pointer",
-                }}
-              >
-                Attestation (Mainnet 4663)
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  const sampleStr = JSON.stringify(SAMPLE_TESTNET_ATTESTATION, null, 2);
-                  setInputVal(sampleStr);
-                  handleProcessInput(sampleStr, "attestation");
-                }}
-                style={{
-                  background: "rgba(255,255,255,0.06)",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  color: "#cbd5e1",
-                  fontFamily: "var(--font-mono, monospace)",
-                  fontSize: 11,
-                  padding: "4px 8px",
-                  borderRadius: 4,
-                  cursor: "pointer",
-                }}
-              >
-                Attestation (Testnet 46630)
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  const hookAddr = "0x4bbd5c4894b75ddbf215c82304b6c21f9134a044";
-                  setInputVal(hookAddr);
-                  handleProcessInput(hookAddr, "addr");
-                }}
-                style={{
-                  background: "rgba(255,255,255,0.06)",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  color: "#cbd5e1",
-                  fontFamily: "var(--font-mono, monospace)",
-                  fontSize: 11,
-                  padding: "4px 8px",
-                  borderRadius: 4,
-                  cursor: "pointer",
-                }}
-              >
-                Hook (0x2044)
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  const legacyAddr = "0x56073943133c1c0678a753be9402b27d43cf1c22";
-                  setInputVal(legacyAddr);
-                  handleProcessInput(legacyAddr, "addr");
-                }}
-                style={{
-                  background: "rgba(255,75,75,0.12)",
-                  border: "1px solid rgba(255,75,75,0.3)",
-                  color: "#ff6b6b",
-                  fontFamily: "var(--font-mono, monospace)",
-                  fontSize: 11,
-                  padding: "4px 8px",
-                  borderRadius: 4,
-                  cursor: "pointer",
-                }}
-              >
-                Deprecated Token
-              </button>
+                <button
+                  type="button"
+                  onClick={() => handleProcessInput(inputVal)}
+                  disabled={isLoading || !inputVal.trim()}
+                  className="btn btn-gold"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "9px 20px",
+                    borderRadius: 4,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    letterSpacing: "0.04em",
+                    cursor: isLoading ? "wait" : "pointer",
+                    opacity: isLoading || !inputVal.trim() ? 0.6 : 1,
+                  }}
+                >
+                  {isLoading ? <RefreshCw className="animate-spin" size={13} /> : <Zap size={13} />}
+                  <span>{isLoading ? "VERIFYING IN BROWSER..." : "VERIFY IN BROWSER"}</span>
+                </button>
+              </div>
             </div>
 
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-mono, monospace)", marginTop: 8 }}>
-              Sample testnet attestation (chain 46630): on Mainnet mode it fails Step 2 (&quot;chainId mismatch&quot;). Switch to Testnet mode to demo on-chain acceptance.
-            </div>
-
-            <button
-              type="button"
-              onClick={() => handleProcessInput(inputVal)}
-              disabled={isLoading || !inputVal.trim()}
-              style={{
-                background: "#e6b43b",
-                color: "#121411",
-                border: "none",
-                fontWeight: 700,
-                fontSize: 13,
-                fontFamily: "var(--font-mono, monospace)",
-                padding: "8px 20px",
-                borderRadius: 4,
-                cursor: isLoading ? "wait" : "pointer",
-                opacity: isLoading || !inputVal.trim() ? 0.6 : 1,
-              }}
-            >
-              {isLoading ? "VERIFYING IN BROWSER..." : "VERIFY IN BROWSER"}
-            </button>
+            {errorMsg && (
+              <div
+                style={{
+                  marginTop: 16,
+                  padding: "12px 16px",
+                  background: "#fdf2f2",
+                  border: "1px solid rgba(211, 47, 47, 0.3)",
+                  color: "#b71c1c",
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 12,
+                  borderRadius: 4,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                }}
+              >
+                <AlertTriangle size={15} />
+                <span>{errorMsg}</span>
+              </div>
+            )}
           </div>
-
-          {errorMsg && (
-            <div
-              style={{
-                marginTop: 16,
-                padding: "10px 14px",
-                background: "rgba(255,75,75,0.12)",
-                border: "1px solid rgba(255,75,75,0.3)",
-                color: "#ff7b7b",
-                fontFamily: "var(--font-mono, monospace)",
-                fontSize: 12,
-                borderRadius: 4,
-              }}
-            >
-              ✗ {errorMsg}
-            </div>
-          )}
         </div>
 
         {/* RESULTS SECTION */}
 
         {/* 1. ATTESTATION MODE RESULTS */}
         {detectedType === "attestation" && attestationResult && (
-          <div style={{ marginTop: 32 }}>
-            {/* Verdict Header */}
+          <div style={{ marginTop: 24 }}>
+            {/* Verdict Card */}
             <div
               style={{
                 background:
                   attestationResult.verdict === "ACCEPTED ON-CHAIN"
-                    ? "rgba(61,214,140,0.12)"
+                    ? "#f0f7f1"
                     : attestationResult.verdict === "VALID SIGNATURE, NOT SUBMITTED"
-                    ? "rgba(230,180,59,0.12)"
-                    : "rgba(255,75,75,0.12)",
+                    ? "#fdf6e8"
+                    : "#fdf2f2",
                 border: `1px solid ${
                   attestationResult.verdict === "ACCEPTED ON-CHAIN"
-                    ? "#3dd68c"
+                    ? "rgba(46, 125, 50, 0.3)"
                     : attestationResult.verdict === "VALID SIGNATURE, NOT SUBMITTED"
-                    ? "#e6b43b"
-                    : "#ff4b4b"
+                    ? "rgba(184, 134, 11, 0.35)"
+                    : "rgba(211, 47, 47, 0.3)"
                 }`,
-                borderRadius: 8,
+                borderRadius: 6,
                 padding: 24,
                 marginBottom: 24,
                 display: "flex",
@@ -679,85 +730,102 @@ function VerifyContent() {
                 justifyContent: "space-between",
                 alignItems: "center",
                 gap: 16,
+                boxShadow: "0 2px 12px rgba(0,0,0,0.03)",
               }}
             >
               <div>
                 <span
                   style={{
-                    fontFamily: "var(--font-mono, monospace)",
+                    fontFamily: "var(--font-mono)",
                     fontSize: 11,
-                    letterSpacing: "0.1em",
-                    color: "rgba(255,255,255,0.6)",
+                    letterSpacing: "0.08em",
+                    color:
+                      attestationResult.verdict === "ACCEPTED ON-CHAIN"
+                        ? "#1b5e20"
+                        : attestationResult.verdict === "VALID SIGNATURE, NOT SUBMITTED"
+                        ? "#8a5d00"
+                        : "#b71c1c",
+                    textTransform: "uppercase",
+                    fontWeight: 700,
                   }}
                 >
-                  VERIFICATION VERDICT
+                  Cryptographic Verdict
                 </span>
                 <h2
                   style={{
                     margin: "4px 0",
-                    fontSize: 24,
+                    fontSize: 22,
                     fontWeight: 700,
-                    color:
-                      attestationResult.verdict === "ACCEPTED ON-CHAIN"
-                        ? "#3dd68c"
-                        : attestationResult.verdict === "VALID SIGNATURE, NOT SUBMITTED"
-                        ? "#e6b43b"
-                        : "#ff4b4b",
+                    fontFamily: "var(--font-serif)",
+                    color: "var(--ink)",
                   }}
                 >
                   {attestationResult.verdict}
                 </h2>
                 {attestationResult.verdictReason && (
-                  <p style={{ margin: "4px 0 0", color: "#ff8b8b", fontSize: 13 }}>
+                  <p style={{ margin: "4px 0 0", color: "#b71c1c", fontSize: 13, fontWeight: 500 }}>
                     {attestationResult.verdictReason}
                   </p>
                 )}
               </div>
 
-              {/* Tamper Demo Interactive Button */}
-              <div style={{ display: "flex", gap: 10 }}>
+              {/* Tamper Demo Action */}
+              <div>
                 <button
                   type="button"
                   onClick={handleTamperDemo}
                   style={{
-                    background: isTampered ? "rgba(255,75,75,0.2)" : "rgba(230,180,59,0.2)",
-                    border: `1px solid ${isTampered ? "#ff4b4b" : "#e6b43b"}`,
-                    color: isTampered ? "#ff6b6b" : "#e6b43b",
-                    fontFamily: "var(--font-mono, monospace)",
-                    fontWeight: 600,
-                    fontSize: 12,
+                    background: isTampered ? "#fdf2f2" : "#fdf6e8",
+                    border: `1px solid ${isTampered ? "rgba(211, 47, 47, 0.4)" : "rgba(184, 134, 11, 0.4)"}`,
+                    color: isTampered ? "#b71c1c" : "#8a5d00",
+                    fontFamily: "var(--font-mono)",
+                    fontWeight: 700,
+                    fontSize: 11.5,
                     padding: "8px 16px",
                     borderRadius: 4,
                     cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    transition: "all 0.15s ease",
                   }}
                 >
-                  {isTampered ? "↺ Reset Original Mass" : "⚡ Tamper Demo: Change +1 Gram"}
+                  <Sparkles size={13} />
+                  <span>{isTampered ? "Reset Original Mass (100g)" : "Tamper Demo: Change +1 Gram"}</span>
                 </button>
               </div>
             </div>
 
-            {/* Checklist Steps (1 to 9) */}
+            {/* 9-Step Checklist Card */}
             <div
               style={{
-                background: "rgba(18,20,18,0.7)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: 8,
+                background: "#ffffff",
+                border: "1px solid var(--line-ink)",
+                borderRadius: 6,
+                boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
                 padding: 24,
               }}
             >
-              <h3
-                style={{
-                  fontFamily: "var(--font-mono, monospace)",
-                  fontSize: 13,
-                  color: "#e6b43b",
-                  letterSpacing: "0.08em",
-                  margin: "0 0 16px",
-                }}
-              >
-                9-STEP CRYPTOGRAPHIC VERIFICATION CHECKLIST
-              </h3>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, paddingBottom: 12, borderBottom: "1px solid var(--line-ink)" }}>
+                <h3
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: 12,
+                    color: "var(--ink)",
+                    letterSpacing: "0.08em",
+                    margin: 0,
+                    textTransform: "uppercase",
+                    fontWeight: 700,
+                  }}
+                >
+                  9-Step Cryptographic Verification Pipeline
+                </h3>
+                <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "#7d8479" }}>
+                  All 9 checks executed locally
+                </span>
+              </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {attestationResult.steps.map((step) => (
                   <div
                     key={step.id}
@@ -767,68 +835,74 @@ function VerifyContent() {
                       justifyContent: "space-between",
                       gap: 16,
                       padding: "12px 16px",
-                      background: "rgba(255,255,255,0.02)",
-                      border: "1px solid rgba(255,255,255,0.06)",
-                      borderRadius: 6,
+                      background: "#faf8f2",
+                      border: "1px solid var(--line-ink)",
+                      borderRadius: 4,
                     }}
                   >
                     <div style={{ flex: 1 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
                         <span
                           style={{
-                            fontFamily: "var(--font-mono, monospace)",
-                            fontSize: 11,
-                            color: "rgba(255,255,255,0.4)",
+                            fontFamily: "var(--font-mono)",
+                            fontSize: 10.5,
+                            color: "#7d8479",
+                            fontWeight: 700,
                           }}
                         >
-                          STEP {step.id}
+                          STEP {String(step.id).padStart(2, "0")}
                         </span>
-                        <strong style={{ fontSize: 13, color: "#ffffff" }}>{step.label}</strong>
+                        <strong style={{ fontSize: 13, color: "var(--ink)", fontWeight: 600 }}>{step.label}</strong>
                       </div>
                       <div
                         style={{
-                          fontFamily: "var(--font-mono, monospace)",
+                          fontFamily: "var(--font-mono)",
                           fontSize: 12,
-                          color: "#cbd5e1",
+                          color: "#181a18",
                           wordBreak: "break-all",
                           marginBottom: 4,
+                          background: "#f4f1e8",
+                          padding: "4px 8px",
+                          borderRadius: 3,
+                          border: "1px solid rgba(24, 26, 24, 0.08)",
+                          display: "inline-block",
                         }}
                       >
                         {step.valueText}
                       </div>
                       {step.detail && (
-                        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>
+                        <div style={{ fontSize: 12, color: "#5e645d", marginTop: 4 }}>
                           {step.detail}
                         </div>
                       )}
                     </div>
 
-                    <div style={{ minWidth: 80, textAlign: "right" }}>
+                    <div style={{ minWidth: 90, textAlign: "right" }}>
                       <span
                         style={{
-                          fontFamily: "var(--font-mono, monospace)",
+                          fontFamily: "var(--font-mono)",
                           fontSize: 11,
                           fontWeight: 700,
-                          padding: "2px 8px",
-                          borderRadius: 4,
+                          padding: "3px 8px",
+                          borderRadius: 3,
                           background:
                             step.status === "PASS"
-                              ? "rgba(61,214,140,0.12)"
+                              ? "#f0f7f1"
                               : step.status === "FAIL"
-                              ? "rgba(255,75,75,0.12)"
-                              : "rgba(255,255,255,0.08)",
+                              ? "#fdf2f2"
+                              : "#f4f3ee",
                           color:
                             step.status === "PASS"
-                              ? "#3dd68c"
+                              ? "#1b5e20"
                               : step.status === "FAIL"
-                              ? "#ff4b4b"
-                              : "#94a3b8",
+                              ? "#b71c1c"
+                              : "#555d54",
                           border: `1px solid ${
                             step.status === "PASS"
-                              ? "rgba(61,214,140,0.3)"
+                              ? "rgba(46, 125, 50, 0.3)"
                               : step.status === "FAIL"
-                              ? "rgba(255,75,75,0.3)"
-                              : "rgba(255,255,255,0.12)"
+                              ? "rgba(211, 47, 47, 0.3)"
+                              : "rgba(24, 26, 24, 0.12)"
                           }`,
                         }}
                       >
@@ -844,12 +918,13 @@ function VerifyContent() {
 
         {/* 2. TRANSACTION MODE RESULTS */}
         {detectedType === "tx" && classifiedTx && (
-          <div style={{ marginTop: 32 }}>
+          <div style={{ marginTop: 24 }}>
             <div
               style={{
-                background: "rgba(18,20,18,0.7)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: 8,
+                background: "#ffffff",
+                border: "1px solid var(--line-ink)",
+                borderRadius: 6,
+                boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
                 padding: 24,
                 marginBottom: 24,
               }}
@@ -857,35 +932,45 @@ function VerifyContent() {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                 <span
                   style={{
-                    fontFamily: "var(--font-mono, monospace)",
+                    fontFamily: "var(--font-mono)",
                     fontSize: 11,
-                    letterSpacing: "0.1em",
-                    color: "rgba(255,255,255,0.5)",
+                    letterSpacing: "0.08em",
+                    color: "var(--muted)",
+                    textTransform: "uppercase",
+                    fontWeight: 700,
                   }}
                 >
-                  TRANSACTION CLASSIFICATION
+                  Transaction Classification
                 </span>
                 <span
                   style={{
-                    fontFamily: "var(--font-mono, monospace)",
-                    fontSize: 12,
+                    fontFamily: "var(--font-mono)",
+                    fontSize: 11,
                     fontWeight: 700,
                     padding: "3px 10px",
-                    borderRadius: 4,
+                    borderRadius: 3,
                     background:
                       classifiedTx.classification === "Burn"
-                        ? "rgba(230,180,59,0.15)"
-                        : "rgba(61,214,140,0.15)",
-                    color:
-                      classifiedTx.classification === "Burn" ? "#e6b43b" : "#3dd68c",
-                    border: "1px solid currentColor",
+                        ? "#fdf6e8"
+                        : "#f0f7f1",
+                    color: classifiedTx.classification === "Burn" ? "#8a5d00" : "#1b5e20",
+                    border: `1px solid ${classifiedTx.classification === "Burn" ? "rgba(184, 134, 11, 0.35)" : "rgba(46, 125, 50, 0.3)"}`,
                   }}
                 >
                   {classifiedTx.classification.toUpperCase()}
                 </span>
               </div>
 
-              <h2 style={{ fontSize: 20, color: "#ffffff", margin: "0 0 12px" }}>
+              <h2
+                style={{
+                  fontSize: 18,
+                  fontFamily: "var(--font-serif)",
+                  color: "var(--ink)",
+                  margin: "0 0 12px",
+                  lineHeight: 1.4,
+                  fontWeight: 600,
+                }}
+              >
                 {classifiedTx.summary}
               </h2>
 
@@ -897,26 +982,26 @@ function VerifyContent() {
                     gap: 16,
                     marginTop: 20,
                     paddingTop: 16,
-                    borderTop: "1px solid rgba(255,255,255,0.08)",
-                    fontFamily: "var(--font-mono, monospace)",
+                    borderTop: "1px solid var(--line-ink)",
+                    fontFamily: "var(--font-mono)",
                     fontSize: 12,
                   }}
                 >
                   <div>
-                    <span style={{ color: "rgba(255,255,255,0.4)" }}>BLOCK NUMBER:</span>
-                    <div style={{ color: "#ffffff", marginTop: 4 }}>
+                    <span style={{ color: "#7d8479" }}>BLOCK NUMBER:</span>
+                    <div style={{ color: "var(--ink)", marginTop: 4, fontWeight: 600 }}>
                       #{rawTxReceipt.blockNumber?.toString()}
                     </div>
                   </div>
                   <div>
-                    <span style={{ color: "rgba(255,255,255,0.4)" }}>GAS USED:</span>
-                    <div style={{ color: "#ffffff", marginTop: 4 }}>
+                    <span style={{ color: "#7d8479" }}>GAS USED:</span>
+                    <div style={{ color: "var(--ink)", marginTop: 4, fontWeight: 600 }}>
                       {rawTxReceipt.gasUsed?.toString()}
                     </div>
                   </div>
                   <div>
-                    <span style={{ color: "rgba(255,255,255,0.4)" }}>STATUS:</span>
-                    <div style={{ color: rawTxReceipt.status === "success" ? "#3dd68c" : "#ff4b4b", marginTop: 4 }}>
+                    <span style={{ color: "#7d8479" }}>EXECUTION STATUS:</span>
+                    <div style={{ color: rawTxReceipt.status === "success" ? "#1b5e20" : "#b71c1c", marginTop: 4, fontWeight: 700 }}>
                       {rawTxReceipt.status.toUpperCase()}
                     </div>
                   </div>
@@ -927,18 +1012,18 @@ function VerifyContent() {
                 <div
                   style={{
                     marginTop: 16,
-                    padding: "10px 14px",
-                    background: "rgba(230,180,59,0.08)",
-                    border: "1px solid rgba(230,180,59,0.25)",
-                    color: "#e6b43b",
-                    fontFamily: "var(--font-mono, monospace)",
+                    padding: "12px 16px",
+                    background: "#fdf6e8",
+                    border: "1px solid rgba(184, 134, 11, 0.35)",
+                    color: "#8a5d00",
+                    fontFamily: "var(--font-mono)",
                     fontSize: 12,
-                    borderRadius: 6,
+                    borderRadius: 4,
                   }}
                 >
                   {classifiedTx.details.archiveRpcNote}
                   {classifiedTx.details.currentDeadBalance && (
-                    <span style={{ display: "block", marginTop: 4, color: "#ffffff" }}>
+                    <span style={{ display: "block", marginTop: 4, color: "var(--ink)" }}>
                       Current Live Burn Sink Balance: <b>{classifiedTx.details.currentDeadBalance}</b>
                     </span>
                   )}
@@ -950,29 +1035,29 @@ function VerifyContent() {
 
         {/* 3. ADDRESS MODE RESULTS */}
         {detectedType === "addr" && (
-          <div style={{ marginTop: 32 }}>
+          <div style={{ marginTop: 24 }}>
             {/* Deprecated Banner */}
             {addressLookup?.type === "deprecated" && (
               <div
                 style={{
-                  background: "rgba(255,50,50,0.15)",
-                  border: "2px solid #ff4b4b",
-                  borderRadius: 8,
+                  background: "#fdf2f2",
+                  border: "2px solid #ef4444",
+                  borderRadius: 6,
                   padding: 24,
                   marginBottom: 24,
                 }}
               >
-                <div style={{ color: "#ff4b4b", fontWeight: 800, fontSize: 18, marginBottom: 8 }}>
+                <div style={{ color: "#b71c1c", fontWeight: 800, fontSize: 18, marginBottom: 8 }}>
                   DEPRECATED CONTRACT DETECTED
                 </div>
-                <p style={{ color: "#ffffff", margin: "0 0 8px", fontSize: 15, fontWeight: 500 }}>
+                <p style={{ color: "var(--ink)", margin: "0 0 8px", fontSize: 15, fontWeight: 500 }}>
                   {(addressLookup.info as any)?.reason ?? "This is not $CRIT. Do not buy or pair against it."}
                 </p>
                 <span
                   style={{
-                    fontFamily: "var(--font-mono, monospace)",
+                    fontFamily: "var(--font-mono)",
                     fontSize: 12,
-                    color: "rgba(255,255,255,0.6)",
+                    color: "#636b60",
                   }}
                 >
                   Canonical $CRIT Pons is {getCanonicalAddress("CRIT")}
@@ -980,68 +1065,71 @@ function VerifyContent() {
               </div>
             )}
 
-            {/* Canonical Info */}
+            {/* Canonical Contract Info */}
             {addressLookup?.type === "canonical" && (
               <div
                 style={{
-                  background: "rgba(18,20,18,0.7)",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  borderRadius: 8,
+                  background: "#ffffff",
+                  border: "1px solid var(--line-ink)",
+                  borderRadius: 6,
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
                   padding: 24,
                   marginBottom: 24,
                 }}
               >
                 <span
                   style={{
-                    fontFamily: "var(--font-mono, monospace)",
+                    fontFamily: "var(--font-mono)",
                     fontSize: 11,
-                    color: "#e6b43b",
-                    letterSpacing: "0.1em",
+                    color: "#8c6418",
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                    fontWeight: 700,
                   }}
                 >
-                  CANONICAL PROTOCOL CONTRACT
+                  Canonical Protocol Contract
                 </span>
-                <h2 style={{ fontSize: 22, color: "#ffffff", margin: "4px 0 10px" }}>
+                <h2 style={{ fontSize: 22, color: "var(--ink)", fontFamily: "var(--font-serif)", margin: "4px 0 10px" }}>
                   {(addressLookup.info as any)?.name}
                 </h2>
-                <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 14, margin: "0 0 16px" }}>
+                <p style={{ color: "#5e645d", fontSize: 14, margin: "0 0 16px" }}>
                   {(addressLookup.info as any)?.description}
                 </p>
 
                 <div
                   style={{
-                    fontFamily: "var(--font-mono, monospace)",
+                    fontFamily: "var(--font-mono)",
                     fontSize: 12,
-                    padding: 12,
-                    background: "#0c0e0c",
-                    borderRadius: 6,
-                    border: "1px solid rgba(255,255,255,0.08)",
+                    padding: 14,
+                    background: "#faf8f2",
+                    borderRadius: 4,
+                    border: "1px solid var(--line-ink)",
                   }}
                 >
                   <div style={{ marginBottom: 6 }}>
-                    <span style={{ color: "rgba(255,255,255,0.4)" }}>ADDRESS: </span>
-                    <span style={{ color: "#ffffff" }}>{inputVal}</span>
+                    <span style={{ color: "#7d8479" }}>ADDRESS: </span>
+                    <span style={{ color: "var(--ink)", fontWeight: 600 }}>{inputVal}</span>
                   </div>
                   <div style={{ marginBottom: 6 }}>
-                    <span style={{ color: "rgba(255,255,255,0.4)" }}>RECORDED CODE HASH: </span>
-                    <span style={{ color: "rgba(255,255,255,0.8)" }}>
+                    <span style={{ color: "#7d8479" }}>RECORDED CODE HASH: </span>
+                    <span style={{ color: "#4e594d" }}>
                       {(addressLookup.info as any)?.codeHash ?? "None recorded"}
                     </span>
                   </div>
                   <div style={{ marginBottom: 6 }}>
-                    <span style={{ color: "rgba(255,255,255,0.4)" }}>LIVE RUNTIME CODE HASH: </span>
-                    <span style={{ color: "#ffffff" }}>{liveCodeHash ?? "READING..."}</span>
+                    <span style={{ color: "#7d8479" }}>LIVE RUNTIME CODE HASH: </span>
+                    <span style={{ color: "var(--ink)" }}>{liveCodeHash ?? "READING..."}</span>
                   </div>
                   <div>
-                    <span style={{ color: "rgba(255,255,255,0.4)" }}>CODE VERDICT: </span>
+                    <span style={{ color: "#7d8479" }}>CODE VERDICT: </span>
                     {(addressLookup.info as any)?.codeHash && liveCodeHash ? (
                       (addressLookup.info as any).codeHash.toLowerCase() === liveCodeHash.toLowerCase() ? (
-                        <span style={{ color: "#3dd68c", fontWeight: 700 }}>✓ CODE UNCHANGED</span>
+                        <span style={{ color: "#1b5e20", fontWeight: 700 }}>✓ CODE UNCHANGED</span>
                       ) : (
-                        <span style={{ color: "#ff4b4b", fontWeight: 700 }}>✗ CODE CHANGED</span>
+                        <span style={{ color: "#b71c1c", fontWeight: 700 }}>✗ CODE CHANGED</span>
                       )
                     ) : (
-                      <span style={{ color: "#e6b43b" }}>PENDING VERIFICATION</span>
+                      <span style={{ color: "#8a5d00" }}>PENDING VERIFICATION</span>
                     )}
                   </div>
                 </div>
@@ -1052,32 +1140,35 @@ function VerifyContent() {
             {hookDecoded && (
               <div
                 style={{
-                  background: "rgba(18,20,18,0.7)",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  borderRadius: 8,
+                  background: "#ffffff",
+                  border: "1px solid var(--line-ink)",
+                  borderRadius: 6,
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
                   padding: 24,
                 }}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, paddingBottom: 12, borderBottom: "1px solid var(--line-ink)" }}>
                   <div>
                     <h3
                       style={{
-                        fontFamily: "var(--font-mono, monospace)",
-                        fontSize: 14,
-                        color: "#e6b43b",
+                        fontFamily: "var(--font-mono)",
+                        fontSize: 13,
+                        color: "var(--ink)",
                         letterSpacing: "0.08em",
                         margin: 0,
+                        textTransform: "uppercase",
+                        fontWeight: 700,
                       }}
                     >
-                      UNISWAP V4 HOOK PERMISSION BIT DECODER
+                      Uniswap v4 Hook Permission Bit Decoder
                     </h3>
-                    <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", margin: "4px 0 0" }}>
+                    <p style={{ fontSize: 12, color: "#636b60", margin: "4px 0 0", fontFamily: "var(--font-mono)" }}>
                       Lowest 14 address bits: {hookDecoded.hexFlags} ({hookDecoded.activeCount} ON, {hookDecoded.inactiveCount} OFF)
                     </p>
                   </div>
                 </div>
 
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {hookDecoded.explanations.map((exp) => (
                     <div
                       key={exp.flag}
@@ -1086,17 +1177,10 @@ function VerifyContent() {
                         alignItems: "center",
                         justifyContent: "space-between",
                         padding: "10px 14px",
-                        background:
-                          exp.status === "ON"
-                            ? "rgba(230,180,59,0.04)"
-                            : "rgba(255,255,255,0.02)",
-                        border: `1px solid ${
-                          exp.status === "ON"
-                            ? "rgba(230,180,59,0.2)"
-                            : "rgba(255,255,255,0.06)"
-                        }`,
-                        borderRadius: 6,
-                        fontFamily: "var(--font-mono, monospace)",
+                        background: exp.status === "ON" ? "#fdfaf3" : "#faf8f2",
+                        border: `1px solid ${exp.status === "ON" ? "rgba(201, 146, 46, 0.35)" : "var(--line-ink)"}`,
+                        borderRadius: 4,
+                        fontFamily: "var(--font-mono)",
                         fontSize: 12,
                       }}
                     >
@@ -1105,22 +1189,19 @@ function VerifyContent() {
                           style={{
                             fontWeight: 700,
                             padding: "2px 6px",
-                            borderRadius: 4,
-                            background:
-                              exp.status === "ON"
-                                ? "rgba(230,180,59,0.15)"
-                                : "rgba(255,255,255,0.06)",
-                            color: exp.status === "ON" ? "#e6b43b" : "rgba(255,255,255,0.4)",
-                            border: "1px solid currentColor",
+                            borderRadius: 3,
+                            background: exp.status === "ON" ? "rgba(201, 146, 46, 0.15)" : "#f4f3ee",
+                            color: exp.status === "ON" ? "#8c6418" : "#7d8479",
+                            border: `1px solid ${exp.status === "ON" ? "rgba(201, 146, 46, 0.35)" : "rgba(24, 26, 24, 0.12)"}`,
                           }}
                         >
                           {exp.status}
                         </span>
-                        <span style={{ color: "#ffffff", fontWeight: 600 }}>{exp.flag}</span>
-                        <span style={{ color: "rgba(255,255,255,0.3)" }}>({exp.hexMask})</span>
+                        <span style={{ color: "var(--ink)", fontWeight: 600 }}>{exp.flag}</span>
+                        <span style={{ color: "#7d8479" }}>({exp.hexMask})</span>
                       </div>
 
-                      <div style={{ color: "rgba(255,255,255,0.65)", fontSize: 11, textAlign: "right" }}>
+                      <div style={{ color: "#5e645d", fontSize: 11, textAlign: "right" }}>
                         {exp.meaning}
                       </div>
                     </div>
@@ -1131,13 +1212,13 @@ function VerifyContent() {
           </div>
         )}
       </div>
-    </div>
+    </PageShell>
   );
 }
 
 export default function VerifyPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: "100vh", padding: 100, color: "#fff" }}>Loading Verifier...</div>}>
+    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#f1eee7", color: "#181a18", padding: 100 }}>Loading Verifier...</div>}>
       <VerifyContent />
     </Suspense>
   );

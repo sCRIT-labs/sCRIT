@@ -116,10 +116,9 @@ export const WEEK_3_REPORT: AnchoredReport = {
 
 // Anchor registry: maps report week to the ON-CHAIN anchor (a team multisig
 // 0-value tx carrying keccak256(canonical JSON) in calldata, or a
-// ReportAnchor event). Empty until the team broadcasts the first anchor tx —
-// verifyReportHash then reports UNANCHORED instead of pretending.
-// Follow-up for the team: send the anchor tx, add {anchorTx, expectedHash,
-// blockNumber} here, and this flips to ✓ automatically.
+// ReportAnchor event). Week 3 was anchored by the migration operator
+// 0x2725…81d in 0x684d…b0cec (block 83103066) — input calldata equals the
+// canonical report hash below, verifiable via /verify?tx= or any explorer.
 export const ANCHORED_REPORTS_REGISTRY: Record<
   number,
   {
@@ -127,7 +126,13 @@ export const ANCHORED_REPORTS_REGISTRY: Record<
     expectedHash: `0x${string}`;
     blockNumber: number;
   }
-> = {};
+> = {
+  3: {
+    anchorTx: "0x684d25ec13686b47b14b20e4ecfd8bcc30c2cc78278c30065caf261f4d6b0cec",
+    expectedHash: "0x45f8715091ad009b36fb218c422c1b3dd5f47c107f758499a62e1b92cebf03dd",
+    blockNumber: 83103066,
+  },
+};
 
 export function verifyReportHash(report: AnchoredReport): ReportVerification {
   const computedHash = hashCanonicalReport(report);

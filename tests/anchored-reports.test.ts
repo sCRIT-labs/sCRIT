@@ -24,11 +24,13 @@ describe("Anchored Reports - Tamper-Evident Weekly Summaries", () => {
     expect(hash).toMatch(/^0x[a-fA-F0-9]{64}$/);
   });
 
-  it("reports Week 3 draft as UNANCHORED until the team broadcasts an anchor tx", () => {
+  it("verifies the Week 3 draft against its real on-chain anchor", () => {
     const verification = verifyReportHash(WEEK_3_REPORT);
-    expect(verification.isValid).toBe(false);
-    expect(verification.statusText).toContain("UNANCHORED");
-    expect(verification.computedHash).toMatch(/^0x[a-fA-F0-9]{64}$/);
+    expect(verification.isValid).toBe(true);
+    expect(verification.statusText).toContain("matches anchor tx");
+    expect(verification.anchorTx).toBe(
+      "0x684d25ec13686b47b14b20e4ecfd8bcc30c2cc78278c30065caf261f4d6b0cec"
+    );
   });
 
   it("uses only chain-observed inputs in the Week 3 draft", () => {
