@@ -662,7 +662,9 @@ export async function verifyAttestationLocally(
     verdictReason =
       firstFail?.detail ||
       (pendingReads.length > 0
-        ? "On-chain reads unavailable (RPC error). Nothing was assumed — retry."
+        ? `On-chain reads failed for: ${pendingReads
+            .map((s) => `step ${s.id} (${s.label})`)
+            .join(", ")}. Nothing was assumed — klik VERIFY IN BROWSER untuk retry.`
         : "Cryptographic verification failed.");
   }
 
