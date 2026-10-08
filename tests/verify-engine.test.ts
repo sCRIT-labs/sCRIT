@@ -59,6 +59,12 @@ describe("Verify Engine - Hook Permission Decoder (Uniswap v4)", () => {
 });
 
 describe("Verify Engine - EIP-712 Attestation & Tamper Demo", () => {
+  // The testnet sample was REALLY submitted on testnet (recordPurchase tx
+  // 0xc66294b9…cc1, block 130954480). currentTimeSeconds is pinned so the
+  // 7-day TTL assertion never rots.
+  const SAMPLE_TS = 1791442681;
+  const FRESH_NOW = SAMPLE_TS + 100;
+
   it("parses real-schema attestation JSON (ReserveManager typehash)", () => {
     const parsed = parseAttestation(JSON.stringify(SAMPLE_TESTNET_ATTESTATION));
     expect(parsed).not.toBeNull();
@@ -69,26 +75,48 @@ describe("Verify Engine - EIP-712 Attestation & Tamper Demo", () => {
     expect(typeof parsed?.message.massKgE12).toBe("string");
   });
 
-  it("recomputes the contract digest and recovers the real demo signer", async () => {
-    // Digest must equal the precomputed on-chain-shaped digest for the sample.
+  it("recovers the real test custodian from the submitted sample", async () => {
     const digest = computeAttestationDigest(SAMPLE_TESTNET_ATTESTATION);
     expect(digest).toMatch(/^0x[a-fA-F0-9]{64}$/);
     const signer = await recoverAttestationSigner(SAMPLE_TESTNET_ATTESTATION);
-    expect(signer.toLowerCase()).toBe(DEMO_SIGNER_ADDRESS.toLowerCase());
+    expect(signer.toLowerCase()).toBe("0x7108142336540d99a1d80b474c48fe388181eee9");
+  });
 
-    const verification = await verifyAttestationLocally(SAMPLE_TESTNET_ATTESTATION, {
+  it("verifies the submitted testnet sample ACCEPTED ON-CHAIN", async () => {
+    const v = await verifyAttestationLocally(SAMPLE_TESTNET_ATTESTATION, {
       expectedChainId: 46630,
-      custodian: { active: false, scopeMask: 0 },
-      nonceUsed: false,
+      currentTimeSeconds: FRESH_NOW,
+      custodian: { active: true, scopeMask: 1 },
+      nonceUsed: true,
+      onChainEventFound: true,
+      onChainTxHash: "0xc66294b99dd81eea21217eebd4161f036facb3602276c30664242fe05fffacc1",
     });
-    expect(verification.stepResults.step1_parse).toBe(true);
-    expect(verification.stepResults.step2_chain_contract).toBe(true);
-    expect(verification.stepResults.step3_digest).toBe(true);
-    expect(verification.stepResults.step4_signer).toBe(true);
-    // Demo key is not a custodian: the check honestly rejects here.
-    expect(verification.stepResults.step5_custodian_registered).toBe(false);
-    expect(verification.verdict).toBe("REJECTED");
-    expect(verification.verdictReason).toContain("custodian");
+    for (const k of [
+      "step1_parse",
+      "step2_chain_contract",
+      "step3_digest",
+      "step4_signer",
+      "step5_custodian_registered",
+      "step6_commodity_scope",
+      "step7_nonce",
+      "step8_ttl",
+      "step9_onchain_event",
+    ]) {
+      expect(v.stepResults[k]).toBe(true);
+    }
+    expect(v.verdict).toBe("ACCEPTED ON-CHAIN");
+  });
+
+  it("rejects a replayed nonce with no matching acceptance event", async () => {
+    const v = await verifyAttestationLocally(SAMPLE_TESTNET_ATTESTATION, {
+      expectedChainId: 46630,
+      currentTimeSeconds: FRESH_NOW,
+      custodian: { active: true, scopeMask: 1 },
+      nonceUsed: true,
+      onChainEventFound: false,
+    });
+    expect(v.stepResults.step7_nonce).toBe(false);
+    expect(v.verdict).toBe("REJECTED");
   });
 
   it("tamper demo (+1 gram = +1e12 massKgE12) mutates digest and signer", async () => {
@@ -99,11 +127,13 @@ describe("Verify Engine - EIP-712 Attestation & Tamper Demo", () => {
 
     const originalVerification = await verifyAttestationLocally(SAMPLE_TESTNET_ATTESTATION, {
       expectedChainId: 46630,
+      currentTimeSeconds: FRESH_NOW,
       custodian: { active: false, scopeMask: 0 },
       nonceUsed: false,
     });
     const tamperedVerification = await verifyAttestationLocally(tampered, {
       expectedChainId: 46630,
+      currentTimeSeconds: FRESH_NOW,
       custodian: { active: false, scopeMask: 0 },
       nonceUsed: false,
     });
@@ -117,6 +147,7 @@ describe("Verify Engine - EIP-712 Attestation & Tamper Demo", () => {
   it("rejects mainnet-shaped sample when checked against the wrong chain", async () => {
     const v = await verifyAttestationLocally(SAMPLE_TESTNET_ATTESTATION, {
       expectedChainId: 4663,
+      currentTimeSeconds: FRESH_NOW,
       custodian: { active: false, scopeMask: 0 },
       nonceUsed: false,
     });

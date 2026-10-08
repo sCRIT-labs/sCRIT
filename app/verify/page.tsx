@@ -489,12 +489,12 @@ function VerifyContent() {
             type="button"
             className="launch-chip-btn"
             onClick={() => {
-              const burnTx = "0xac25ded31eb3ec73030ba6da747cba55ca0d6e5d03a119e71ec91244e8c56fa7";
+              const burnTx = "0xac25ded31ecaebc08a576783a66f3fa1e49cf3b1d9e44a553db5937d8a632708";
               setInputVal(burnTx);
               handleProcessInput(burnTx, "tx");
             }}
           >
-            <span>Burn Tx (700,000 $CRIT)</span>
+            <span>Burn Tx (615,672 $CRIT)</span>
           </button>
 
           <button
@@ -518,8 +518,18 @@ function VerifyContent() {
               handleProcessInput(sampleStr, "attestation");
             }}
           >
-            <span>Attestation (Testnet 46630)</span>
+            <span>Attestation (Testnet 46630 · submitted on-chain)</span>
           </button>
+          <span
+            style={{
+              fontSize: 11,
+              fontFamily: "var(--font-mono)",
+              color: "var(--muted)",
+            }}
+          >
+            Testnet sample was really submitted (recordPurchase, 9 green steps). Mainnet sample
+            carries a demo signature (key 0x7a13…, not a custodian) to show an honest step-5 reject.
+          </span>
 
           <button
             type="button"

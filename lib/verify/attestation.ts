@@ -109,12 +109,38 @@ function demoPayload(
   };
 }
 
-export const SAMPLE_TESTNET_ATTESTATION: EIP712AttestationPayload = demoPayload(
-  46630,
-  "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-  7,
-  "0xb6645c90aa8c9452f57bb786f0440b3c5d646384519ee126cbcf9c3fdeaf848a3203f885cbd4dda79f9db013f19411d1df11829a947a2e1115e42ef3e8a4429a1b"
-);
+export const SAMPLE_TESTNET_ATTESTATION: EIP712AttestationPayload = {
+  domain: {
+    name: ATTESTATION_DOMAIN_NAME,
+    version: ATTESTATION_DOMAIN_VERSION,
+    chainId: 46630,
+    verifyingContract: RESERVE_MANAGER_BY_CHAIN[46630],
+  },
+  types: {
+    ReserveAttestation: [...RESERVE_ATTESTATION_TYPES.ReserveAttestation],
+  },
+  primaryType: "ReserveAttestation",
+  message: {
+    batchId:
+      "0x75c0d28458f6214a48a72685bca3c6ddf78f4a064fee46b566369f656f74438c",
+    commodity: 0,
+    massKgE12: "5000000000000",
+    gradeSpecHash:
+      "0x6df2a0445e275090533f1c8a7107045045c661acd760fb6938c9429ce2845281",
+    certificateHash:
+      "0x7c3a595701ec4d8dd5b07539e718f6c146da73305350683590845b075e5733d2",
+    vaultIdHash:
+      "0x788946647c1583c94ab3d89bae81f0bf1d5db7530b7e4ef00ec06607c4c21775",
+    timestamp: 1791442681,
+    nonce: 1,
+  },
+  // Real signature by test custodian 0x7108142336540d99a1d80b474c48FE388181eEE9
+  // (Au-only scope, registered on testnet). Submitted on testnet in
+  // 0xc66294b99dd81eea21217eebd4161f036facb3602276c30664242fe05fffacc1
+  // (block 130954480) — steps 1–9 pass against testnet RPC.
+  signature:
+    "0xc543b4c4913a563079383c7bd9796b0b889d9da1d23db6aaddfdfa2eb9e010c5428406d95bcd131636fbb28647d9f0d1bd116fb23367ebeabb1aab9b4fb78efb1c",
+};
 
 export const SAMPLE_MAINNET_ATTESTATION: EIP712AttestationPayload = demoPayload(
   4663,
@@ -550,10 +576,20 @@ export async function verifyAttestationLocally(
     steps[6].detail = "Could not read ReserveManager.usedNonce (RPC error). Retry — never assume.";
     stepResults.step7_nonce = false;
   } else if (nonceUsed) {
-    steps[6].status = "FAIL";
-    steps[6].valueText = `Nonce ${payload.message.nonce} already used`;
-    steps[6].detail = "This signer + nonce pair already settled a purchase on-chain. Replays revert.";
-    stepResults.step7_nonce = false;
+    // A used nonce with a matching acceptance event means this exact
+    // attestation already settled on-chain (the normal state of a pasted
+    // historical attestation). Without a matching event it is a replay.
+    if (options?.onChainEventFound) {
+      steps[6].status = "PASS";
+      steps[6].valueText = `Nonce ${payload.message.nonce} settled on-chain`;
+      steps[6].detail = `This signer + nonce pair settled in ${options?.onChainTxHash ?? "the matching acceptance event"} — replays would revert.`;
+      stepResults.step7_nonce = true;
+    } else {
+      steps[6].status = "FAIL";
+      steps[6].valueText = `Nonce ${payload.message.nonce} already used`;
+      steps[6].detail = "This signer + nonce pair already settled a purchase on-chain with no matching event provided. Replays revert.";
+      stepResults.step7_nonce = false;
+    }
   } else {
     steps[6].status = "PASS";
     steps[6].valueText = `Nonce ${payload.message.nonce} unused`;
