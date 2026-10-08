@@ -52,6 +52,15 @@ export default function PairDetailPage() {
   async function loadData() {
     setIsLoading(true);
     setNotFound(false);
+    const client = publicClientFor(4663);
+    client
+      .getBlock({ blockTag: "latest" })
+      .then((b) => {
+        setBlockNumber(b.number);
+        setBlockAgeSecs(Math.max(0, Math.floor(Date.now() / 1000) - Number(b.timestamp)));
+      })
+      .catch(() => null);
+
     try {
       const pools = await discoverPoolsFromChain(4663);
       const match =
@@ -62,11 +71,12 @@ export default function PairDetailPage() {
         return;
       }
       setPool(match);
-      const client = publicClientFor(4663);
-      const block = await client.getBlock({ blockTag: "latest" });
-      const head = block.number;
-      setBlockNumber(head);
-      setBlockAgeSecs(Math.max(0, Math.floor(Date.now() / 1000) - Number(block.timestamp)));
+      const block = await client.getBlock({ blockTag: "latest" }).catch(() => null);
+      const head = block?.number ?? (await client.getBlockNumber().catch(() => 0n));
+      if (block) {
+        setBlockNumber(block.number);
+        setBlockAgeSecs(Math.max(0, Math.floor(Date.now() / 1000) - Number(block.timestamp)));
+      }
       const from = match.createdAtBlock > 200000n ? match.createdAtBlock : 0n;
       const logs = await client
         .getLogs({
@@ -102,7 +112,7 @@ export default function PairDetailPage() {
   }, [token]);
 
   const hook = pool ? decodeHookPermissions(pool.hook) : null;
-  const embedCode = `<a href="https://scritindex.tech/pairs/${token}"><img src="https://scritindex.tech/badge/${token}.svg" alt="Stockpile-paired"></a>`;
+  const embedCode = `<a href="https://www.scritindex.tech/pairs/${token}"><img src="https://www.scritindex.tech/badge/${token}.svg" alt="Stockpile-paired"></a>`;
 
   return (
     <PageShell>
@@ -640,7 +650,7 @@ export default function PairDetailPage() {
                 <div style={{ marginBottom: 16 }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={`/badge/${token}.svg`}
+                    src={`https://www.scritindex.tech/badge/${token}.svg`}
                     alt="Stockpile-paired badge"
                     style={{ borderRadius: 6, maxWidth: "100%", height: "auto" }}
                   />

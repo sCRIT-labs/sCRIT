@@ -100,7 +100,7 @@ export default function PairsPage() {
   const reconciliation = reconcileHookTax(totalDerivedTax, treasuryBalance);
 
   function copyEmbedCode(tokenAddr: string) {
-    const code = `<a href="https://scritindex.tech/pairs/${tokenAddr}"><img src="https://scritindex.tech/badge/${tokenAddr}.svg" alt="Stockpile-paired"></a>`;
+    const code = `<a href="https://www.scritindex.tech/pairs/${tokenAddr}"><img src="https://www.scritindex.tech/badge/${tokenAddr}.svg" alt="Stockpile-paired"></a>`;
     navigator.clipboard.writeText(code);
     setCopiedToken(tokenAddr);
     setTimeout(() => setCopiedToken(null), 2500);
