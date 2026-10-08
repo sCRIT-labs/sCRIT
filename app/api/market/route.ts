@@ -14,7 +14,7 @@ const ERC20_ABI = [{ type: "function", name: "decimals", stateMutability: "view"
 const ERC20_ZERO = "0x0000000000000000000000000000000000000000";
 const NO_STORE = { "Cache-Control": "no-store, max-age=0" };
 
-function unavailable(reason: string, status = 503) {
+function unavailable(reason: string, status = 200) {
   return NextResponse.json({ status: "unavailable", reason }, { status, headers: NO_STORE });
 }
 

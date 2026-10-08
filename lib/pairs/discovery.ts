@@ -100,8 +100,9 @@ async function scanEvent(
   for (let s = req.fromBlock; s <= req.toBlock; s += LOG_CHUNK) {
     ranges.push({ from: s, to: s + LOG_CHUNK - 1n > req.toBlock ? req.toBlock : s + LOG_CHUNK - 1n });
   }
-  const BATCH = 6;
+  const BATCH = 3;
   for (let i = 0; i < ranges.length; i += BATCH) {
+    if (i > 0) await new Promise((r) => setTimeout(r, 40));
     const batch = await Promise.all(
       ranges.slice(i, i + BATCH).map(async (r) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

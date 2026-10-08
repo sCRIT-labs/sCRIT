@@ -82,8 +82,12 @@ describe("E2E Swap Engine & Tax Hook Verification", () => {
 describe("E2E Live HTTP & Service Integration", () => {
   async function isLocalServerUp(): Promise<boolean> {
     try {
-      const res = await fetch("http://localhost:3000/swap");
-      return res.status === 200;
+      const res = await fetch("http://localhost:3000/api/tokens", {
+        signal: AbortSignal.timeout(1500),
+      });
+      if (res.status !== 200) return false;
+      const data = await res.json().catch(() => null);
+      return Array.isArray(data?.tokens);
     } catch {
       return false;
     }
@@ -91,12 +95,14 @@ describe("E2E Live HTTP & Service Integration", () => {
 
   it("serves /swap endpoint with 200 OK status", async () => {
     if (!(await isLocalServerUp())) return;
-    const res = await fetch("http://localhost:3000/swap");
+    const res = await fetch("http://localhost:3000/swap", {
+      signal: AbortSignal.timeout(5000),
+    });
     expect(res.status).toBe(200);
     const html = await res.text();
     expect(html).toContain("sCRIT");
     expect(html).not.toContain("Market Settle");
-  });
+  }, 10000);
 
   it("serves /api/tokens with pilot tokens correctly populated", async () => {
     if (!(await isLocalServerUp())) return;

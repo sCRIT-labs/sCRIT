@@ -490,10 +490,10 @@ export default function PairsPage() {
                         {p.swapCount}
                       </td>
                       <td style={{ color: "var(--ink)", fontFamily: "var(--font-mono)" }}>
-                        {Number(formatUnits(p.critVolume, 18)).toLocaleString()}
+                        {Number(formatUnits(p.critVolume, 18)).toLocaleString("en-US")}
                       </td>
                       <td style={{ color: "#8c6418", fontWeight: 700, fontFamily: "var(--font-mono)" }}>
-                        {Number(formatUnits(p.fedToStockpile, 18)).toLocaleString()} $CRIT
+                        {Number(formatUnits(p.fedToStockpile, 18)).toLocaleString("en-US")} $CRIT
                       </td>
                       <td style={{ color: "#7d8479", fontFamily: "var(--font-mono)" }}>
                         {p.lpRecipient.slice(0, 6)}...

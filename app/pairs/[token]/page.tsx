@@ -332,7 +332,7 @@ export default function PairDetailPage() {
                   FED TO STOCKPILE
                 </div>
                 <div style={{ color: "#8c6418", fontWeight: 700, fontSize: 22, fontFamily: "var(--font-mono)" }}>
-                  {Number(formatUnits(pool.fedToStockpile, 18)).toLocaleString()} $CRIT
+                  {Number(formatUnits(pool.fedToStockpile, 18)).toLocaleString("en-US")} $CRIT
                 </div>
                 <div style={{ color: "#636b60", fontSize: 11, marginTop: 4 }}>
                   Sum of on-chain TaxCollected events
@@ -351,7 +351,7 @@ export default function PairDetailPage() {
                   $CRIT VOLUME
                 </div>
                 <div style={{ color: "var(--ink)", fontWeight: 700, fontSize: 22, fontFamily: "var(--font-mono)" }}>
-                  {Number(formatUnits(pool.critVolume, 18)).toLocaleString()} $CRIT
+                  {Number(formatUnits(pool.critVolume, 18)).toLocaleString("en-US")} $CRIT
                 </div>
                 <div style={{ color: "#636b60", fontSize: 11, marginTop: 4 }}>
                   Across {pool.swapCount} swap executions
@@ -516,7 +516,7 @@ export default function PairDetailPage() {
                       Cumulative Stockpile Share Delivered
                     </span>
                     <span style={{ fontFamily: "var(--font-mono)", fontSize: 18, fontWeight: 700, color: "#8c6418" }}>
-                      {Number(formatUnits(pool.fedToStockpile, 18)).toLocaleString()} $CRIT
+                      {Number(formatUnits(pool.fedToStockpile, 18)).toLocaleString("en-US")} $CRIT
                     </span>
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderBottom: "1px dashed var(--line-ink)", paddingBottom: 10 }}>
@@ -524,7 +524,7 @@ export default function PairDetailPage() {
                       Total Pool Swap Volume Observed
                     </span>
                     <span style={{ fontFamily: "var(--font-mono)", fontSize: 14, fontWeight: 600, color: "var(--ink)" }}>
-                      {Number(formatUnits(pool.critVolume, 18)).toLocaleString()} $CRIT across {pool.swapCount} swaps
+                      {Number(formatUnits(pool.critVolume, 18)).toLocaleString("en-US")} $CRIT across {pool.swapCount} swaps
                     </span>
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>

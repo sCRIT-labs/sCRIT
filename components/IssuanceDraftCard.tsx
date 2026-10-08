@@ -286,7 +286,7 @@ export function IssuanceDraftCard({
                 className="mono-sm"
                 style={{ fontSize: 12.5, fontWeight: 700, color: "#181a18" }}
               >
-                {Number(draft.supply || 0).toLocaleString()}
+                {Number(draft.supply || 0).toLocaleString("en-US")}
               </div>
             </div>
 
@@ -310,7 +310,7 @@ export function IssuanceDraftCard({
                 className="mono-sm"
                 style={{ fontSize: 12.5, fontWeight: 700, color: "#181a18" }}
               >
-                {Number(draft.pooled || 0).toLocaleString()}{" "}
+                {Number(draft.pooled || 0).toLocaleString("en-US")}{" "}
                 <span style={{ fontSize: 9.5, color: "#8c6418", fontWeight: 600 }}>
                   ({poolPercentage}%)
                 </span>
@@ -345,7 +345,7 @@ export function IssuanceDraftCard({
                 className="mono-sm"
                 style={{ fontSize: 12.5, fontWeight: 700, color: "#181a18" }}
               >
-                {Number(draft.scritAmt || 0).toLocaleString()} sCRIT
+                {Number(draft.scritAmt || 0).toLocaleString("en-US")} sCRIT
               </div>
             </div>
 

@@ -96,10 +96,12 @@ export function publicClientFor(chainId: 4663 | 46630): PublicClient {
   const rpcUrl = isBrowser ? `/api/rpc?chainId=${id}` : (id === 4663 ? HOOD_MAINNET.rpc : HOOD_TESTNET.rpc);
   return createPublicClient({
     chain: hoodChain(id),
-    transport: fallback([
-      http(rpcUrl),
-      http(id === 4663 ? HOOD_MAINNET.rpc : HOOD_TESTNET.rpc),
-    ]),
+    transport: isBrowser
+      ? http(rpcUrl)
+      : fallback([
+          http(rpcUrl),
+          http(id === 4663 ? HOOD_MAINNET.rpc : HOOD_TESTNET.rpc),
+        ]),
   });
 }
 

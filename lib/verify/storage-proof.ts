@@ -1,3 +1,4 @@
+import type { PublicClient } from "viem";
 import { publicClientFor } from "@/lib/scrit-evm";
 
 export interface StorageProofResult {
@@ -19,9 +20,10 @@ export interface StorageProofResult {
  */
 export async function fetchAccountStorageProof(
   address: `0x${string}`,
-  chainId: 4663 | 46630 = 4663
+  chainId: 4663 | 46630 = 4663,
+  customClient?: PublicClient
 ): Promise<StorageProofResult> {
-  const client = publicClientFor(chainId);
+  const client = customClient ?? publicClientFor(chainId);
   const block = await client.getBlock({ blockTag: "latest" });
 
   const proof = (await client.request({

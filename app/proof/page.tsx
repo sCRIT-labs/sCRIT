@@ -270,7 +270,7 @@ export default function Proof() {
         </article>
       </section>
 
-      <p className="proof-method-note">
+      <p className="proof-method-note" suppressHydrationWarning>
         Market source:{" "}
         {market.status === "ready"
           ? `${market.poolPriceSource}; ${market.ethUsdSource} updated ${freshness(market.ethUsdUpdatedAt)}.`
@@ -436,7 +436,7 @@ export default function Proof() {
                         ? "manual pilot input"
                         : "-"}
                     </td>
-                    <td>
+                    <td suppressHydrationWarning>
                       {priceRow
                         ? `${priceRow.source} · ${freshness(priceRow.updated_at)}`
                         : row.sleeve === "hree"
@@ -847,7 +847,7 @@ export default function Proof() {
             <div>
               <span style={{ color: "rgba(255,255,255,0.4)" }}>CRIT BURNED:</span>
               <div style={{ color: "#ffffff", fontSize: 14, fontWeight: 700, marginTop: 4 }}>
-                {Number(WEEK_3_REPORT.burn.critBurned).toLocaleString()} $CRIT
+                {Number(WEEK_3_REPORT.burn.critBurned).toLocaleString("en-US")} $CRIT
               </div>
             </div>
             <div>
