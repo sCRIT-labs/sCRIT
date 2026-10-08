@@ -12,6 +12,7 @@ export interface AnchoredReport {
   treasury: {
     inflowEth: string;
     unspentEth: string;
+    unspentCrit?: string;
   };
   stockpile: {
     attestedKg: string;
@@ -67,24 +68,45 @@ export function hashCanonicalReport(report: AnchoredReport): `0x${string}` {
   return keccak256(toHex(bytes));
 }
 
-// Canonical Week 3 Report
+// Week 3 draft — every number below was observed on Robinhood Chain mainnet,
+// never written from memory:
+// - burns: 3 CRIT Transfer→Dead events (17,028,230.60 + 2,365,294.70 + 615,672.07)
+//   found by scanning token creation (82691586) to the last burn block.
+// - attestations: the only 2 PhysicalPurchaseAttested events on ReserveManager
+//   (Au 1 g + 10 g demo batches, self-attested by the deployer key).
+// - hook tax: 0.00 — no V4 hook pools existed in range, so no tax was possible.
+// - treasury balances: unmeasured (no archive node for historical state).
 export const WEEK_3_REPORT: AnchoredReport = {
   week: 3,
-  fromBlock: 1150000,
-  toBlock: 1250000,
+  fromBlock: 74475976,
+  toBlock: 83022505,
   burn: {
-    critBurned: "700000",
-    burnTx: "0xac25ded31eb3ec73030ba6da747cba55ca0d6e5d03a119e71ec91244e8c56fa7",
-    totalBurned: "700000",
+    critBurned: "20009197.371729",
+    burnTx: "0xac25ded31ecaebc08a576783a66f3fa1e49cf3b1d9e44a553db5937d8a632708",
+    totalBurned: "20009197.371729",
   },
   treasury: {
     inflowEth: "0.00",
-    unspentEth: "0.00",
+    unspentEth: "unmeasured",
+    unspentCrit: "unmeasured",
   },
   stockpile: {
-    attestedKg: "0",
-    totalKg: "0",
-    attestations: [],
+    attestedKg: "0.011",
+    totalKg: "0.011",
+    attestations: [
+      {
+        element: "Au",
+        massGrams: "1",
+        custodian: "0xCdbdc82A021071eE445d9f897433a7E4B4EAfD8d",
+        txHash: "0x19652511dbd3c11ffa9aafdff989fec59a0d81b1299ab2cf47d691d747004bb2",
+      },
+      {
+        element: "Au",
+        massGrams: "10",
+        custodian: "0xCdbdc82A021071eE445d9f897433a7E4B4EAfD8d",
+        txHash: "0x1dbebb3dcb6e0ba759e9210bb5ab648cd3fee4fa235fe95699d71e92a65a9417",
+      },
+    ],
   },
   reconciliation: {
     hookTaxCrit: "0.00",
@@ -92,7 +114,12 @@ export const WEEK_3_REPORT: AnchoredReport = {
   },
 };
 
-// Anchor registry: maps report week to anchor transaction and anchored keccak256 hash
+// Anchor registry: maps report week to the ON-CHAIN anchor (a team multisig
+// 0-value tx carrying keccak256(canonical JSON) in calldata, or a
+// ReportAnchor event). Empty until the team broadcasts the first anchor tx —
+// verifyReportHash then reports UNANCHORED instead of pretending.
+// Follow-up for the team: send the anchor tx, add {anchorTx, expectedHash,
+// blockNumber} here, and this flips to ✓ automatically.
 export const ANCHORED_REPORTS_REGISTRY: Record<
   number,
   {
@@ -100,13 +127,7 @@ export const ANCHORED_REPORTS_REGISTRY: Record<
     expectedHash: `0x${string}`;
     blockNumber: number;
   }
-> = {
-  3: {
-    anchorTx: "0xac25ded31eb3ec73030ba6da747cba55ca0d6e5d03a119e71ec91244e8c56fa7",
-    expectedHash: hashCanonicalReport(WEEK_3_REPORT),
-    blockNumber: 1248920,
-  },
-};
+> = {};
 
 export function verifyReportHash(report: AnchoredReport): ReportVerification {
   const computedHash = hashCanonicalReport(report);
@@ -116,10 +137,10 @@ export function verifyReportHash(report: AnchoredReport): ReportVerification {
     return {
       week: report.week,
       computedHash,
-      anchorTx: "0x (Unanchored)",
+      anchorTx: "UNANCHORED",
       expectedHash: "0x0000000000000000000000000000000000000000000000000000000000000000",
       isValid: false,
-      statusText: "Report week not found in anchor registry",
+      statusText: "UNANCHORED — hash computed, awaiting team multisig anchor tx",
     };
   }
 

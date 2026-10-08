@@ -789,7 +789,9 @@ export default function Proof() {
 
         <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 14, margin: "0 0 20px" }}>
           Anchoring proves a report hasn&apos;t changed since it was posted. The inputs are on-chain,
-          so you can check they were right.
+          so you can check they were right. Week 3 is an unanchored draft: burns and attestations
+          below were observed via Transfer→Dead and attestation log scans; treasury balances are
+          unmeasured without an archive node.
         </p>
 
         <div className="proof-evidence-card" style={{ padding: 24, border: "1px solid rgba(255,255,255,0.1)" }}>
@@ -808,9 +810,23 @@ export default function Proof() {
                 fontWeight: 700,
                 padding: "4px 10px",
                 borderRadius: 4,
-                background: reportVerification.isValid ? "rgba(61,214,140,0.15)" : "rgba(255,75,75,0.15)",
-                color: reportVerification.isValid ? "#3dd68c" : "#ff4b4b",
-                border: `1px solid ${reportVerification.isValid ? "rgba(61,214,140,0.3)" : "#ff4b4b"}`,
+                background: reportVerification.isValid
+                  ? "rgba(61,214,140,0.15)"
+                  : reportVerification.statusText.includes("UNANCHORED")
+                  ? "rgba(230,180,59,0.15)"
+                  : "rgba(255,75,75,0.15)",
+                color: reportVerification.isValid
+                  ? "#3dd68c"
+                  : reportVerification.statusText.includes("UNANCHORED")
+                  ? "#e6b43b"
+                  : "#ff4b4b",
+                border: `1px solid ${
+                  reportVerification.isValid
+                    ? "rgba(61,214,140,0.3)"
+                    : reportVerification.statusText.includes("UNANCHORED")
+                    ? "rgba(230,180,59,0.4)"
+                    : "#ff4b4b"
+                }`,
               }}
             >
               {reportVerification.statusText}
@@ -839,14 +855,20 @@ export default function Proof() {
             <div>
               <span style={{ color: "rgba(255,255,255,0.4)" }}>ANCHOR TX:</span>
               <div style={{ marginTop: 4 }}>
-                <a
-                  href={`${HOOD_MAINNET.explorer}/tx/${reportVerification.anchorTx}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ color: "#e6b43b", textDecoration: "underline" }}
-                >
-                  {reportVerification.anchorTx.slice(0, 10)}...
-                </a>
+                {/^0x[a-fA-F0-9]{64}$/.test(reportVerification.anchorTx) ? (
+                  <a
+                    href={`${HOOD_MAINNET.explorer}/tx/${reportVerification.anchorTx}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ color: "#e6b43b", textDecoration: "underline" }}
+                  >
+                    {reportVerification.anchorTx.slice(0, 10)}...
+                  </a>
+                ) : (
+                  <span style={{ color: "#e6b43b", fontSize: 12 }}>
+                    UNANCHORED — pending team multisig tx carrying the report hash
+                  </span>
+                )}
               </div>
             </div>
           </div>

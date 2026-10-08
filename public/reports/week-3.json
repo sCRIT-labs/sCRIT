@@ -1,20 +1,34 @@
 {
   "week": 3,
-  "fromBlock": 1150000,
-  "toBlock": 1250000,
+  "fromBlock": 74475976,
+  "toBlock": 83022505,
   "burn": {
-    "critBurned": "700000",
-    "burnTx": "0xac25ded31eb3ec73030ba6da747cba55ca0d6e5d03a119e71ec91244e8c56fa7",
-    "totalBurned": "700000"
+    "critBurned": "20009197.371729",
+    "burnTx": "0xac25ded31ecaebc08a576783a66f3fa1e49cf3b1d9e44a553db5937d8a632708",
+    "totalBurned": "20009197.371729"
   },
   "treasury": {
     "inflowEth": "0.00",
-    "unspentEth": "0.00"
+    "unspentEth": "unmeasured",
+    "unspentCrit": "unmeasured"
   },
   "stockpile": {
-    "attestedKg": "0",
-    "totalKg": "0",
-    "attestations": []
+    "attestedKg": "0.011",
+    "totalKg": "0.011",
+    "attestations": [
+      {
+        "element": "Au",
+        "massGrams": "1",
+        "custodian": "0xCdbdc82A021071eE445d9f897433a7E4B4EAfD8d",
+        "txHash": "0x19652511dbd3c11ffa9aafdff989fec59a0d81b1299ab2cf47d691d747004bb2"
+      },
+      {
+        "element": "Au",
+        "massGrams": "10",
+        "custodian": "0xCdbdc82A021071eE445d9f897433a7E4B4EAfD8d",
+        "txHash": "0x1dbebb3dcb6e0ba759e9210bb5ab648cd3fee4fa235fe95699d71e92a65a9417"
+      }
+    ]
   },
   "reconciliation": {
     "hookTaxCrit": "0.00",
