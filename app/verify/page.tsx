@@ -191,8 +191,10 @@ function VerifyContent() {
     return "unknown";
   }
 
-  // Process input (syncUrl=false when the URL already carries the value)
-  async function handleProcessInput(valueToProcess: string, forcedType?: "tx" | "addr" | "attestation", syncUrl: boolean = true) {
+  // Process input (syncUrl=false when the URL already carries the value;
+  // forceChain overrides the network toggle — presets set both so the
+  // sample is always checked against its own chain).
+  async function handleProcessInput(valueToProcess: string, forcedType?: "tx" | "addr" | "attestation", syncUrl: boolean = true, forceChain?: 4663 | 46630) {
     const trimmed = valueToProcess.trim();
     if (!trimmed) {
       setDetectedType("unknown");
@@ -217,11 +219,11 @@ function VerifyContent() {
         setOriginalAttestation(parsed);
         setIsTampered(false);
 
-        const result = await runAttestationVerification(parsed, activeChainId);
+        const result = await runAttestationVerification(parsed, forceChain ?? activeChainId);
         setAttestationResult(result);
       } else if (mode === "tx") {
         if (syncUrl) router.replace(`/verify?tx=${trimmed}`, { scroll: false });
-        const client = publicClientFor(activeChainId);
+        const client = publicClientFor(forceChain ?? activeChainId);
         let receipt = null;
         try {
           receipt = await client.getTransactionReceipt({ hash: trimmed as `0x${string}` });
@@ -309,7 +311,7 @@ function VerifyContent() {
         setHookDecoded(hookInfo);
 
         try {
-          const client = publicClientFor(activeChainId);
+          const client = publicClientFor(forceChain ?? activeChainId);
           const bytecode = await client.getBytecode({ address: trimmed as `0x${string}` });
           if (bytecode) {
             const hash = keccak256(bytecode);
@@ -500,7 +502,8 @@ function VerifyContent() {
             onClick={() => {
               const burnTx = "0xac25ded31ecaebc08a576783a66f3fa1e49cf3b1d9e44a553db5937d8a632708";
               setInputVal(burnTx);
-              handleProcessInput(burnTx, "tx");
+              setActiveChainId(4663);
+              handleProcessInput(burnTx, "tx", true, 4663);
             }}
           >
             <span>Burn Tx (615,672 $CRIT)</span>
@@ -512,7 +515,8 @@ function VerifyContent() {
             onClick={() => {
               const sampleStr = JSON.stringify(SAMPLE_MAINNET_ATTESTATION, null, 2);
               setInputVal(sampleStr);
-              handleProcessInput(sampleStr, "attestation");
+              setActiveChainId(4663);
+              handleProcessInput(sampleStr, "attestation", true, 4663);
             }}
           >
             <span>Attestation (Mainnet 4663)</span>
@@ -524,7 +528,8 @@ function VerifyContent() {
             onClick={() => {
               const sampleStr = JSON.stringify(SAMPLE_TESTNET_ATTESTATION, null, 2);
               setInputVal(sampleStr);
-              handleProcessInput(sampleStr, "attestation");
+              setActiveChainId(46630);
+              handleProcessInput(sampleStr, "attestation", true, 46630);
             }}
           >
             <span>Attestation (Testnet 46630 · submitted on-chain)</span>
@@ -546,7 +551,8 @@ function VerifyContent() {
             onClick={() => {
               const hookAddr = "0x3e38564863b46c97f6d6061dfb4459249782e044";
               setInputVal(hookAddr);
-              handleProcessInput(hookAddr, "addr");
+              setActiveChainId(4663);
+              handleProcessInput(hookAddr, "addr", true, 4663);
             }}
           >
             <span>Hook (0x2044)</span>
@@ -558,7 +564,8 @@ function VerifyContent() {
             onClick={() => {
               const legacyAddr = "0x56073943133c1c0678a753be9402b27d43cf1c22";
               setInputVal(legacyAddr);
-              handleProcessInput(legacyAddr, "addr");
+              setActiveChainId(4663);
+              handleProcessInput(legacyAddr, "addr", true, 4663);
             }}
             style={{
               color: "#b71c1c",
