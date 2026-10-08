@@ -8,11 +8,11 @@
       "description": "Canonical ERC20 critical commodity index token"
     },
     "TradingTaxHook": {
-      "address": "0x60d5fec2f4ac14ef7c48f317bcd287c68ff52044",
-      "codeHash": "0xb0e074236bb4bb6901e4cab6e6360f1d396ffa8f7f3d0e08aeb4c6ccc33f411b",
+      "address": "0x3e38564863b46c97f6d6061dfb4459249782e044",
+      "codeHash": "0x6065851c6f08f94e745c704f7da637fe738a9a3e174ef847cbb4c2a5aeb909b5",
       "name": "Uniswap V4 Trading Tax Hook",
       "flags": "0x2044",
-      "description": "2.5% trading tax hook routing 75% to reserve treasury and 25% to operations (0x272568D25b9634Ad8A4e8E8CBB10b729f41C781d)"
+      "description": "2.5% trading tax hook routing 75% to reserve treasury and 25% to operations (0x750B720D1F910729e65D5379C70B3ED253D7d1FC)"
     },
     "PoolManager": {
       "address": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
@@ -21,8 +21,8 @@
       "description": "Canonical Uniswap V4 core singleton pool manager"
     },
     "sCRITV4Launcher": {
-      "address": "0x73544527984c0d252e49eb66d051abe03471b6f9",
-      "codeHash": "0x0045ce60d72d912e92b803147fa8c37810e7293943a1afbae1a1ddf41d17dafe",
+      "address": "0x51791a97027c2d582a4d5348b2b6b17cdac8f78f",
+      "codeHash": "0x1f666df9c51de1fa31be344e9a688a302bb436da27500ce70b6f1f749b796297",
       "name": "Pair Launcher V4",
       "description": "Atomic project pair deployment factory with TradingTaxHook"
     },
@@ -51,7 +51,7 @@
       "description": "Decentralized governance timelock governing protocol parameters and launcher"
     },
     "StockpileTreasury": {
-      "address": "0x272568D25b9634Ad8A4e8E8CBB10b729f41C781d",
+      "address": "0x750B720D1F910729e65D5379C70B3ED253D7d1FC",
       "name": "Stockpile Treasury (Secured EOA)",
       "description": "Secured live on-chain recipient of reserve treasury and operations fees."
     },
@@ -61,7 +61,7 @@
       "description": "Permanent burn address for destroyed $CRIT tokens"
     },
     "OpsWallet": {
-      "address": "0x272568D25b9634Ad8A4e8E8CBB10b729f41C781d",
+      "address": "0x750B720D1F910729e65D5379C70B3ED253D7d1FC",
       "name": "Operations Treasury",
       "description": "Operations wallet receiving 25% protocol maintenance fee"
     },
@@ -100,6 +100,10 @@
     "Deployer_compromised": {
       "address": "0xCdbdc82A021071eE445d9f897433a7E4B4EAfD8d",
       "reason": "Compromised deployer EOA hijacked by EIP-7702 sweeper. Fully evacuated. Do not use or send funds."
+    },
+    "Deployer_rotated": {
+      "address": "0x272568D25b9634Ad8A4e8E8CBB10b729f41C781d",
+      "reason": "Rotated intermediate deployer EOA. 100% of tokens evacuated to 0x750B720D1F910729e65D5379C70B3ED253D7d1FC. Do not use."
     }
   }
 }

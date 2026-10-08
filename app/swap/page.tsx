@@ -129,7 +129,7 @@ function SwapContent() {
     : deployment.token) as Address;
 
   const hookAddress = (chainId === 4663
-    ? process.env.NEXT_PUBLIC_SCRIT_TAX_HOOK_MAINNET || "0x60d5fec2f4ac14ef7c48f317bcd287c68ff52044"
+    ? process.env.NEXT_PUBLIC_SCRIT_TAX_HOOK_MAINNET || "0x3e38564863b46c97f6d6061dfb4459249782e044"
     : "0x0000000000000000000000000000000000000000") as Address;
 
   // Swap helper contract on Mainnet
