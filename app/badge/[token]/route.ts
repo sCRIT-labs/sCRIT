@@ -130,7 +130,7 @@ export async function GET(
       Fed to stockpile: <tspan fill="#e6b43b" font-weight="700">${fedAmountStr}</tspan>
     </text>
     <text x="20" y="74" font-size="10" fill="#889288">
-      Hook ${shortHook} &middot; block #${blockNumberStr}
+      Hook ${shortHook} &#183; block #${blockNumberStr}
     </text>
   </g>
 </svg>
@@ -146,7 +146,7 @@ export async function GET(
       Unverified Hook or Unpaired Token
     </text>
     <text x="20" y="74" font-size="10" fill="#889288">
-      Required: Hook 0x...2044 vs $CRIT &middot; block #${blockNumberStr}
+      Required: Hook 0x...2044 vs $CRIT &#183; block #${blockNumberStr}
     </text>
   </g>
 </svg>
