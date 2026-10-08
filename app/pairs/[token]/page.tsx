@@ -186,16 +186,46 @@ export default function PairDetailPage() {
         {isLoading && (
           <div
             style={{
-              padding: 48,
-              textAlign: "center",
+              padding: "36px 28px",
               background: "#ffffff",
               border: "1px solid var(--line-ink)",
               borderRadius: 6,
-              color: "#5e645d",
-              fontFamily: "var(--font-mono)",
+              boxShadow: "0 2px 10px rgba(0,0,0,0.02)",
             }}
           >
-            Scanning Robinhood Chain logs for pool state...
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+                <span className="scrit-radar" style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: "#8c6418" }} />
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 700, color: "#8c6418", letterSpacing: "0.06em" }}>
+                  INSPECTING ON-CHAIN POOL INITIALIZATION &amp; SWAPS...
+                </span>
+              </div>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "#7d8479" }}>
+                Robinhood Chain V4 Logs
+              </span>
+            </div>
+            <div className="scrit-progress-bar" style={{ height: 3, marginBottom: 24 }}>
+              <div className="scrit-progress-bar-fill" />
+            </div>
+
+            {/* Skeletons */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16, marginBottom: 20 }}>
+              {[0, 1, 2].map((i) => (
+                <div key={i} style={{ background: "#faf8f2", border: "1px solid var(--line-ink)", borderRadius: 4, padding: "16px 18px" }}>
+                  <div className="scrit-skeleton" style={{ width: 80, height: 12, marginBottom: 10 }} />
+                  <div className="scrit-skeleton" style={{ width: 140, height: 24, marginBottom: 6 }} />
+                  <div className="scrit-skeleton" style={{ width: 100, height: 10 }} />
+                </div>
+              ))}
+            </div>
+
+            <div style={{ background: "#faf8f2", border: "1px solid var(--line-ink)", borderRadius: 4, padding: "16px 18px" }}>
+              <div className="scrit-skeleton" style={{ width: 180, height: 14, marginBottom: 14 }} />
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
+                <div className="scrit-skeleton" style={{ width: "90%", height: 14 }} />
+                <div className="scrit-skeleton" style={{ width: "85%", height: 14 }} />
+              </div>
+            </div>
           </div>
         )}
 

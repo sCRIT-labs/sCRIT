@@ -3233,6 +3233,124 @@ body {
   border-radius: 2px;
 }
 
+/* ==============================================================
+   VERIFICATION & RECHECK ANIMATIONS & STYLES
+   ============================================================== */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.animate-ping {
+  animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes radar-sweep {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.2;
+  }
+  100% {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+}
+
+.scrit-radar {
+  animation: radar-sweep 2.4s ease-in-out infinite;
+}
+
+.scrit-verify-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--font-mono, monospace);
+  letter-spacing: 0.04em;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(201, 146, 46, 0.6);
+  background: linear-gradient(180deg, #f7df99 0%, #d8a834 100%);
+  color: #1a170b;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(216, 168, 52, 0.2);
+}
+
+.scrit-verify-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(216, 168, 52, 0.35);
+  border-color: rgba(201, 146, 46, 0.9);
+}
+
+.scrit-verify-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.scrit-verify-btn:disabled {
+  opacity: 0.75;
+  cursor: wait;
+}
+
+.scrit-verify-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  background: #faf8f2;
+  border: 1px solid rgba(24, 26, 24, 0.1);
+  font-size: 11.5px;
+  font-family: var(--font-mono, monospace);
+  color: #4e594d;
+}
+
+.scrit-control-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: #ffffff;
+  border: 1px solid var(--line-ink, rgba(24, 26, 24, 0.1));
+  padding: 8px 12px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+
 
 
 

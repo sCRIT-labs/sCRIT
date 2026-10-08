@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   TrendingUp,
   Warehouse,
+  RefreshCw,
 } from "lucide-react";
 import { useReserveChainData } from "@/hooks/useReserveChainData";
 import { HOOD_MAINNET, HOOD_TESTNET, SCRIT_CHAIN_ID, TAX_ACTIVE } from "@/lib/scrit";
@@ -771,19 +772,15 @@ export default function Proof() {
           <button
             type="button"
             onClick={reVerifyReport}
-            className="proof-refresh-btn"
+            disabled={isVerifyingReport}
+            className="scrit-verify-btn"
             style={{
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.15)",
-              color: "#e6b43b",
-              fontFamily: "var(--font-mono, monospace)",
-              fontSize: 11,
               padding: "6px 14px",
-              borderRadius: 4,
-              cursor: "pointer",
+              fontSize: 11,
             }}
           >
-            {isVerifyingReport ? "RE-HASHING..." : "↺ RE-HASH IN BROWSER"}
+            <RefreshCw size={12} className={isVerifyingReport ? "animate-spin" : ""} />
+            <span>{isVerifyingReport ? "RE-HASHING KECCAK256..." : "RE-HASH IN BROWSER"}</span>
           </button>
         </div>
 

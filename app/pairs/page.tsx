@@ -158,33 +158,41 @@ export default function PairsPage() {
               </p>
             </div>
 
-            {/* Actions: Block Pill & Recheck Button */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
-              <div
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 7,
-                  padding: "4px 10px",
-                  borderRadius: 3,
-                  background: "#ffffff",
-                  border: "1px solid var(--line-ink)",
-                  fontSize: 11,
-                  fontFamily: "var(--font-mono)",
-                  color: "#636b60",
-                }}
-              >
+            {/* Actions: Integrated Verification Control Bar */}
+            <div className="scrit-control-bar">
+              <div className="scrit-verify-pill">
                 <span
                   style={{
-                    width: 6,
-                    height: 6,
-                    borderRadius: "50%",
-                    background: "#2e7d32",
+                    position: "relative",
+                    display: "flex",
+                    width: 7,
+                    height: 7,
                   }}
-                />
-                <span>Block #{blockNumber ? blockNumber.toString() : "…"}</span>
+                >
+                  <span
+                    style={{
+                      position: "absolute",
+                      width: "100%",
+                      height: "100%",
+                      borderRadius: "50%",
+                      background: "#2e7d32",
+                      opacity: 0.75,
+                    }}
+                    className="animate-ping"
+                  />
+                  <span
+                    style={{
+                      position: "relative",
+                      width: 7,
+                      height: 7,
+                      borderRadius: "50%",
+                      background: "#2e7d32",
+                    }}
+                  />
+                </span>
+                <span style={{ fontWeight: 600 }}>Block #{blockNumber ? blockNumber.toString() : "…"}</span>
                 {blockAgeSecs !== null && (
-                  <span style={{ color: "#8c6418" }}>({blockAgeSecs}s ago)</span>
+                  <span style={{ color: "#8c6418", fontSize: 11 }}>({blockAgeSecs}s ago)</span>
                 )}
               </div>
 
@@ -192,21 +200,10 @@ export default function PairsPage() {
                 type="button"
                 onClick={loadChainData}
                 disabled={isLoading}
-                className="btn btn-gold"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  padding: "8px 16px",
-                  borderRadius: 4,
-                  fontSize: 11.5,
-                  fontWeight: 600,
-                  letterSpacing: "0.04em",
-                  cursor: isLoading ? "wait" : "pointer",
-                }}
+                className="scrit-verify-btn"
               >
-                <RefreshCw size={12} className={isLoading ? "animate-spin" : ""} />
-                <span>{isLoading ? "RE-CHECKING RPC..." : "RECHECK IN BROWSER"}</span>
+                <RefreshCw size={13} className={isLoading ? "animate-spin" : ""} />
+                <span>{isLoading ? "SCANNING LOGS..." : "RECHECK IN BROWSER"}</span>
               </button>
             </div>
           </div>
@@ -413,7 +410,51 @@ export default function PairsPage() {
             </span>
           </div>
 
-          {canonical.length === 0 ? (
+          {isLoading ? (
+            <div style={{ padding: "28px 24px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                  <span className="scrit-radar" style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: "#8c6418" }} />
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 700, color: "#8c6418", letterSpacing: "0.06em" }}>
+                    DISCOVERING RAIL A POOLS FROM POOLMANAGER LOGS...
+                  </span>
+                </div>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "#7d8479" }}>
+                  Searching block #82941964 to head
+                </span>
+              </div>
+              <div className="scrit-progress-bar" style={{ height: 3, marginBottom: 24 }}>
+                <div className="scrit-progress-bar-fill" />
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {[0, 1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "16px 20px",
+                      background: "#faf8f2",
+                      borderRadius: 4,
+                      border: "1px solid var(--line-ink)",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <div className="scrit-skeleton" style={{ width: 26, height: 26, borderRadius: "50%" }} />
+                      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                        <div className="scrit-skeleton" style={{ width: 150 + (i * 20) % 60, height: 16 }} />
+                        <div className="scrit-skeleton" style={{ width: 80, height: 12 }} />
+                      </div>
+                    </div>
+                    <div className="scrit-skeleton" style={{ width: 120, height: 16 }} />
+                    <div className="scrit-skeleton" style={{ width: 70, height: 16 }} />
+                    <div className="scrit-skeleton" style={{ width: 110, height: 18 }} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : canonical.length === 0 ? (
             <div style={{ padding: "56px 24px", textAlign: "center" }}>
               <div style={{ fontSize: 32, marginBottom: 12, opacity: 0.8 }}>⚖</div>
               <h3 style={{ color: "var(--ink)", fontSize: 18, fontFamily: "var(--font-serif)", margin: "0 0 8px" }}>

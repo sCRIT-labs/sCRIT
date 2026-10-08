@@ -689,18 +689,10 @@ function VerifyContent() {
                   type="button"
                   onClick={() => handleProcessInput(inputVal)}
                   disabled={isLoading || !inputVal.trim()}
-                  className="btn btn-gold"
+                  className="scrit-verify-btn"
                   style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 8,
-                    padding: "9px 20px",
-                    borderRadius: 4,
-                    fontSize: 12,
-                    fontWeight: 600,
-                    letterSpacing: "0.04em",
-                    cursor: isLoading ? "wait" : "pointer",
-                    opacity: isLoading || !inputVal.trim() ? 0.6 : 1,
+                    opacity: !inputVal.trim() ? 0.6 : 1,
+                    cursor: !inputVal.trim() ? "not-allowed" : isLoading ? "wait" : "pointer",
                   }}
                 >
                   {isLoading ? <RefreshCw className="animate-spin" size={13} /> : <Zap size={13} />}
@@ -708,6 +700,38 @@ function VerifyContent() {
                 </button>
               </div>
             </div>
+
+            {/* Animated Verification Scanner */}
+            {isLoading && (
+              <div
+                style={{
+                  marginTop: 20,
+                  padding: "20px 22px",
+                  background: "#faf8f2",
+                  border: "1px solid var(--line-ink)",
+                  borderRadius: 6,
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                    <span className="scrit-radar" style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: "#8c6418" }} />
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 700, color: "#8c6418", letterSpacing: "0.06em" }}>
+                      CHECKING ROBINHOOD CHAIN VIA CLIENT-SIDE RPC...
+                    </span>
+                  </div>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "#7d8479" }}>
+                    Network: {activeChainId === 4663 ? "Mainnet #4663" : "Testnet #46630"}
+                  </span>
+                </div>
+                <div className="scrit-progress-bar" style={{ height: 3, marginBottom: 16 }}>
+                  <div className="scrit-progress-bar-fill" />
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <div className="scrit-skeleton" style={{ width: "65%", height: 16 }} />
+                  <div className="scrit-skeleton" style={{ width: "40%", height: 14 }} />
+                </div>
+              </div>
+            )}
 
             {errorMsg && (
               <div
