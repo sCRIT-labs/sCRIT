@@ -104,6 +104,27 @@ export function HeaderNav() {
             </Link>
 
             <Link
+              href="/verify"
+              className={`nav-menu-link ${pathname === "/verify" ? "is-active-link" : ""}`}
+            >
+              <span>Verify</span>
+            </Link>
+
+            <Link
+              href="/pairs"
+              className={`nav-menu-link ${pathname === "/pairs" ? "is-active-link" : ""}`}
+            >
+              <span>Pairs</span>
+            </Link>
+
+            <Link
+              href="/invariants"
+              className={`nav-menu-link ${pathname === "/invariants" ? "is-active-link" : ""}`}
+            >
+              <span>Invariants</span>
+            </Link>
+
+            <Link
               href="/copilot"
               className={`nav-menu-link ${pathname === "/copilot" ? "is-active-link" : ""}`}
             >

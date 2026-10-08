@@ -125,6 +125,36 @@ const NAV_ITEMS: NavItem[] = [
     tag: "RISK DISCLOSURES · LEGAL DOCUMENTATION",
     specs: ["Zero Pilot Redemption", "No 1:1 Commodity Claim", "Open-Source Licensing"],
   },
+  {
+    num: "10",
+    label: "The Verifier",
+    badge: "PROVE",
+    description: "Paste any tx, address or attestation. The browser proves or refutes it against Robinhood Chain.",
+    href: "/verify",
+    image: "/images/scrit_gate_custodian_ingress.jpg",
+    tag: "CLIENT-SIDE TRUTH · 9-STEP AUDIT",
+    specs: ["Tamper Demo (+1g)", "Uniswap V4 Hook Bit Decoder", "Tx Receipt Classifier"],
+  },
+  {
+    num: "11",
+    label: "Stockpile-Paired Registry",
+    badge: "REGISTRY",
+    description: "Every Rail A pool discovered from chain logs, ranked by contribution to the stockpile.",
+    href: "/pairs",
+    image: "/images/scrit_v4_pairing_engine.jpg",
+    tag: "CHAIN DISCOVERY · DYNAMIC BADGE",
+    specs: ["Zero Allowlist Curation", "Reconciliation Bar", "Live SVG Embed Badge"],
+  },
+  {
+    num: "12",
+    label: "Invariant Board",
+    badge: "PROMISES",
+    description: "14 protocol promises checked live from on-chain state with browser re-verification.",
+    href: "/invariants",
+    image: "/images/scrit_clock_feed.jpg",
+    tag: "LIVE PROTOCOL INVARIANTS · 14 CHECKS",
+    specs: ["FAIL-First Priority Sorting", "Weekly Burn Cadence Check", "Immutable Hook 0x2044"],
+  },
 ];
 
 interface NavigationDialogProps {

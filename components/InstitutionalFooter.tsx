@@ -172,9 +172,11 @@ export function InstitutionalFooter({ theme = "dark" }: { theme?: "light" | "dar
                 <li><Link href="/launch">Strike a Pair (Rail A)</Link></li>
                 <li><Link href="/tokens">Tokens Directory</Link></li>
                 <li><Link href="/proof">Proof of Reserve</Link></li>
+                <li><Link href="/verify">The Verifier</Link></li>
+                <li><Link href="/pairs">Stockpile Registry</Link></li>
+                <li><Link href="/invariants">Invariant Board</Link></li>
                 <li><Link href="/lots">Certified Lots (Rail B)</Link></li>
                 <li><Link href="/copilot">Copilot AI Guide</Link></li>
-                <li><Link href="/#products">Nine-Asset Basket Targets</Link></li>
               </ul>
             </div>
 
@@ -184,6 +186,7 @@ export function InstitutionalFooter({ theme = "dark" }: { theme?: "light" | "dar
               <ul className="ondo-footer-links-list">
                 <li><a href="https://github.com/sCRIT-labs/sCRIT" target="_blank" rel="noopener noreferrer">GitHub Repository</a></li>
                 <li><a href="https://x.com/getsCRIT" target="_blank" rel="noopener noreferrer">Official X (@getsCRIT)</a></li>
+                <li><a href="/addresses.json" target="_blank" rel="noreferrer">Canonical Addresses (JSON)</a></li>
                 <li><a href="/api/prices" target="_blank" rel="noreferrer">Prices Feed API (JSON)</a></li>
                 <li><a href="/api/custodians" target="_blank" rel="noreferrer">Custodian Registry (JSON)</a></li>
                 <li><a href={HOOD_MAINNET.explorer} target="_blank" rel="noreferrer">Robinhood Blockscout</a></li>
