@@ -3,47 +3,56 @@
   "canonical": {
     "CRIT": {
       "address": "0x351776b6fba6a910c32e46f3775aa946a724d78f",
+      "codeHash": "0x8b7938ed41310532841f44198c3f3abe92d58b7c3bd6645bf011e3046aa76566",
       "name": "sCRIT Token (Pons)",
       "description": "Canonical ERC20 critical commodity index token"
     },
     "TradingTaxHook": {
       "address": "0x4bbd5c4894b75ddbf215c82304b6c21f9134a044",
+      "codeHash": "0x74912b00dfb29a982dd705d51b4cde947086855fb801d605b8eb9ab0e5cf77e0",
       "name": "Uniswap V4 Trading Tax Hook",
       "flags": "0x2044",
       "description": "2.5% trading tax hook routing 75% to reserve stockpile and 25% to operations"
     },
     "PoolManager": {
       "address": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+      "codeHash": "0xbd3881180b547f5fe817545743cfb4343e96b1bc6640dcd70c106b0066e95626",
       "name": "Uniswap V4 PoolManager",
       "description": "Canonical Uniswap V4 core singleton pool manager"
     },
     "sCRITV4Launcher": {
       "address": "0x90e94eac08d1d3989d5560320c2096d38274d711",
+      "codeHash": "0xb4ffcb91be222104ee7bca1ba7a1bb2cb9fcc0660017d8718bc52e1906ea29b1",
       "name": "Pair Launcher V4",
       "description": "Atomic project pair deployment factory with TradingTaxHook"
     },
     "ReserveManager": {
       "address": "0x0cc054ce72fc0a489732e20dd595de934be2e953",
+      "codeHash": "0x62625f7a00d9275873927ddc9aec7c23a75652de3320a1a67357279e0d8f698f",
       "name": "Reserve Manager",
       "description": "Cryptographic custodian attestation and reserve mass accounting"
     },
     "CustodianRegistry": {
       "address": "0x4993478847d03e13d5eae930878ad428cf2b27f8",
+      "codeHash": "0x751863e35ee7426a872f13d3bb98eace06ba813614bb61adc4e822005edce58d",
       "name": "Custodian Registry",
       "description": "Registry of authorized vault custodians and scope limits"
     },
     "PriceOracleAdapter": {
       "address": "0x5341042250dcbc11a929581d22b7be30c14640df",
+      "codeHash": "0x9b39e917074f8a1538de2db39da4b8041f960b8ce859220a93b23eb095dfdf53",
       "name": "Price Oracle Adapter",
       "description": "Multi-feed commodity price oracle adapter"
     },
     "TimelockController": {
       "address": "0x00824e9c6075ff2ceb10009de7f170fc6721df1a",
+      "codeHash": "0x21294ce3da7f6f2c4cfe8efff62d4317b95b9683eaf59903b9470b770aa32eab",
       "name": "Protocol Timelock Controller",
       "description": "Decentralized governance timelock governing protocol parameters and launcher"
     },
     "StockpileTreasury": {
       "address": "0x00824e9c6075ff2ceb10009de7f170fc6721df1a",
+      "codeHash": "0x21294ce3da7f6f2c4cfe8efff62d4317b95b9683eaf59903b9470b770aa32eab",
       "name": "Stockpile Treasury (Timelock Vault)",
       "description": "Treasury receiver for 75% physical commodity accession buybacks"
     },

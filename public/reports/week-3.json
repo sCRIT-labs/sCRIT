@@ -1,0 +1,23 @@
+{
+  "week": 3,
+  "fromBlock": 1150000,
+  "toBlock": 1250000,
+  "burn": {
+    "critBurned": "700000",
+    "burnTx": "0xac25ded31eb3ec73030ba6da747cba55ca0d6e5d03a119e71ec91244e8c56fa7",
+    "totalBurned": "700000"
+  },
+  "treasury": {
+    "inflowEth": "0.00",
+    "unspentEth": "0.00"
+  },
+  "stockpile": {
+    "attestedKg": "0",
+    "totalKg": "0",
+    "attestations": []
+  },
+  "reconciliation": {
+    "hookTaxCrit": "0.00",
+    "treasuryReceivedCrit": "0.00"
+  }
+}

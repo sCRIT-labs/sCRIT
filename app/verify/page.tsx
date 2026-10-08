@@ -829,9 +829,27 @@ function VerifyContent() {
                     <span style={{ color: "rgba(255,255,255,0.4)" }}>ADDRESS: </span>
                     <span style={{ color: "#ffffff" }}>{inputVal}</span>
                   </div>
-                  <div>
+                  <div style={{ marginBottom: 6 }}>
+                    <span style={{ color: "rgba(255,255,255,0.4)" }}>RECORDED CODE HASH: </span>
+                    <span style={{ color: "rgba(255,255,255,0.8)" }}>
+                      {(addressLookup.info as any)?.codeHash ?? "None recorded"}
+                    </span>
+                  </div>
+                  <div style={{ marginBottom: 6 }}>
                     <span style={{ color: "rgba(255,255,255,0.4)" }}>LIVE RUNTIME CODE HASH: </span>
-                    <span style={{ color: "#3dd68c" }}>{liveCodeHash ?? "READING..."}</span>
+                    <span style={{ color: "#ffffff" }}>{liveCodeHash ?? "READING..."}</span>
+                  </div>
+                  <div>
+                    <span style={{ color: "rgba(255,255,255,0.4)" }}>CODE VERDICT: </span>
+                    {(addressLookup.info as any)?.codeHash && liveCodeHash ? (
+                      (addressLookup.info as any).codeHash.toLowerCase() === liveCodeHash.toLowerCase() ? (
+                        <span style={{ color: "#3dd68c", fontWeight: 700 }}>✓ CODE UNCHANGED</span>
+                      ) : (
+                        <span style={{ color: "#ff4b4b", fontWeight: 700 }}>✗ CODE CHANGED</span>
+                      )
+                    ) : (
+                      <span style={{ color: "#e6b43b" }}>PENDING VERIFICATION</span>
+                    )}
                   </div>
                 </div>
               </div>

@@ -20,6 +20,7 @@ import {
 import { useReserveChainData } from "@/hooks/useReserveChainData";
 import { HOOD_MAINNET, HOOD_TESTNET, SCRIT_CHAIN_ID, TAX_ACTIVE } from "@/lib/scrit";
 import { calcPremiumPercent } from "@/lib/scrit-market";
+import { WEEK_3_REPORT, verifyReportHash, type ReportVerification } from "@/lib/reports/anchored-reports";
 
 const activeNetwork = SCRIT_CHAIN_ID === 4663 ? HOOD_MAINNET : HOOD_TESTNET;
 
@@ -67,6 +68,19 @@ export default function Proof() {
   const [chainEvents, setChainEvents] = useState<
     Array<{ event_name: string; tx_hash: string; block_number: string; payload: Record<string, string> }>
   >([]);
+  const [reportVerification, setReportVerification] = useState<ReportVerification>(() =>
+    verifyReportHash(WEEK_3_REPORT)
+  );
+  const [isVerifyingReport, setIsVerifyingReport] = useState(false);
+
+  function reVerifyReport() {
+    setIsVerifyingReport(true);
+    setTimeout(() => {
+      const res = verifyReportHash(WEEK_3_REPORT);
+      setReportVerification(res);
+      setIsVerifyingReport(false);
+    }, 300);
+  }
 
   useEffect(() => {
     let active = true;
@@ -743,6 +757,111 @@ export default function Proof() {
               sCRIT is not pegged to fiat or commodity spot. No authorized participant (AP) or physical redemption
               mechanism is active.
             </small>
+          </div>
+        </div>
+      </section>
+
+      {/* 05. Anchored Reports */}
+      <section className="proof-section" style={{ marginTop: 48 }}>
+        <div className="proof-section-head">
+          <div>
+            <span className="mono-label">05 // TAMPER-EVIDENT HISTORY</span>
+            <h2>Anchored Reports</h2>
+          </div>
+          <button
+            type="button"
+            onClick={reVerifyReport}
+            className="proof-refresh-btn"
+            style={{
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.15)",
+              color: "#e6b43b",
+              fontFamily: "var(--font-mono, monospace)",
+              fontSize: 11,
+              padding: "6px 14px",
+              borderRadius: 4,
+              cursor: "pointer",
+            }}
+          >
+            {isVerifyingReport ? "RE-HASHING..." : "↺ RE-HASH IN BROWSER"}
+          </button>
+        </div>
+
+        <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 14, margin: "0 0 20px" }}>
+          Anchoring proves a report hasn&apos;t changed since it was posted. The inputs are on-chain,
+          so you can check they were right.
+        </p>
+
+        <div className="proof-evidence-card" style={{ padding: 24, border: "1px solid rgba(255,255,255,0.1)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 16 }}>
+            <div>
+              <span className="cat" style={{ color: "#e6b43b" }}>WEEK {WEEK_3_REPORT.week} REPORT</span>
+              <h3 style={{ margin: "4px 0 0", color: "#ffffff", fontSize: 18 }}>
+                Weekly Burn &amp; Stockpile Summary
+              </h3>
+            </div>
+
+            <span
+              style={{
+                fontFamily: "var(--font-mono, monospace)",
+                fontSize: 12,
+                fontWeight: 700,
+                padding: "4px 10px",
+                borderRadius: 4,
+                background: reportVerification.isValid ? "rgba(61,214,140,0.15)" : "rgba(255,75,75,0.15)",
+                color: reportVerification.isValid ? "#3dd68c" : "#ff4b4b",
+                border: `1px solid ${reportVerification.isValid ? "rgba(61,214,140,0.3)" : "#ff4b4b"}`,
+              }}
+            >
+              {reportVerification.statusText}
+            </span>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginBottom: 20, fontFamily: "var(--font-mono, monospace)", fontSize: 12 }}>
+            <div>
+              <span style={{ color: "rgba(255,255,255,0.4)" }}>CRIT BURNED:</span>
+              <div style={{ color: "#ffffff", fontSize: 14, fontWeight: 700, marginTop: 4 }}>
+                {Number(WEEK_3_REPORT.burn.critBurned).toLocaleString()} $CRIT
+              </div>
+            </div>
+            <div>
+              <span style={{ color: "rgba(255,255,255,0.4)" }}>ATTESTED STOCKPILE:</span>
+              <div style={{ color: "#ffffff", fontSize: 14, fontWeight: 700, marginTop: 4 }}>
+                {WEEK_3_REPORT.stockpile.attestedKg} kg
+              </div>
+            </div>
+            <div>
+              <span style={{ color: "rgba(255,255,255,0.4)" }}>BLOCK RANGE:</span>
+              <div style={{ color: "#ffffff", fontSize: 14, fontWeight: 700, marginTop: 4 }}>
+                #{WEEK_3_REPORT.fromBlock} - #{WEEK_3_REPORT.toBlock}
+              </div>
+            </div>
+            <div>
+              <span style={{ color: "rgba(255,255,255,0.4)" }}>ANCHOR TX:</span>
+              <div style={{ marginTop: 4 }}>
+                <a
+                  href={`${HOOD_MAINNET.explorer}/tx/${reportVerification.anchorTx}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ color: "#e6b43b", textDecoration: "underline" }}
+                >
+                  {reportVerification.anchorTx.slice(0, 10)}...
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ padding: 12, background: "#0c0e0c", borderRadius: 6, border: "1px solid rgba(255,255,255,0.06)", fontFamily: "var(--font-mono, monospace)", fontSize: 11 }}>
+            <div style={{ marginBottom: 4 }}>
+              <span style={{ color: "rgba(255,255,255,0.4)" }}>CANONICAL JSON HASH: </span>
+              <span style={{ color: "#3dd68c" }}>{reportVerification.computedHash}</span>
+            </div>
+            <div>
+              <span style={{ color: "rgba(255,255,255,0.4)" }}>CANONICAL PAYLOAD: </span>
+              <a href="/reports/week-3.json" target="_blank" rel="noreferrer" style={{ color: "#e6b43b" }}>
+                /reports/week-3.json (Download)
+              </a>
+            </div>
           </div>
         </div>
       </section>

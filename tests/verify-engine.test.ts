@@ -8,6 +8,7 @@ import {
   SAMPLE_TESTNET_ATTESTATION,
 } from "../lib/verify/attestation";
 import { classifyReceiptLogs } from "../lib/verify/transaction";
+import { lookupAddress } from "../lib/addresses";
 
 describe("Verify Engine - Hook Permission Decoder (Uniswap v4)", () => {
   const tradingTaxHook = "0x4bbd5c4894b75ddbf215c82304b6c21f9134a044";
@@ -104,5 +105,28 @@ describe("Verify Engine - Transaction Receipt Classifier", () => {
     expect(result.classification).toBe("Burn");
     expect(result.summary).toContain("700,000");
     expect(result.summary).toContain("dEaD");
+  });
+
+  it("fails step 2 when testnet attestation is verified against mainnet (4663), and passes on testnet (46630)", async () => {
+    // Verified against mainnet (4663): must fail step 2
+    const mainnetVerification = await verifyAttestationLocally(SAMPLE_TESTNET_ATTESTATION, {
+      expectedChainId: 4663,
+    });
+    expect(mainnetVerification.stepResults.step2_chain_contract).toBe(false);
+    expect(mainnetVerification.steps[1].status).toBe("FAIL");
+    expect(mainnetVerification.steps[1].detail).toContain("does not match required network");
+
+    // Verified against testnet (46630): passes step 2
+    const testnetVerification = await verifyAttestationLocally(SAMPLE_TESTNET_ATTESTATION, {
+      expectedChainId: 46630,
+    });
+    expect(testnetVerification.stepResults.step2_chain_contract).toBe(true);
+    expect(testnetVerification.steps[1].status).toBe("PASS");
+  });
+
+  it("identifies deprecated legacy token 0x5607... as DEPRECATED with clear warning reason", () => {
+    const lookup = lookupAddress("0x56073943133c1c0678a753be9402b27d43cf1c22");
+    expect(lookup.type).toBe("deprecated");
+    expect((lookup.info as any).reason).toContain("Pre-Pons token");
   });
 });
