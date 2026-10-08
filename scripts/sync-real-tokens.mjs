@@ -19,6 +19,24 @@ const sql = postgres(dbUrl, { max: 2, connect_timeout: 10, prepare: false });
 
 const realTokens = [
   {
+    id: "4663-0x351776b6fba6a910c32e46f3775aa946a724d78f",
+    chain_id: 4663,
+    address: "0x351776b6fba6a910c32e46f3775aa946a724d78f",
+    name: "sCRIT",
+    symbol: "CRIT",
+    creator: "Pons Launch",
+    supply: "1,000,000,000",
+    pooled: "0",
+    scrit_amount: "0",
+    tx_hash: "0x0000000000000000000000000000000000000000000000000000000000000000",
+    pool_id: null,
+    pool_type: "v4_hook",
+    logo_url: null,
+    backing_category: "Pons Launched Canonical sCRIT Token",
+    description: "Official Pons launched sCRIT token (CRIT) on Robinhood Chain Mainnet.",
+    created_at: new Date()
+  },
+  {
     id: "4663-0x56073943133c1c0678a753be9402b27d43cf1c22",
     chain_id: 4663,
     address: "0x56073943133c1c0678a753be9402b27d43cf1c22",

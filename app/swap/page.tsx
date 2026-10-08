@@ -124,7 +124,7 @@ function SwapContent() {
   const deployment = scritDeploymentFor(chainId);
 
   const scritAddress = (chainId === 4663
-    ? process.env.NEXT_PUBLIC_SCRIT_MAINNET || "0x56073943133c1c0678a753be9402b27d43cf1c22"
+    ? process.env.NEXT_PUBLIC_SCRIT_MAINNET || "0x351776b6fba6a910c32e46f3775aa946a724d78f"
     : deployment.token) as Address;
 
   const hookAddress = (chainId === 4663

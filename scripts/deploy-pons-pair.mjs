@@ -8,6 +8,8 @@
 //   node scripts/deploy-pons-pair.mjs --mainnet --token 0x...
 //
 import { readFileSync, existsSync, writeFileSync, mkdirSync } from "node:fs";
+import https from "node:https";
+import dns from "node:dns";
 import {
   createPublicClient,
   createWalletClient,
@@ -22,6 +24,41 @@ import {
   numberToHex,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
+
+const resolver = new dns.promises.Resolver();
+resolver.setServers(["1.1.1.1", "8.8.8.8"]);
+
+export const customFetch = (url, options = {}) => {
+  return new Promise((resolve, reject) => {
+    const u = new URL(url);
+    const req = https.request(u, {
+      method: options.method || "GET",
+      headers: options.headers || {},
+      lookup: (hostname, opts, cb) => {
+        const callback = typeof opts === "function" ? opts : cb;
+        const isAll = opts && opts.all;
+        resolver.resolve4(hostname).then(
+          (ips) => (isAll ? callback(null, ips.map((ip) => ({ address: ip, family: 4 }))) : callback(null, ips[0], 4)),
+          (err) => callback(err)
+        );
+      },
+    }, (res) => {
+      const chunks = [];
+      res.on("data", (chunk) => chunks.push(chunk));
+      res.on("end", () => {
+        const buf = Buffer.concat(chunks);
+        resolve(new Response(buf, {
+          status: res.statusCode,
+          statusText: res.statusMessage,
+          headers: res.headers,
+        }));
+      });
+    });
+    req.on("error", reject);
+    if (options.body) req.write(options.body);
+    req.end();
+  });
+};
 
 const args = process.argv.slice(2);
 const isDryRun = args.includes("--dry-run");
@@ -141,8 +178,9 @@ async function main() {
   });
 
   const account = privateKeyToAccount(network.privateKey);
-  const publicClient = createPublicClient({ chain, transport: http(network.rpc) });
-  const wallet = createWalletClient({ account, chain, transport: http(network.rpc) });
+  const transport = http(network.rpc, { fetchFn: customFetch });
+  const publicClient = createPublicClient({ chain, transport });
+  const wallet = createWalletClient({ account, chain, transport });
 
   console.log(`\nDeployer Account: ${account.address}`);
   const bal = await publicClient.getBalance({ address: account.address });
