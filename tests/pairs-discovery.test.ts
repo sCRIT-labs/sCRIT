@@ -68,7 +68,7 @@ describe("Pairs Discovery - Pool Classification and Reconciliation", () => {
   ];
 
   it("filters active canonical pairs and separates legacy pairs, excluding foreign hooks", () => {
-    const { canonical, legacy } = filterStockpilePairedPools(mockPools);
+    const { canonical, legacy, nearby } = filterStockpilePairedPools(mockPools);
 
     expect(canonical).toHaveLength(1);
     expect(canonical[0].tokenSymbol).toBe("RAILA");
@@ -77,6 +77,11 @@ describe("Pairs Discovery - Pool Classification and Reconciliation", () => {
     expect(legacy).toHaveLength(1);
     expect(legacy[0].tokenSymbol).toBe("OLDPAIR");
     expect(legacy[0].isLegacy).toBe(true);
+
+    // Impostor-hook pool touching canonical CRIT lands in nearby, never hidden.
+    expect(nearby).toHaveLength(1);
+    expect(nearby[0].tokenSymbol).toBe("FAKEHOOK");
+    expect(nearby[0].reason).toContain("foreign hook");
   });
 
   it("calculates 2.5% hook tax and 75% stockpile split correctly", () => {

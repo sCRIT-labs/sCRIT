@@ -419,6 +419,7 @@ async function enrichPool(
 export function filterStockpilePairedPools(pools: DiscoveredPool[]): {
   canonical: DiscoveredPool[];
   legacy: DiscoveredPool[];
+  nearby: Array<DiscoveredPool & { reason: string }>;
 } {
   const canonicalHook = getCanonicalAddress("TradingTaxHook").toLowerCase();
   const canonicalCrit = getCanonicalAddress("CRIT").toLowerCase();
@@ -426,19 +427,32 @@ export function filterStockpilePairedPools(pools: DiscoveredPool[]): {
 
   const canonical: DiscoveredPool[] = [];
   const legacy: DiscoveredPool[] = [];
+  const nearby: Array<DiscoveredPool & { reason: string }> = [];
 
   for (const pool of pools) {
+    const t0 = pool.token0.toLowerCase();
+    const t1 = pool.token1.toLowerCase();
+    const touchesCrit = t0 === canonicalCrit || t1 === canonicalCrit;
+    const touchesLegacy = t0 === legacyCrit || t1 === legacyCrit;
+
     if (pool.hook.toLowerCase() !== canonicalHook) {
-      // Impostor or foreign hook — reject from registry
+      if (touchesCrit) {
+        nearby.push({
+          ...pool,
+          reason:
+            pool.hook === "0x0000000000000000000000000000000000000000"
+              ? "hookless pool (no tax hook)"
+              : `foreign hook ${pool.hook.slice(0, 10)}…`,
+        });
+      } else if (touchesLegacy) {
+        nearby.push({ ...pool, reason: "paired against deprecated token" });
+      }
       continue;
     }
 
-    const t0 = pool.token0.toLowerCase();
-    const t1 = pool.token1.toLowerCase();
-
-    if (t0 === canonicalCrit || t1 === canonicalCrit) {
+    if (touchesCrit) {
       canonical.push({ ...pool, isLegacy: false });
-    } else if (t0 === legacyCrit || t1 === legacyCrit) {
+    } else if (touchesLegacy) {
       legacy.push({ ...pool, isLegacy: true });
     }
   }
@@ -447,7 +461,7 @@ export function filterStockpilePairedPools(pools: DiscoveredPool[]): {
   canonical.sort((a, b) => (b.fedToStockpile > a.fedToStockpile ? 1 : -1));
   legacy.sort((a, b) => (b.fedToStockpile > a.fedToStockpile ? 1 : -1));
 
-  return { canonical, legacy };
+  return { canonical, legacy, nearby };
 }
 
 export function calculatePoolContribution(

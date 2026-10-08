@@ -36,6 +36,7 @@ export default function PairsPage() {
   const [blockAgeSecs, setBlockAgeSecs] = useState<number | null>(null);
   const [treasuryBalance, setTreasuryBalance] = useState<bigint>(0n);
   const [showLegacy, setShowLegacy] = useState(false);
+  const [showNearby, setShowNearby] = useState(false);
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
 
   // Guard against overlapping scans: a full discovery run takes longer
@@ -92,7 +93,7 @@ export default function PairsPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const { canonical, legacy } = filterStockpilePairedPools(pools);
+  const { canonical, legacy, nearby } = filterStockpilePairedPools(pools);
 
   // Derive total hook tax
   const totalDerivedTax = canonical.reduce((sum, p) => sum + (p.fedToStockpile * 100n) / 75n, 0n);
@@ -603,6 +604,72 @@ export default function PairsPage() {
                   >
                     <span>${lp.tokenSymbol} ({lp.projectToken.slice(0, 10)}...)</span>
                     <span style={{ color: "#b71c1c", fontWeight: 600 }}>Paired with legacy token · Non-canonical</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Other on-chain CRIT pools (found by the same scan, never stockpile-paired) */}
+        {nearby.length > 0 && (
+          <div
+            style={{
+              background: "rgba(0,0,0,0.02)",
+              border: "1px solid var(--line-ink)",
+              borderRadius: 8,
+              padding: 16,
+              marginBottom: 32,
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                cursor: "pointer",
+              }}
+              onClick={() => setShowNearby(!showNearby)}
+            >
+              <div>
+                <span style={{ color: "#636b60", fontWeight: 700, fontSize: 13, fontFamily: "var(--font-mono)" }}>
+                  ◌ OTHER CRIT POOLS ({nearby.length})
+                </span>
+                <span style={{ fontSize: 12, color: "#7d8479", marginLeft: 10 }}>
+                  Exist on-chain but run no canonical hook — never stockpile-paired.
+                </span>
+              </div>
+              <button
+                type="button"
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "#636b60",
+                  cursor: "pointer",
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 12,
+                }}
+              >
+                {showNearby ? "HIDE ▲" : "EXPAND ▼"}
+              </button>
+            </div>
+
+            {showNearby && (
+              <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid var(--line-ink)" }}>
+                {nearby.map((np) => (
+                  <div
+                    key={np.poolId}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      padding: "8px 0",
+                      fontSize: 12,
+                      fontFamily: "var(--font-mono)",
+                      color: "#636b60",
+                    }}
+                  >
+                    <span>${np.tokenSymbol} ({np.projectToken.slice(0, 10)}...)</span>
+                    <span style={{ color: "#8c6418", fontWeight: 600 }}>{np.reason}</span>
                   </div>
                 ))}
               </div>
