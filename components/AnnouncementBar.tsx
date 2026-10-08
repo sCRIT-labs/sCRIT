@@ -3,7 +3,6 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { ScritCaBadge } from "./ScritCaBadge";
 
 export function AnnouncementBar() {
   return (
@@ -13,9 +12,6 @@ export function AnnouncementBar() {
         <div className="announcement-pill-badge">
           <span>ISSUER GATEWAY</span>
         </div>
-
-        {/* Live Contract Address Pill */}
-        <ScritCaBadge variant="announcement" />
 
         {/* Centered Descriptive Text */}
         <div className="announcement-text-wrap">
