@@ -297,7 +297,7 @@ export default function PairsPage() {
             }}
           >
             * Tolerance rule: Allows minor arithmetic rounding and unswept fee delta pending swap batch settlement.
-            If the hook tax does not route to the canonical Timelock treasury ({getCanonicalAddress("StockpileTreasury").slice(0, 10)}...), this bar turns red.
+            If the hook tax does not route to the recorded StockpileTreasury ({getCanonicalAddress("StockpileTreasury").slice(0, 10)}... — a deployer EOA until the timelock rotation lands), this bar turns red.
           </p>
         </div>
 
@@ -419,7 +419,7 @@ export default function PairsPage() {
                       <td style={{ padding: "14px 20px" }}>
                         <div style={{ fontWeight: 700, color: "#ffffff" }}>{p.tokenSymbol}</div>
                         <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>
-                          {p.token1.slice(0, 8)}...{p.token1.slice(-6)}
+                          {p.projectToken.slice(0, 8)}...{p.projectToken.slice(-6)}
                         </div>
                       </td>
                       <td style={{ padding: "14px 16px", color: "rgba(255,255,255,0.7)" }}>
@@ -438,11 +438,11 @@ export default function PairsPage() {
                       <td style={{ padding: "14px 20px", textAlign: "right" }}>
                         <button
                           type="button"
-                          onClick={() => copyEmbedCode(p.token1)}
+                          onClick={() => copyEmbedCode(p.projectToken)}
                           style={{
                             background: "rgba(255,255,255,0.06)",
                             border: "1px solid rgba(255,255,255,0.12)",
-                            color: copiedToken === p.token1 ? "#3dd68c" : "#e6b43b",
+                            color: copiedToken === p.projectToken ? "#3dd68c" : "#e6b43b",
                             fontSize: 11,
                             fontFamily: "var(--font-mono, monospace)",
                             padding: "4px 8px",
@@ -450,7 +450,7 @@ export default function PairsPage() {
                             cursor: "pointer",
                           }}
                         >
-                          {copiedToken === p.token1 ? "✓ COPIED" : "EMBED BADGE"}
+                          {copiedToken === p.projectToken ? "✓ COPIED" : "EMBED BADGE"}
                         </button>
                       </td>
                     </tr>
@@ -518,7 +518,7 @@ export default function PairsPage() {
                       color: "rgba(255,255,255,0.7)",
                     }}
                   >
-                    <span>{lp.tokenSymbol} ({lp.token1.slice(0, 10)}...)</span>
+                    <span>{lp.tokenSymbol} ({lp.projectToken.slice(0, 10)}...)</span>
                     <span style={{ color: "#ff6b6b" }}>DEPRECATED PAIR</span>
                   </div>
                 ))}

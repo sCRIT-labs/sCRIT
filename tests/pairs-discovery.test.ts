@@ -17,6 +17,7 @@ describe("Pairs Discovery - Pool Classification and Reconciliation", () => {
       poolId: "0xabc1",
       token0: canonicalCrit,
       token1: "0xTokenA1111111111111111111111111111111111",
+      projectToken: "0xTokenA1111111111111111111111111111111111",
       tokenSymbol: "RAILA",
       tokenName: "Rail A Alpha",
       hook: canonicalHook,
@@ -33,6 +34,7 @@ describe("Pairs Discovery - Pool Classification and Reconciliation", () => {
       poolId: "0xabc2",
       token0: legacyCrit,
       token1: "0xTokenB2222222222222222222222222222222222",
+      projectToken: "0xTokenB2222222222222222222222222222222222",
       tokenSymbol: "OLDPAIR",
       tokenName: "Legacy Pair",
       hook: canonicalHook,
@@ -49,6 +51,7 @@ describe("Pairs Discovery - Pool Classification and Reconciliation", () => {
       poolId: "0xabc3",
       token0: canonicalCrit,
       token1: "0xTokenC333333333333333333333333333333333",
+      projectToken: "0xTokenC333333333333333333333333333333333",
       tokenSymbol: "FAKEHOOK",
       tokenName: "Impostor Pool",
       hook: fakeHook,
@@ -107,3 +110,4 @@ describe("Pairs Discovery - Pool Classification and Reconciliation", () => {
     expect(reconciliation.status).toBe("MISMATCH");
   });
 });
+

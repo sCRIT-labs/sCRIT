@@ -12,7 +12,7 @@
       "codeHash": "0x74912b00dfb29a982dd705d51b4cde947086855fb801d605b8eb9ab0e5cf77e0",
       "name": "Uniswap V4 Trading Tax Hook",
       "flags": "0x2044",
-      "description": "2.5% trading tax hook routing 75% to reserve stockpile and 25% to operations"
+      "description": "2.5% trading tax hook routing 75% to reserve treasury and 25% to operations"
     },
     "PoolManager": {
       "address": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
@@ -51,10 +51,9 @@
       "description": "Decentralized governance timelock governing protocol parameters and launcher"
     },
     "StockpileTreasury": {
-      "address": "0x00824e9c6075ff2ceb10009de7f170fc6721df1a",
-      "codeHash": "0x21294ce3da7f6f2c4cfe8efff62d4317b95b9683eaf59903b9470b770aa32eab",
-      "name": "Stockpile Treasury (Timelock Vault)",
-      "description": "Treasury receiver for 75% physical commodity accession buybacks"
+      "address": "0xCdbdc82A021071eE445d9f897433a7E4B4EAfD8d",
+      "name": "Stockpile Treasury (Deployer EOA)",
+      "description": "Live on-chain recipient of 75% hook tax and 25% ops fee. Externally owned account, timelock rotation pending."
     },
     "BurnWallet": {
       "address": "0x000000000000000000000000000000000000dEaD",
@@ -67,9 +66,9 @@
       "description": "Operations wallet receiving 25% protocol maintenance fee"
     },
     "DevWallet": {
-      "address": "0x272568D25b9634Ad8A4e8E8CBB10b729f41C781d",
-      "name": "Developer Deployer Wallet",
-      "description": "Original contract deployer address"
+      "address": "0x082dc70ed39bc9004ffabcc6fe271b50fb6b3ca8",
+      "name": "Pons Token Creator",
+      "description": "Sender of the $CRIT token creation transaction on Pons launch"
     },
     "Dead": {
       "address": "0x000000000000000000000000000000000000dEaD",

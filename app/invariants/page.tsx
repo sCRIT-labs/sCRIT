@@ -12,7 +12,7 @@ import {
   type InvariantCheckResult,
   type InvariantStatus,
 } from "@/lib/invariants/checks";
-import { formatUnits } from "viem";
+import { formatUnits, keccak256, parseAbiItem } from "viem";
 
 export default function InvariantsPage() {
   const [results, setResults] = useState<InvariantCheckResult[]>([]);
@@ -70,9 +70,9 @@ export default function InvariantsPage() {
           id: "I-1",
           promise: "Supply fixed at 1,000,000,000",
           call: "CRIT.totalSupply()",
-          value: "1,000,000,000 $CRIT",
-          status: "PASS",
-          detail: "Supply verified fixed at 1,000,000,000. Mint selectors absent from verified source.",
+          value: "UNVERIFIED (RPC error)",
+          status: "UNKNOWN",
+          detail: "Could not read totalSupply. Never assume — retry.",
           blockNumber: currentBlock,
         };
       }
@@ -111,9 +111,9 @@ export default function InvariantsPage() {
           id: "I-2",
           promise: "Burns are permanent",
           call: "CRIT.balanceOf(0x...dEaD)",
-          value: "700,000 $CRIT burned",
-          status: "PASS",
-          detail: "Burned tokens verified sent to 0x...dEaD.",
+          value: "UNVERIFIED (RPC error)",
+          status: "UNKNOWN",
+          detail: "Could not read the burn sink balance. Never assume — retry.",
           blockNumber: currentBlock,
         };
       }
@@ -149,178 +149,500 @@ export default function InvariantsPage() {
           id: "I-3",
           promise: "Dev supply fully burned",
           call: "CRIT.balanceOf(DevWallet) == 0",
-          value: "0 $CRIT",
-          status: "PASS",
-          detail: "Initial deployer balance burned to 0x...dEaD.",
+          value: "UNVERIFIED (RPC error)",
+          status: "UNKNOWN",
+          detail: "Could not read the creator wallet balance. Never assume — retry.",
           blockNumber: currentBlock,
         };
       }
 
-      // I-4: LP lock
+      // I-4: LP lock (pre-graduation: no V4 position NFT exists yet)
       const i4Res: InvariantCheckResult = {
         id: "I-4",
         promise: "LP locked permanently",
         call: "PositionManager.ownerOf(lpTokenId)",
-        value: "Pons Locker Lock Contract",
-        status: "PASS",
-        detail: "Initial liquidity locked permanently in Pons Locker.",
+        value: "No V4 pool yet (pre-graduation)",
+        status: "PENDING",
+        detail: "Pons curve has not graduated to a Uniswap V4 pool, so no LP NFT exists to lock. This row activates at graduation.",
         blockNumber: currentBlock,
       };
 
-      // I-5: Hook bit permissions
+      // I-5: Hook bit permissions + live code hash vs recorded
       const hookPerms = decodeHookPermissions(hookAddr);
-      const i5Pass = hookPerms.hexFlags === "0x2044" && !hookPerms.flags.beforeRemoveLiquidity;
+      const flagsOk =
+        hookPerms.hexFlags === "0x2044" && !hookPerms.flags.beforeRemoveLiquidity;
+      const recordedHookHash = (ADDRESSES.canonical.TradingTaxHook as { codeHash?: string }).codeHash ?? "";
+      let liveHookHash = "";
+      let codeOk: boolean | null = null;
+      try {
+        const hookCode = await client.getBytecode({ address: hookAddr });
+        if (hookCode && hookCode !== "0x") {
+          liveHookHash = keccak256(hookCode);
+          codeOk = recordedHookHash.length > 10 && liveHookHash.toLowerCase() === recordedHookHash.toLowerCase();
+        }
+      } catch {
+        codeOk = null;
+      }
+      const i5Status: InvariantCheckResult["status"] =
+        !flagsOk || codeOk === false ? "FAIL" : codeOk === null ? "UNKNOWN" : "PASS";
       const i5Res: InvariantCheckResult = {
         id: "I-5",
         promise: "Hook can't change powers",
-        call: "TradingTaxHook.address & 0x3FFF == 0x2044",
-        value: `${hookPerms.hexFlags} (3 ON, 11 OFF)`,
-        status: i5Pass ? "PASS" : "FAIL",
-        detail: "Flags verified. beforeRemoveLiquidity is OFF (hook cannot block LP withdrawals).",
+        call: "Hook.address & 0x3FFF + keccak256(getCode)",
+        value: `${hookPerms.hexFlags} · code ${codeOk === true ? "match" : codeOk === false ? "CHANGED" : "unread"}`,
+        status: i5Status,
+        detail:
+          i5Status === "PASS"
+            ? "Flags verified 0x2044 (beforeInitialize + afterSwap + afterSwapReturnDelta). Live code matches the recorded hash; beforeRemoveLiquidity is OFF, so the hook cannot block LP withdrawals."
+            : codeOk === false
+            ? `Live hook code ${liveHookHash} differs from recorded ${recordedHookHash}. Treat as untrusted until resolved.`
+            : "Could not read hook bytecode (RPC error). Never assume — retry.",
         blockNumber: currentBlock,
       };
 
-      // I-6: Fee split
-      const i6Res: InvariantCheckResult = {
-        id: "I-6",
-        promise: "Fee split is what we say",
-        call: "Hook fee parameter reading",
-        value: "75% Stockpile / 25% Ops",
-        status: "PASS",
-        detail: "Contract routing matches published specification: 75% stockpile accession buybacks, 25% ops.",
-        blockNumber: currentBlock,
-      };
-
-      // I-7: Timelock admin
-      const i7Res: InvariantCheckResult = {
-        id: "I-7",
-        promise: "No instant admin changes",
-        call: "TimelockController.getMinDelay()",
-        value: "172,800s (48 hours)",
-        status: "PASS",
-        detail: "Decentralized 48-hour delay enforced before any scheduled governance execution.",
-        blockNumber: currentBlock,
-      };
-
-      // I-7b: Public queued changes
-      const i7bRes: InvariantCheckResult = {
-        id: "I-7b",
-        promise: "Upcoming changes are public",
-        call: "Timelock.CallScheduled logs",
-        value: "0 Queued Changes",
-        status: "PASS",
-        detail: "No pending or unexecuted timelock proposals currently in grace period.",
-        blockNumber: currentBlock,
-      };
-
-      // I-8: Scoped custodians
-      const i8Res: InvariantCheckResult = {
-        id: "I-8",
-        promise: "Only scoped custodians sign",
-        call: "CustodianRegistry.getCustodians()",
-        value: "0 Registered Custodians",
-        status: "PENDING",
-        detail: "Pilot state: 0 registered commercial custodians. Every attestation verified rejected until key accession.",
-        blockNumber: currentBlock,
-      };
-
-      // I-9: Stockpile = signed metal only
-      const i9Res: InvariantCheckResult = {
-        id: "I-9",
-        promise: "Stockpile = signed metal only",
-        call: "ReserveManager.totalAttestedKg()",
-        value: "0 kg Attested (Pilot)",
-        status: "PASS",
-        detail: "Zero is a feature. No signed metal recognized without valid EIP-712 cryptographic proofs.",
-        blockNumber: currentBlock,
-      };
-
-      // I-10: Treasury is public
-      let i10Res: InvariantCheckResult;
+      // I-6: Fee split read live from the hook (contract wins over copy)
+      let i6Res: InvariantCheckResult;
       try {
-        const treasuryBal = (await client.readContract({
-          address: critAddr,
+        const u256Abi = [
+          {
+            name: "TAX_BPS",
+            type: "function",
+            stateMutability: "view",
+            inputs: [],
+            outputs: [{ name: "", type: "uint256" }],
+          },
+          {
+            name: "RESERVE_SHARE_BPS",
+            type: "function",
+            stateMutability: "view",
+            inputs: [],
+            outputs: [{ name: "", type: "uint256" }],
+          },
+        ] as const;
+        const [taxBps, splitBps] = (await Promise.all([
+          client.readContract({ address: hookAddr, abi: u256Abi, functionName: "TAX_BPS" }),
+          client.readContract({ address: hookAddr, abi: u256Abi, functionName: "RESERVE_SHARE_BPS" }),
+        ])) as [bigint, bigint];
+        const splitOk = taxBps === 250n && splitBps === 7500n;
+        i6Res = {
+          id: "I-6",
+          promise: "Fee split is what we say",
+          call: "Hook.TAX_BPS() + Hook.RESERVE_SHARE_BPS()",
+          value: `${Number(taxBps) / 100}% tax · ${Number(splitBps) / 100}% stockpile / ${100 - Number(splitBps) / 100}% ops`,
+          status: splitOk ? "PASS" : "FAIL",
+          detail: splitOk
+            ? "Live hook parameters match the published 2.5% / 75-25 split."
+            : `Hook parameters differ from the published spec (tax ${taxBps} bps, reserve share ${splitBps} bps). The contract wins — site copy must change.`,
+          blockNumber: currentBlock,
+        };
+      } catch {
+        i6Res = {
+          id: "I-6",
+          promise: "Fee split is what we say",
+          call: "Hook.TAX_BPS() + Hook.RESERVE_SHARE_BPS()",
+          value: "UNVERIFIED (RPC error)",
+          status: "UNKNOWN",
+          detail: "Could not read hook fee parameters. Never assume — retry.",
+          blockNumber: currentBlock,
+        };
+      }
+
+      // I-7: Timelock delay read live (0 = instant execution is possible)
+      let i7Res: InvariantCheckResult;
+      try {
+        const minDelay = (await client.readContract({
+          address: timelockAddr,
           abi: [
             {
-              name: "balanceOf",
+              name: "getMinDelay",
               type: "function",
               stateMutability: "view",
-              inputs: [{ name: "account", type: "address" }],
+              inputs: [],
               outputs: [{ name: "", type: "uint256" }],
             },
           ],
-          functionName: "balanceOf",
-          args: [treasuryAddr],
+          functionName: "getMinDelay",
         })) as bigint;
-        const formattedCrit = Number(formatUnits(treasuryBal, 18)).toLocaleString("en-US", {
+        i7Res = {
+          id: "I-7",
+          promise: "No instant admin changes",
+          call: "TimelockController.getMinDelay()",
+          value: `${minDelay.toString()}s delay`,
+          status: minDelay > 0n ? "PASS" : "FAIL",
+          detail:
+            minDelay > 0n
+              ? `Timelock enforces a ${minDelay.toString()}s delay before any scheduled governance execution.`
+              : "getMinDelay() is 0 — queued admin calls can execute instantly. A timelock delay increase is pending; until then this promise does not hold.",
+          blockNumber: currentBlock,
+        };
+      } catch {
+        i7Res = {
+          id: "I-7",
+          promise: "No instant admin changes",
+          call: "TimelockController.getMinDelay()",
+          value: "UNVERIFIED (RPC error)",
+          status: "UNKNOWN",
+          detail: "Could not read the timelock delay. Never assume — retry.",
+          blockNumber: currentBlock,
+        };
+      }
+
+      // I-7b: Queued changes via bounded CallScheduled scan (explicit range).
+      // Event signature from @openzeppelin/contracts 5.4.0 TimelockController.
+      let i7bRes: InvariantCheckResult;
+      try {
+        const rangeFrom = currentBlock > 100000n ? currentBlock - 100000n : 0n;
+        const schedLogs = await client.getLogs({
+          address: timelockAddr,
+          event: parseAbiItem(
+            "event CallScheduled(bytes32 indexed id, uint256 indexed index, address target, uint256 value, bytes data, bytes32 predecessor, uint256 delay)"
+          ),
+          fromBlock: rangeFrom,
+          toBlock: currentBlock,
+        });
+        i7bRes = {
+          id: "I-7b",
+          promise: "Upcoming changes are public",
+          call: "Timelock.CallScheduled logs (last 100k blocks)",
+          value: `${schedLogs.length} scheduled in window`,
+          status: "PASS",
+          detail: `Scanned blocks #${rangeFrom.toString()}–#${currentBlock.toString()}. A full-history queue ships with the indexer; until then this window is the public feed.`,
+          blockNumber: currentBlock,
+        };
+      } catch {
+        i7bRes = {
+          id: "I-7b",
+          promise: "Upcoming changes are public",
+          call: "Timelock.CallScheduled logs (last 100k blocks)",
+          value: "UNVERIFIED (RPC error)",
+          status: "UNKNOWN",
+          detail: "Could not scan the timelock queue. Never assume — retry.",
+          blockNumber: currentBlock,
+        };
+      }
+
+      // I-8: Scoped custodians (registry has no enumeration; PENDING by design)
+      const i8Res: InvariantCheckResult = {
+        id: "I-8",
+        promise: "Only scoped custodians sign",
+        call: "CustodianRegistry.isAuthorized(key, commodity)",
+        value: "0 registered keys (pilot)",
+        status: "PENDING",
+        detail: "Pilot state: no custodian key registered on-chain. Every attestation fails the registry step until key accession. Keys are checked per-attestation on /verify.",
+        blockNumber: currentBlock,
+      };
+
+      // I-9: Stockpile = signed metal only (holdings only grow via recordPurchase)
+      let i9Res: InvariantCheckResult;
+      try {
+        const holdingsAbi = [
+          {
+            name: "holdingsKgE12",
+            type: "function",
+            stateMutability: "view",
+            inputs: [{ name: "commodity", type: "uint8" }],
+            outputs: [{ name: "", type: "uint256" }],
+          },
+        ] as const;
+        const reserveAddr = getCanonicalAddress("ReserveManager");
+        const holdings = (await Promise.all(
+          Array.from({ length: 9 }, (_, i) =>
+            client.readContract({
+              address: reserveAddr,
+              abi: holdingsAbi,
+              functionName: "holdingsKgE12",
+              args: [i],
+            })
+          )
+        )) as bigint[];
+        const totalKgE12 = holdings.reduce((a, b) => a + b, 0n);
+        const totalKg = Number(totalKgE12) / 1e12;
+        i9Res = {
+          id: "I-9",
+          promise: "Stockpile = signed metal only",
+          call: "ReserveManager.holdingsKgE12(0..8)",
+          value: `${totalKg.toFixed(6)} kg attested`,
+          status: "PASS",
+          detail:
+            "Holdings can only increase through attested recordPurchase calls — no silent mint path exists. Pons-era attestations: none yet.",
+          blockNumber: currentBlock,
+        };
+      } catch {
+        i9Res = {
+          id: "I-9",
+          promise: "Stockpile = signed metal only",
+          call: "ReserveManager.holdingsKgE12(0..8)",
+          value: "UNVERIFIED (RPC error)",
+          status: "UNKNOWN",
+          detail: "Could not read holdings. Never assume — retry.",
+          blockNumber: currentBlock,
+        };
+      }
+
+      // I-10: Treasury balances (CRIT + ETH). Treasury is a deployer EOA
+      // until the timelock rotation lands — stated, not hidden.
+      let i10Res: InvariantCheckResult;
+      try {
+        const [treasuryCrit, treasuryEth] = (await Promise.all([
+          client.readContract({
+            address: critAddr,
+            abi: [
+              {
+                name: "balanceOf",
+                type: "function",
+                stateMutability: "view",
+                inputs: [{ name: "account", type: "address" }],
+                outputs: [{ name: "", type: "uint256" }],
+              },
+            ],
+            functionName: "balanceOf",
+            args: [treasuryAddr],
+          }),
+          client.getBalance({ address: treasuryAddr }),
+        ])) as [bigint, bigint];
+        const formattedCrit = Number(formatUnits(treasuryCrit, 18)).toLocaleString("en-US", {
           maximumFractionDigits: 2,
+        });
+        const formattedEth = (Number(treasuryEth) / 1e18).toLocaleString("en-US", {
+          maximumFractionDigits: 4,
         });
         i10Res = {
           id: "I-10",
           promise: "Treasury is public",
-          call: "CRIT.balanceOf(StockpileTreasury)",
-          value: `${formattedCrit} $CRIT`,
+          call: "CRIT.balanceOf(treasury) + eth_getBalance(treasury)",
+          value: `${formattedCrit} $CRIT · ${formattedEth} ETH`,
           status: "PASS",
-          detail: "Timelock treasury wallet balance inspectable on-chain.",
+          detail: "Deployer-EOA treasury balances inspectable live. Timelock rotation pending.",
           blockNumber: currentBlock,
         };
       } catch {
         i10Res = {
           id: "I-10",
           promise: "Treasury is public",
-          call: "CRIT.balanceOf(StockpileTreasury)",
-          value: "0 $CRIT",
-          status: "PASS",
-          detail: "Timelock treasury wallet verified on-chain.",
+          call: "CRIT.balanceOf(treasury) + eth_getBalance(treasury)",
+          value: "UNVERIFIED (RPC error)",
+          status: "UNKNOWN",
+          detail: "Could not read treasury balances. Never assume — retry.",
           blockNumber: currentBlock,
         };
       }
 
-      // I-11: Weekly burn cadence (polices team)
-      // Check last burn: recent burn occurred in block history
-      const evalBurn = evaluateWeeklyBurn(nowTs - 4 * 24 * 3600, nowTs);
-      const i11Res: InvariantCheckResult = {
-        id: "I-11",
-        promise: "Weekly burn cadence",
-        call: "BurnWallet.lastBurnTimestamp",
-        value: evalBurn.value,
-        status: evalBurn.status,
-        detail: evalBurn.detail,
-        blockNumber: currentBlock,
-      };
+      // I-11: Weekly burn cadence. Scans CRIT Transfer→Dead logs from token
+      // creation in bounded chunks; latest burn timestamp drives the verdict.
+      // The chain-observed Transfer variant topic is used (see lib docs);
+      // viem types only allow the standard topic, so this scan goes through
+      // raw eth_getLogs. No burn ever observed = FAIL (overdue).
+      let i11Res: InvariantCheckResult;
+      try {
+        const TRANSFER_STD =
+          "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df288b6ed";
+        const TRANSFER_CHAIN =
+          "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
+        const deadPad =
+          "0x000000000000000000000000000000000000000000000000000000000000dead";
+        const CREATION_BLOCK = 82691586n;
+        const CHUNK = 25000n;
+        const chunks: Array<{ from: bigint; to: bigint }> = [];
+        for (let s = CREATION_BLOCK; s <= currentBlock; s += CHUNK) {
+          chunks.push({ from: s, to: s + CHUNK - 1n > currentBlock ? currentBlock : s + CHUNK - 1n });
+        }
+        const toHexBlock = (n: bigint) => `0x${n.toString(16)}`;
+        const rawBurnLogs = async (t0: string, from: bigint, to: bigint) =>
+          client
+            .request({
+              method: "eth_getLogs",
+              params: [
+                {
+                  address: critAddr,
+                  topics: [t0 as `0x${string}`, null, deadPad as `0x${string}`],
+                  fromBlock: toHexBlock(from) as `0x${string}`,
+                  toBlock: toHexBlock(to) as `0x${string}`,
+                },
+              ],
+            })
+            .catch((): Array<{ blockNumber: string }> => []);
+        const BATCH = 5;
+        let latestBurnBlock: bigint | null = null;
+        for (let i = 0; i < chunks.length; i += BATCH) {
+          const batch = chunks.slice(i, i + BATCH);
+          const results = await Promise.all(
+            batch.flatMap(({ from, to }) => [
+              rawBurnLogs(TRANSFER_STD, from, to),
+              rawBurnLogs(TRANSFER_CHAIN, from, to),
+            ])
+          );
+          for (const logs of results) {
+            for (const l of logs as Array<{ blockNumber: string }>) {
+              const bn = BigInt(l.blockNumber);
+              if (latestBurnBlock === null || bn > latestBurnBlock) {
+                latestBurnBlock = bn;
+              }
+            }
+          }
+        }
+        if (latestBurnBlock === null) {
+          i11Res = {
+            id: "I-11",
+            promise: "Weekly burn cadence",
+            call: "CRIT Transfer→Dead scan (since creation)",
+            value: "No burn ever observed",
+            status: "FAIL",
+            detail: "FAIL · Burn overdue. No Transfer to the Dead sink found since token creation.",
+            blockNumber: currentBlock,
+          };
+        } else {
+          const burnBlock = await client.getBlock({ blockNumber: latestBurnBlock });
+          const lastBurnTs = Number(burnBlock.timestamp);
+          const evalBurn = evaluateWeeklyBurn(lastBurnTs, nowTs);
+          i11Res = {
+            id: "I-11",
+            promise: "Weekly burn cadence",
+            call: "CRIT Transfer→Dead scan (since creation)",
+            value: `${evalBurn.value} (block #${latestBurnBlock.toString()})`,
+            status: evalBurn.status,
+            detail: evalBurn.detail,
+            blockNumber: currentBlock,
+          };
+        }
+      } catch {
+        i11Res = {
+          id: "I-11",
+          promise: "Weekly burn cadence",
+          call: "CRIT Transfer→Dead scan (since creation)",
+          value: "UNVERIFIED (RPC error)",
+          status: "UNKNOWN",
+          detail: "Burn scan failed partway. Never assume — retry.",
+          blockNumber: currentBlock,
+        };
+      }
 
-      // I-12: No unlimited approvals
+      // I-12: No unlimited approvals. The swap UI currently approves max
+      // uint256 (app/swap/page.tsx), so this row honestly FAILS until the
+      // exact-allowance change lands. This row polices the team.
       const i12Res: InvariantCheckResult = {
         id: "I-12",
         promise: "No unlimited approvals",
-        call: "UI exact allowance assertions",
-        value: "Exact Amount Approvals",
-        status: "PASS",
-        detail: "UI and contract flows request exact required allowances; max uint256 approvals rejected in CI.",
+        call: "UI allowance audit (static)",
+        value: "max uint256 approval in swap",
+        status: "FAIL",
+        detail:
+          "app/swap/page.tsx approves max uint256 to the swap helper. Exact-amount allowance change pending.",
         blockNumber: currentBlock,
       };
 
-      // I-13: Prices carry an age
-      const i13Res: InvariantCheckResult = {
-        id: "I-13",
-        promise: "Prices carry an age",
-        call: "PriceOracleAdapter.lastUpdated()",
-        value: "< 24h Threshold Enforced",
-        status: "PASS",
-        detail: "Price oracle timestamps checked client-side; feeds older than 24h flag stale and halt calculation.",
-        blockNumber: currentBlock,
-      };
+      // I-13: Prices carry an age (all 9 commodities read live)
+      let i13Res: InvariantCheckResult;
+      try {
+        const priceAddr = getCanonicalAddress("PriceOracleAdapter");
+        const priceReads = (await Promise.all(
+          Array.from({ length: 9 }, (_, i) =>
+            client.readContract({
+              address: priceAddr,
+              abi: [
+                {
+                  name: "latestPrice",
+                  type: "function",
+                  stateMutability: "view",
+                  inputs: [{ name: "commodity", type: "uint8" }],
+                  outputs: [
+                    { name: "usdPerKgE8", type: "uint192" },
+                    { name: "sourceHash", type: "bytes32" },
+                    { name: "updatedAt", type: "uint64" },
+                    { name: "nonce", type: "uint64" },
+                  ],
+                },
+              ],
+              functionName: "latestPrice",
+              args: [i],
+            })
+          )
+        )) as Array<readonly [bigint, string, bigint, bigint]>;
+        const names = ["Au", "Ag", "Pt", "Pd", "Nd", "Dy", "Tb", "Sc", "Li"];
+        const ages = priceReads.map((p, i) => ({
+          name: names[i],
+          set: p[0] > 0n,
+          ageSecs: p[2] > 0n ? nowTs - Number(p[2]) : Number.POSITIVE_INFINITY,
+        }));
+        const stale = ages.filter((a) => !a.set || a.ageSecs > 24 * 3600);
+        const oldestH = Math.min(...ages.map((a) => a.ageSecs)) / 3600;
+        i13Res = {
+          id: "I-13",
+          promise: "Prices carry an age",
+          call: "PriceOracleAdapter.latestPrice(i).updatedAt × 9",
+          value:
+            stale.length === 0
+              ? `all fresh (oldest ${oldestH.toFixed(1)}h)`
+              : `${stale.length}/9 stale (${stale.map((s) => s.name).join(",")})`,
+          status: stale.length === 0 ? "PASS" : "FAIL",
+          detail:
+            stale.length === 0
+              ? "Every commodity feed is younger than 24h."
+              : `FAIL · stale: ${stale
+                  .map((s) => `${s.name} (${s.set ? `${(s.ageSecs / 3600).toFixed(1)}h old` : "never set"})`)
+                  .join("; ")}. Feeds older than 24h halt reserve math on-chain.`,
+          blockNumber: currentBlock,
+        };
+      } catch {
+        i13Res = {
+          id: "I-13",
+          promise: "Prices carry an age",
+          call: "PriceOracleAdapter.latestPrice(i).updatedAt × 9",
+          value: "UNVERIFIED (RPC error)",
+          status: "UNKNOWN",
+          detail: "Could not read oracle timestamps. Never assume — retry.",
+          blockNumber: currentBlock,
+        };
+      }
 
-      // I-14: Canonical token only
-      const i14Res: InvariantCheckResult = {
-        id: "I-14",
-        promise: "Canonical token only",
-        call: "Launcher.canonicalCrit()",
-        value: "0x3517...d78f (Pons)",
-        status: "PASS",
-        detail: "Contracts reference canonical Pons token exclusively. Deprecated 0x5607... is blacklisted.",
-        blockNumber: currentBlock,
-      };
+      // I-14: Canonical token only (launcher wiring read live)
+      let i14Res: InvariantCheckResult;
+      try {
+        const launcherAddr = getCanonicalAddress("sCRITV4Launcher");
+        const addrAbi = [
+          {
+            name: "scrit",
+            type: "function",
+            stateMutability: "view",
+            inputs: [],
+            outputs: [{ name: "", type: "address" }],
+          },
+          {
+            name: "hook",
+            type: "function",
+            stateMutability: "view",
+            inputs: [],
+            outputs: [{ name: "", type: "address" }],
+          },
+        ] as const;
+        const [wiredScrit, wiredHook] = (await Promise.all([
+          client.readContract({ address: launcherAddr, abi: addrAbi, functionName: "scrit" }),
+          client.readContract({ address: launcherAddr, abi: addrAbi, functionName: "hook" }),
+        ])) as [string, string];
+        const critOk = wiredScrit.toLowerCase() === critAddr.toLowerCase();
+        const hookOk = wiredHook.toLowerCase() === hookAddr.toLowerCase();
+        i14Res = {
+          id: "I-14",
+          promise: "Canonical token only",
+          call: "Launcher.scrit() + Launcher.hook()",
+          value: critOk && hookOk ? "CRIT + hook canonical" : "MISMATCH",
+          status: critOk && hookOk ? "PASS" : "FAIL",
+          detail:
+            critOk && hookOk
+              ? "Launcher wires canonical Pons $CRIT and the 0x2044 hook. Legacy 0x5607… is referenced nowhere."
+              : `Launcher wiring differs: scrit=${wiredScrit} hook=${wiredHook}.`,
+          blockNumber: currentBlock,
+        };
+      } catch {
+        i14Res = {
+          id: "I-14",
+          promise: "Canonical token only",
+          call: "Launcher.scrit() + Launcher.hook()",
+          value: "UNVERIFIED (RPC error)",
+          status: "UNKNOWN",
+          detail: "Could not read launcher wiring. Never assume — retry.",
+          blockNumber: currentBlock,
+        };
+      }
 
       const all = [
         i1Res,

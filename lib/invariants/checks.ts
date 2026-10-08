@@ -1,5 +1,4 @@
-import { getCanonicalAddress, ADDRESSES } from "@/lib/addresses";
-import { decodeHookPermissions } from "@/lib/verify/hook-decoder";
+import { getCanonicalAddress } from "@/lib/addresses";
 import { formatUnits } from "viem";
 
 export type InvariantStatus = "PASS" | "FAIL" | "PENDING" | "UNKNOWN";
@@ -27,7 +26,7 @@ export const INVARIANT_DEFINITIONS: InvariantDefinition[] = [
     id: "I-1",
     promise: "Supply fixed at 1,000,000,000",
     call: "CRIT.totalSupply()",
-    description: "Asserts total supply equals exactly 1,000,000,000 CRIT. Scans bytecode for mint capability.",
+    description: "Asserts total supply equals exactly 1,000,000,000 CRIT.",
     category: "SUPPLY & BURNS",
   },
   {
@@ -61,7 +60,7 @@ export const INVARIANT_DEFINITIONS: InvariantDefinition[] = [
   {
     id: "I-6",
     promise: "Fee split is what we say",
-    call: "Hook.getFeeSplit()",
+    call: "Hook.TAX_BPS() + Hook.RESERVE_SHARE_BPS()",
     description: "Hook fee distribution enforces 75% to StockpileTreasury and 25% to Operations.",
     category: "CONTRACT SAFETY",
   },
@@ -69,7 +68,7 @@ export const INVARIANT_DEFINITIONS: InvariantDefinition[] = [
     id: "I-7",
     promise: "No instant admin changes",
     call: "TimelockController.getMinDelay()",
-    description: "All protocol parameter changes require minimum 48-hour decentralized governance delay.",
+    description: "Protocol parameter changes go through the timelock. The live delay is read on-chain — 0 means instant execution is possible.",
     category: "GOVERNANCE & TIMELOCK",
   },
   {
@@ -82,14 +81,14 @@ export const INVARIANT_DEFINITIONS: InvariantDefinition[] = [
   {
     id: "I-8",
     promise: "Only scoped custodians sign",
-    call: "CustodianRegistry.getCustodians()",
+    call: "CustodianRegistry.isAuthorized(key, commodity)",
     description: "Physical warehouse intake requires cryptographic signatures from registered scoped custodians.",
     category: "RESERVE & TREASURY",
   },
   {
     id: "I-9",
     promise: "Stockpile = signed metal only",
-    call: "ReserveManager.totalAttestedKg()",
+    call: "ReserveManager.holdingsKgE12(0..8)",
     description: "Recognized physical reserve reflects only cryptographically accepted custodian attestations.",
     category: "RESERVE & TREASURY",
   },
@@ -117,14 +116,14 @@ export const INVARIANT_DEFINITIONS: InvariantDefinition[] = [
   {
     id: "I-13",
     promise: "Prices carry an age",
-    call: "PriceOracleAdapter.lastUpdated()",
+    call: "PriceOracleAdapter.latestPrice(i).updatedAt × 9",
     description: "Commodity price feeds are flagged stale and reject calculation if older than 24 hours.",
     category: "RESERVE & TREASURY",
   },
   {
     id: "I-14",
     promise: "Canonical token only",
-    call: "Launcher.canonicalCrit()",
+    call: "Launcher.scrit() + Launcher.hook()",
     description: "Protocol contracts interact exclusively with canonical CRIT (Pons), rejecting legacy tokens.",
     category: "CONTRACT SAFETY",
   },
@@ -144,7 +143,7 @@ export function evaluateSupplyFixed(totalSupply: bigint): {
     return {
       status: "PASS",
       value: `${formatted} $CRIT`,
-      detail: "Exact supply confirmed on-chain. Bytecode scan confirms no mint capability.",
+      detail: "Exact 1,000,000,000 supply read live from CRIT.totalSupply().",
     };
   } else {
     return {
