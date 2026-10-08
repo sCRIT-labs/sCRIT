@@ -1,0 +1,21 @@
+{
+  "network": "Robinhood Chain",
+  "chainId": 4663,
+  "migratedAt": "2026-10-08T01:49:20.192Z",
+  "deployer": "0x272568D25b9634Ad8A4e8E8CBB10b729f41C781d",
+  "ponsScritToken": "0x351776b6fba6a910c32e46f3775aa946a724d78f",
+  "contracts": {
+    "SCRIT_TAX_HOOK": {
+      "address": "0x4bbd5c4894b75ddbf215c82304b6c21f9134a044",
+      "tx": "0x6090029e28335dd4ba50f96ca52ffcb6e6e06db95eadb0d9a2c3893cb7181b8d",
+      "block": 82941964,
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000006103"
+    },
+    "SCRIT_LAUNCHER_V4": {
+      "address": "0x90e94eac08d1d3989d5560320c2096d38274d711",
+      "tx": "0xf8f0b1ac6c24663cce40b0088fa0e50f65933d0e52a0220f31df9384614699cc",
+      "block": 82941994
+    }
+  },
+  "timelock": "0x00824e9c6075ff2ceb10009de7f170fc6721df1a"
+}
