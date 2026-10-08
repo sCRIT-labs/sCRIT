@@ -18,6 +18,7 @@ import {
 } from "@/lib/verify/attestation";
 import { decodeHookPermissions, type DecodedHookPermissions } from "@/lib/verify/hook-decoder";
 import { classifyReceiptLogs, type ClassifiedTransaction } from "@/lib/verify/transaction";
+import { fetchAccountStorageProof, type StorageProofResult } from "@/lib/verify/storage-proof";
 import { keccak256, formatUnits } from "viem";
 import {
   ShieldCheck,
@@ -68,6 +69,26 @@ function VerifyContent() {
   const [addressLookup, setAddressLookup] = useState<ReturnType<typeof lookupAddress> | null>(null);
   const [hookDecoded, setHookDecoded] = useState<DecodedHookPermissions | null>(null);
   const [liveCodeHash, setLiveCodeHash] = useState<string | null>(null);
+
+  // Storage Proof State (v1.1)
+  const [storageProof, setStorageProof] = useState<StorageProofResult | null>(null);
+  const [isLoadingStorageProof, setIsLoadingStorageProof] = useState(false);
+  const [showStorageProof, setShowStorageProof] = useState(false);
+
+  async function handleVerifyStorageProof(targetAddr?: string) {
+    const addr = targetAddr || (detectedType === "addr" ? inputVal : getCanonicalAddress("Dead"));
+    if (!addr || !/^0x[a-fA-F0-9]{40}$/.test(addr)) return;
+    setIsLoadingStorageProof(true);
+    setShowStorageProof(true);
+    try {
+      const res = await fetchAccountStorageProof(addr as `0x${string}`, activeChainId);
+      setStorageProof(res);
+    } catch (err: any) {
+      console.warn("Storage proof verification failed:", err);
+    } finally {
+      setIsLoadingStorageProof(false);
+    }
+  }
 
   // Fetch current block for age calculation
   useEffect(() => {
@@ -1039,6 +1060,59 @@ function VerifyContent() {
                   )}
                 </div>
               )}
+
+              {/* Trust-minimised mode toggle (v1.1) */}
+              <div
+                style={{
+                  marginTop: 16,
+                  padding: "14px 16px",
+                  background: "#faf8f2",
+                  border: "1px solid var(--line-ink)",
+                  borderRadius: 4,
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+                  <div>
+                    <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>
+                      Trust-Minimised Verification (v1.1)
+                    </div>
+                    <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "#636b60", marginTop: 2 }}>
+                      Checks the value against the block&apos;s state root. Still trusts the block header.
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleVerifyStorageProof(getCanonicalAddress("Dead"))}
+                    disabled={isLoadingStorageProof}
+                    className="btn btn-gold"
+                    style={{
+                      padding: "6px 14px",
+                      fontSize: 11,
+                      fontFamily: "var(--font-mono)",
+                      borderRadius: 4,
+                    }}
+                  >
+                    {isLoadingStorageProof ? "VERIFYING PROOF..." : "VERIFY WITH STORAGE PROOF"}
+                  </button>
+                </div>
+
+                {storageProof && (
+                  <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px dashed var(--line-ink)", fontFamily: "var(--font-mono)", fontSize: 11 }}>
+                    <div style={{ color: "#1b5e20", fontWeight: 700, marginBottom: 4 }}>
+                      ✓ Merkle-Patricia Proof Verified Against State Root
+                    </div>
+                    <div style={{ color: "#7d8479", wordBreak: "break-all" }}>
+                      STATE ROOT: <span style={{ color: "var(--ink)" }}>{storageProof.stateRoot}</span>
+                    </div>
+                    <div style={{ color: "#7d8479", marginTop: 2, wordBreak: "break-all" }}>
+                      STORAGE HASH: <span style={{ color: "var(--ink)" }}>{storageProof.storageHash}</span>
+                    </div>
+                    <div style={{ color: "#7d8479", marginTop: 2 }}>
+                      ACCOUNT PROOF LENGTH: <span style={{ color: "var(--ink)" }}>{storageProof.accountProofLength} nodes</span> · ETH BALANCE: <span style={{ color: "var(--ink)" }}>{storageProof.balanceEth} ETH</span>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -1142,6 +1216,59 @@ function VerifyContent() {
                       <span style={{ color: "#8a5d00" }}>PENDING VERIFICATION</span>
                     )}
                   </div>
+                </div>
+
+                {/* Trust-minimised mode toggle (v1.1) */}
+                <div
+                  style={{
+                    marginTop: 16,
+                    padding: "14px 16px",
+                    background: "#faf8f2",
+                    border: "1px solid var(--line-ink)",
+                    borderRadius: 4,
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+                    <div>
+                      <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 700, color: "var(--ink)" }}>
+                        Trust-Minimised Storage Proof (v1.1)
+                      </div>
+                      <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "#636b60", marginTop: 2 }}>
+                        Checks the value against the block&apos;s state root. Still trusts the block header.
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleVerifyStorageProof(inputVal)}
+                      disabled={isLoadingStorageProof}
+                      className="btn btn-gold"
+                      style={{
+                        padding: "6px 14px",
+                        fontSize: 11,
+                        fontFamily: "var(--font-mono)",
+                        borderRadius: 4,
+                      }}
+                    >
+                      {isLoadingStorageProof ? "VERIFYING PROOF..." : "VERIFY WITH STORAGE PROOF"}
+                    </button>
+                  </div>
+
+                  {storageProof && (
+                    <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px dashed var(--line-ink)", fontFamily: "var(--font-mono)", fontSize: 11 }}>
+                      <div style={{ color: "#1b5e20", fontWeight: 700, marginBottom: 4 }}>
+                        ✓ Merkle-Patricia Proof Verified Against State Root
+                      </div>
+                      <div style={{ color: "#7d8479", wordBreak: "break-all" }}>
+                        STATE ROOT: <span style={{ color: "var(--ink)" }}>{storageProof.stateRoot}</span>
+                      </div>
+                      <div style={{ color: "#7d8479", marginTop: 2, wordBreak: "break-all" }}>
+                        STORAGE HASH: <span style={{ color: "var(--ink)" }}>{storageProof.storageHash}</span>
+                      </div>
+                      <div style={{ color: "#7d8479", marginTop: 2 }}>
+                        ACCOUNT PROOF LENGTH: <span style={{ color: "var(--ink)" }}>{storageProof.accountProofLength} nodes</span> · ETH BALANCE: <span style={{ color: "var(--ink)" }}>{storageProof.balanceEth} ETH</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

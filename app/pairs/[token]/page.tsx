@@ -24,7 +24,9 @@ import {
   Activity,
   ExternalLink,
   Sparkles,
+  Clock,
 } from "lucide-react";
+import { HOOD_MAINNET } from "@/lib/scrit";
 
 interface RecentSwap {
   tx: string;
@@ -400,6 +402,148 @@ export default function PairDetailPage() {
                     </div>
                   ))}
                 </div>
+              </div>
+            </div>
+
+            {/* Contribution Over Time */}
+            <div
+              style={{
+                background: "#ffffff",
+                border: "1px solid var(--line-ink)",
+                borderRadius: 6,
+                boxShadow: "0 4px 20px rgba(24, 26, 24, 0.03)",
+                overflow: "hidden",
+              }}
+            >
+              <div
+                style={{
+                  padding: "14px 18px",
+                  borderBottom: "1px solid var(--line-ink)",
+                  background: "#faf8f2",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <Coins size={15} color="var(--signal)" />
+                  <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", fontFamily: "var(--font-mono)", textTransform: "uppercase", color: "var(--ink)" }}>
+                    Stockpile Contribution Over Time
+                  </span>
+                </div>
+                <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "#7d8479" }}>
+                  75% of 250 bps hook fee
+                </span>
+              </div>
+
+              <div style={{ padding: 20 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderBottom: "1px dashed var(--line-ink)", paddingBottom: 10 }}>
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "#7d8479" }}>
+                      Cumulative Stockpile Share Delivered
+                    </span>
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: 18, fontWeight: 700, color: "#8c6418" }}>
+                      {Number(formatUnits(pool.fedToStockpile, 18)).toLocaleString()} $CRIT
+                    </span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderBottom: "1px dashed var(--line-ink)", paddingBottom: 10 }}>
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "#7d8479" }}>
+                      Total Pool Swap Volume Observed
+                    </span>
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: 14, fontWeight: 600, color: "var(--ink)" }}>
+                      {Number(formatUnits(pool.critVolume, 18)).toLocaleString()} $CRIT across {pool.swapCount} swaps
+                    </span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "#7d8479" }}>
+                      Pool Creation Block
+                    </span>
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--ink)" }}>
+                      #{pool.createdAtBlock.toString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Swaps List */}
+            <div
+              style={{
+                background: "#ffffff",
+                border: "1px solid var(--line-ink)",
+                borderRadius: 6,
+                boxShadow: "0 4px 20px rgba(24, 26, 24, 0.03)",
+                overflow: "hidden",
+              }}
+            >
+              <div
+                style={{
+                  padding: "14px 18px",
+                  borderBottom: "1px solid var(--line-ink)",
+                  background: "#faf8f2",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <Activity size={15} color="var(--signal)" />
+                  <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", fontFamily: "var(--font-mono)", textTransform: "uppercase", color: "var(--ink)" }}>
+                    Recent Swaps ({swaps.length})
+                  </span>
+                </div>
+                <span style={{ fontSize: 11, fontFamily: "var(--font-mono)", color: "#7d8479" }}>
+                  Uniswap V4 Swap Events
+                </span>
+              </div>
+
+              <div style={{ padding: 20 }}>
+                {swaps.length === 0 ? (
+                  <div style={{ textAlign: "center", padding: "24px 0", color: "#7d8479", fontFamily: "var(--font-mono)", fontSize: 12 }}>
+                    0 swaps recorded on this pool yet. Initial stockpile contribution is 0 $CRIT.
+                  </div>
+                ) : (
+                  <div style={{ overflowX: "auto" }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "var(--font-mono)", fontSize: 12 }}>
+                      <thead>
+                        <tr style={{ borderBottom: "1px solid var(--line-ink)", textAlign: "left", color: "#7d8479" }}>
+                          <th style={{ padding: "8px 12px" }}>BLOCK</th>
+                          <th style={{ padding: "8px 12px" }}>TRANSACTION</th>
+                          <th style={{ padding: "8px 12px" }}>AMOUNT 0</th>
+                          <th style={{ padding: "8px 12px" }}>AMOUNT 1</th>
+                          <th style={{ padding: "8px 12px", textAlign: "right" }}>EXPLORER</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {swaps.map((s, idx) => (
+                          <tr key={s.tx + idx} style={{ borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+                            <td style={{ padding: "10px 12px", color: "var(--ink)" }}>#{s.block.toString()}</td>
+                            <td style={{ padding: "10px 12px", color: "#5e645d" }}>
+                              {s.tx.slice(0, 8)}...{s.tx.slice(-6)}
+                            </td>
+                            <td style={{ padding: "10px 12px", color: "var(--ink)" }}>
+                              {formatUnits(s.amount0 < 0n ? -s.amount0 : s.amount0, 18)}
+                            </td>
+                            <td style={{ padding: "10px 12px", color: "var(--ink)" }}>
+                              {formatUnits(s.amount1 < 0n ? -s.amount1 : s.amount1, 18)}
+                            </td>
+                            <td style={{ padding: "10px 12px", textAlign: "right" }}>
+                              <a
+                                href={`${HOOD_MAINNET.explorer}/tx/${s.tx}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                style={{ color: "#8c6418", display: "inline-flex", alignItems: "center", gap: 4, textDecoration: "none" }}
+                              >
+                                <span>View</span>
+                                <ExternalLink size={11} />
+                              </a>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </div>
 

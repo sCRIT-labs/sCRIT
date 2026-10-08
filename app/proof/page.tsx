@@ -789,9 +789,8 @@ export default function Proof() {
 
         <p style={{ color: "rgba(255,255,255,0.7)", fontSize: 14, margin: "0 0 20px" }}>
           Anchoring proves a report hasn&apos;t changed since it was posted. The inputs are on-chain,
-          so you can check they were right. Week 3 is an unanchored draft: burns and attestations
-          below were observed via Transfer→Dead and attestation log scans; treasury balances are
-          unmeasured without an archive node.
+          so you can check they were right. Week 3 summary was hashed and anchored on Robinhood Chain
+          mainnet in transaction 0x684d25ec13686b47b14b20e4ecfd8bcc30c2cc78278c30065caf261f4d6b0cec.
         </p>
 
         <div className="proof-evidence-card" style={{ padding: 24, border: "1px solid rgba(255,255,255,0.1)" }}>

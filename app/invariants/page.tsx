@@ -22,9 +22,15 @@ export default function InvariantsPage() {
   const [blockNumber, setBlockNumber] = useState<bigint | null>(null);
   const [blockAgeSecs, setBlockAgeSecs] = useState<number | null>(null);
   const [filterCategory, setFilterCategory] = useState<string>("ALL");
+  const [checkedCount, setCheckedCount] = useState(0);
+  const TOTAL_ROWS = 15;
 
-  async function runAllChecks() {
-    setIsLoading(true);
+  async function runAllChecks(mode: "full" | "light" = "full") {
+    if (mode === "full") {
+      setResults([]);
+      setCheckedCount(0);
+      setIsLoading(true);
+    }
     const client = publicClientFor(4663);
 
     try {
@@ -41,8 +47,49 @@ export default function InvariantsPage() {
       const timelockAddr = getCanonicalAddress("TimelockController");
       const treasuryAddr = getCanonicalAddress("StockpileTreasury");
 
-      // I-1: Total Supply
-      let i1Res: InvariantCheckResult;
+      // Task engine: rows register as lazy thunks and run with bounded
+      // concurrency; each publishes progressively as it resolves.
+      const lightTasks: Array<() => Promise<void>> = [];
+      const heavyTasks: Array<() => Promise<void>> = [];
+
+      function publishRow(row: InvariantCheckResult) {
+        setResults((prev) =>
+          sortInvariantsByPriority([...prev.filter((r) => r.id !== row.id), row])
+        );
+        setCheckedCount((c) => (c >= TOTAL_ROWS ? TOTAL_ROWS : c + 1));
+      }
+
+      function tracked(fn: () => Promise<InvariantCheckResult>): () => Promise<void> {
+        return async () => {
+          try {
+            const row = await Promise.race([
+              fn(),
+              new Promise<never>((_, rej) =>
+                setTimeout(() => rej(new Error("row timeout")), 25000)
+              ),
+            ]);
+            publishRow(row);
+          } catch {
+            /* rows degrade to UNKNOWN themselves; timeouts stay silent until recheck */
+          }
+        };
+      }
+
+      async function poolAll(tasks: Array<() => Promise<void>>, n: number) {
+        const q = [...tasks];
+        await Promise.all(
+          Array.from({ length: Math.min(n, q.length) }, async () => {
+            while (q.length > 0) {
+              const t = q.shift();
+              if (t) await t();
+            }
+          })
+        );
+      }
+
+      lightTasks.push(tracked(async () => {
+        // I-1: Total Supply
+        let i1Res: InvariantCheckResult;
       try {
         const supply = (await client.readContract({
           address: critAddr,
@@ -78,7 +125,10 @@ export default function InvariantsPage() {
           blockNumber: currentBlock,
         };
       }
+      return i1Res;
+      }));
 
+      lightTasks.push(tracked(async () => {
       // I-2: Burns permanent
       let i2Res: InvariantCheckResult;
       try {
@@ -119,7 +169,10 @@ export default function InvariantsPage() {
           blockNumber: currentBlock,
         };
       }
+      return i2Res;
+      }));
 
+      lightTasks.push(tracked(async () => {
       // I-3: Dev supply burned
       let i3Res: InvariantCheckResult;
       try {
@@ -157,7 +210,10 @@ export default function InvariantsPage() {
           blockNumber: currentBlock,
         };
       }
+      return i3Res;
+      }));
 
+      lightTasks.push(tracked(async () => {
       // I-4: LP lock (pre-graduation: no V4 position NFT exists yet)
       const i4Res: InvariantCheckResult = {
         id: "I-4",
@@ -168,7 +224,10 @@ export default function InvariantsPage() {
         detail: "Pons curve has not graduated to a Uniswap V4 pool, so no LP NFT exists to lock. This row activates at graduation.",
         blockNumber: currentBlock,
       };
+      return i4Res;
+      }));
 
+      lightTasks.push(tracked(async () => {
       // I-5: Hook bit permissions + live code hash vs recorded
       const hookPerms = decodeHookPermissions(hookAddr);
       const flagsOk =
@@ -201,7 +260,10 @@ export default function InvariantsPage() {
             : "Could not read hook bytecode (RPC error). Never assume — retry.",
         blockNumber: currentBlock,
       };
+      return i5Res;
+      }));
 
+      lightTasks.push(tracked(async () => {
       // I-6: Fee split read live from the hook (contract wins over copy)
       let i6Res: InvariantCheckResult;
       try {
@@ -248,7 +310,10 @@ export default function InvariantsPage() {
           blockNumber: currentBlock,
         };
       }
+      return i6Res;
+      }));
 
+      lightTasks.push(tracked(async () => {
       // I-7: Timelock delay read live (0 = instant execution is possible)
       let i7Res: InvariantCheckResult;
       try {
@@ -288,7 +353,10 @@ export default function InvariantsPage() {
           blockNumber: currentBlock,
         };
       }
+      return i7Res;
+      }));
 
+      heavyTasks.push(tracked(async () => {
       // I-7b: Queued changes via bounded CallScheduled scan (explicit range).
       // Event signature from @openzeppelin/contracts 5.4.0 TimelockController.
       let i7bRes: InvariantCheckResult;
@@ -322,7 +390,10 @@ export default function InvariantsPage() {
           blockNumber: currentBlock,
         };
       }
+      return i7bRes;
+      }));
 
+      lightTasks.push(tracked(async () => {
       // I-8: Scoped custodians (registry has no enumeration; PENDING by design)
       const i8Res: InvariantCheckResult = {
         id: "I-8",
@@ -333,7 +404,10 @@ export default function InvariantsPage() {
         detail: "Pilot state: no custodian key registered on-chain. Every attestation fails the registry step until key accession. Keys are checked per-attestation on /verify.",
         blockNumber: currentBlock,
       };
+      return i8Res;
+      }));
 
+      lightTasks.push(tracked(async () => {
       // I-9: Stockpile = signed metal only (holdings only grow via recordPurchase)
       let i9Res: InvariantCheckResult;
       try {
@@ -380,7 +454,10 @@ export default function InvariantsPage() {
           blockNumber: currentBlock,
         };
       }
+      return i9Res;
+      }));
 
+      lightTasks.push(tracked(async () => {
       // I-10: Treasury balances (CRIT + ETH). Treasury is a deployer EOA
       // until the timelock rotation lands — stated, not hidden.
       let i10Res: InvariantCheckResult;
@@ -428,7 +505,10 @@ export default function InvariantsPage() {
           blockNumber: currentBlock,
         };
       }
+      return i10Res;
+      }));
 
+      heavyTasks.push(tracked(async () => {
       // I-11: Weekly burn cadence. Scans CRIT Transfer→Dead logs from token
       // creation in bounded chunks; latest burn timestamp drives the verdict.
       // The chain-observed Transfer variant topic is used (see lib docs);
@@ -517,7 +597,10 @@ export default function InvariantsPage() {
           blockNumber: currentBlock,
         };
       }
+      return i11Res;
+      }));
 
+      lightTasks.push(tracked(async () => {
       // I-12: No unlimited approvals. The swap UI currently approves max
       // uint256 (app/swap/page.tsx), so this row honestly FAILS until the
       // exact-allowance change lands. This row polices the team.
@@ -531,7 +614,10 @@ export default function InvariantsPage() {
           "app/swap/page.tsx approves max uint256 to the swap helper. Exact-amount allowance change pending.",
         blockNumber: currentBlock,
       };
+      return i12Res;
+      }));
 
+      lightTasks.push(tracked(async () => {
       // I-13: Prices carry an age (all 9 commodities read live)
       let i13Res: InvariantCheckResult;
       try {
@@ -595,7 +681,10 @@ export default function InvariantsPage() {
           blockNumber: currentBlock,
         };
       }
+      return i13Res;
+      }));
 
+      lightTasks.push(tracked(async () => {
       // I-14: Canonical token only (launcher wiring read live)
       let i14Res: InvariantCheckResult;
       try {
@@ -645,26 +734,15 @@ export default function InvariantsPage() {
           blockNumber: currentBlock,
         };
       }
+      return i14Res;
+      }));
 
-      const all = [
-        i1Res,
-        i2Res,
-        i3Res,
-        i4Res,
-        i5Res,
-        i6Res,
-        i7Res,
-        i7bRes,
-        i8Res,
-        i9Res,
-        i10Res,
-        i11Res,
-        i12Res,
-        i13Res,
-        i14Res,
-      ];
-
-      setResults(sortInvariantsByPriority(all));
+      await poolAll(lightTasks, 8);
+      if (mode === "full") {
+        // Heavy log scans run only on mount + manual recheck, after the
+        // board is already interactive.
+        await poolAll(heavyTasks, 2);
+      }
     } catch (err) {
       console.error("Failed to run invariant checks:", err);
     } finally {
@@ -673,8 +751,8 @@ export default function InvariantsPage() {
   }
 
   useEffect(() => {
-    runAllChecks();
-    const interval = setInterval(runAllChecks, 20000);
+    runAllChecks("full");
+    const interval = setInterval(() => runAllChecks("light"), 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -784,7 +862,7 @@ export default function InvariantsPage() {
 
               <button
                 type="button"
-                onClick={runAllChecks}
+                onClick={() => runAllChecks("full")}
                 disabled={isLoading}
                 className="btn btn-gold"
                 style={{
@@ -800,7 +878,7 @@ export default function InvariantsPage() {
                 }}
               >
                 <RefreshCw size={12} className={isLoading ? "animate-spin" : ""} />
-                <span>{isLoading ? "RE-CHECKING RPC..." : "RECHECK ALL IN BROWSER"}</span>
+                <span>{isLoading ? `RE-CHECKING RPC... ${checkedCount}/${TOTAL_ROWS}` : "RECHECK ALL IN BROWSER"}</span>
               </button>
             </div>
           </div>
@@ -932,6 +1010,29 @@ export default function InvariantsPage() {
 
         {/* Invariant Rows List */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {results.length === 0 && isLoading && (
+            <>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--muted)", letterSpacing: "0.08em" }}>
+                CHECKING CHAIN… 0/{TOTAL_ROWS} — rows appear as each check resolves
+              </div>
+              {[0, 1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  style={{
+                    padding: "14px 18px",
+                    borderRadius: 6,
+                    background: "rgba(0,0,0,0.04)",
+                    border: "1px solid var(--line-ink)",
+                    color: "var(--muted)",
+                    fontFamily: "var(--font-mono)",
+                    fontSize: 12,
+                  }}
+                >
+                  Reading row {i + 1} from RPC…
+                </div>
+              ))}
+            </>
+          )}
           {filtered.map((item) => {
             const isFail = item.status === "FAIL";
             const isPass = item.status === "PASS";
