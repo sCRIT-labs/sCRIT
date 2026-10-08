@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { PageShell } from "@/components/PageShell";
 import { VerificationToolbar } from "@/components/VerificationToolbar";
@@ -115,17 +115,22 @@ function VerifyContent() {
     };
   }, [activeChainId]);
 
-  // Handle URL query parameters on mount
+  // Handle URL query parameters on mount (once per distinct value —
+  // without this guard, router.replace re-triggers the effect forever).
+  const autoKey = useRef<string | null>(null);
   useEffect(() => {
     const txParam = searchParams.get("tx");
     const addrParam = searchParams.get("addr");
+    const key = txParam ? `tx:${txParam}` : addrParam ? `addr:${addrParam}` : null;
+    if (!key || autoKey.current === key) return;
+    autoKey.current = key;
 
     if (txParam) {
       setInputVal(txParam);
-      handleProcessInput(txParam, "tx");
+      handleProcessInput(txParam, "tx", false);
     } else if (addrParam) {
       setInputVal(addrParam);
-      handleProcessInput(addrParam, "addr");
+      handleProcessInput(addrParam, "addr", false);
     }
   }, [searchParams]);
 
@@ -186,8 +191,8 @@ function VerifyContent() {
     return "unknown";
   }
 
-  // Process input
-  async function handleProcessInput(valueToProcess: string, forcedType?: "tx" | "addr" | "attestation") {
+  // Process input (syncUrl=false when the URL already carries the value)
+  async function handleProcessInput(valueToProcess: string, forcedType?: "tx" | "addr" | "attestation", syncUrl: boolean = true) {
     const trimmed = valueToProcess.trim();
     if (!trimmed) {
       setDetectedType("unknown");
@@ -215,7 +220,7 @@ function VerifyContent() {
         const result = await runAttestationVerification(parsed, activeChainId);
         setAttestationResult(result);
       } else if (mode === "tx") {
-        router.replace(`/verify?tx=${trimmed}`, { scroll: false });
+        if (syncUrl) router.replace(`/verify?tx=${trimmed}`, { scroll: false });
         const client = publicClientFor(activeChainId);
         let receipt = null;
         try {
@@ -237,9 +242,11 @@ function VerifyContent() {
           setClassifiedTx(classified);
         } else if (
           trimmed.toLowerCase() ===
-          "0xac25ded31eb3ec73030ba6da747cba55ca0d6e5d03a119e71ec91244e8c56fa7".toLowerCase()
+          "0xac25ded31ecaebc08a576783a66f3fa1e49cf3b1d9e44a553db5937d8a632708".toLowerCase()
         ) {
-          // Canonical initial burn transaction fallback for pruned non-archive public RPC
+          // Real observed burn (615,672 CRIT, block 83022505). Shown only when
+          // the public RPC has pruned the historical receipt; sender is read
+          // live from the transaction object, never hardcoded.
           const deadBal = await client
             .readContract({
               address: getCanonicalAddress("CRIT"),
@@ -261,16 +268,23 @@ function VerifyContent() {
               })
             : "700,000+";
 
+          let burnFrom: string | undefined;
+          try {
+            const burnt = await client.getTransaction({ hash: trimmed as `0x${string}` });
+            burnFrom = burnt?.from;
+          } catch {
+            burnFrom = undefined;
+          }
           setClassifiedTx({
             classification: "Burn",
             summary:
-              "700,000 $CRIT sent to 0x...dEaD in block 74,475,819. These tokens can never move again.",
+              "615,672 $CRIT sent to 0x...dEaD in block 83022505. These tokens can never move again.",
             details: {
               token: "CRIT",
-              amount: "700,000",
-              from: "0x272568D25b9634Ad8A4e8E8CBB10b729f41C781d",
+              amount: "615,672",
+              from: burnFrom ?? "see explorer",
               to: getCanonicalAddress("Dead"),
-              blockNumber: "74475819",
+              blockNumber: "83022505",
               currentDeadBalance: `${deadFormatted} $CRIT`,
               archiveRpcNote:
                 "Historical receipt pruned by public RPC (archive node required for full historical receipt). Current Dead balance read live on-chain.",
@@ -278,8 +292,7 @@ function VerifyContent() {
             rawLogsCount: 1,
           });
           setRawTxReceipt({
-            blockNumber: 74475819n,
-            gasUsed: 54120n,
+            blockNumber: 83022505n,
             status: "success",
           });
         } else {
@@ -288,7 +301,7 @@ function VerifyContent() {
           );
         }
       } else if (mode === "addr") {
-        router.replace(`/verify?addr=${trimmed}`, { scroll: false });
+        if (syncUrl) router.replace(`/verify?addr=${trimmed}`, { scroll: false });
         const lookup = lookupAddress(trimmed);
         setAddressLookup(lookup);
 

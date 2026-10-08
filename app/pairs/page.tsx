@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { PageShell } from "@/components/PageShell";
 import { VerificationToolbar } from "@/components/VerificationToolbar";
@@ -38,7 +38,13 @@ export default function PairsPage() {
   const [showLegacy, setShowLegacy] = useState(false);
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
 
+  // Guard against overlapping scans: a full discovery run takes longer
+  // than any sane poll interval, so never stack a new one on top.
+  const loadingRef = useRef(false);
+
   async function loadChainData() {
+    if (loadingRef.current) return;
+    loadingRef.current = true;
     setIsLoading(true);
     try {
       const client = publicClientFor(4663);
@@ -75,13 +81,14 @@ export default function PairsPage() {
     } catch (err) {
       console.error("Failed to load pair registry from RPC:", err);
     } finally {
+      loadingRef.current = false;
       setIsLoading(false);
     }
   }
 
   useEffect(() => {
     loadChainData();
-    const interval = setInterval(loadChainData, 15000);
+    const interval = setInterval(loadChainData, 60000);
     return () => clearInterval(interval);
   }, []);
 
